@@ -75,6 +75,9 @@ export function LoanEstimateAdvisor() {
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const [shareState, setShareState] = useState<ShareState>("idle");
   const [toast, setToast] = useState<Toast | null>(null);
+  // phone: extra lift (px) so the toast clears the first checklist row instead of covering it
+  const [toastLift, setToastLift] = useState(0);
+  const toastRef = useRef<HTMLParagraphElement>(null);
   const [sheet, setSheet] = useState<SheetState>("closed");
   const [sheetH, setSheetH] = useState(0);
   // height of the sheet's content (without the safe-area padding) → --sheet-h for the toast
@@ -178,9 +181,13 @@ export function LoanEstimateAdvisor() {
   };
 
   const showToast = useCallback((text: string, tone: Toast["tone"] = "ok") => {
+    setToastLift(0);
     setToast({ id: Date.now(), text, tone });
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2500);
+    toastTimer.current = setTimeout(() => {
+      setToast(null);
+      setToastLift(0);
+    }, 2500);
   }, []);
 
   const plural = (n: number) => `${n} question${n === 1 ? "" : "s"}`;
@@ -277,6 +284,32 @@ export function LoanEstimateAdvisor() {
     },
     [],
   );
+
+  // phone: the toast sits just above the sheet unless that would cover the first checklist row. Then it slides up to
+  // the first spot that keeps both the checklist header (where Copy / Share live, showing "Copied ✓") and row 1
+  // readable: just above row 1 if that clears the header, otherwise just above the checklist card. Never under the
+  // fixed nav. Desktop keeps its bottom-centre spot.
+  useEffect(() => {
+    if (!toast || !isNarrow()) return;
+    const raf = requestAnimationFrame(() => {
+      const t = toastRef.current;
+      const row = document.querySelector<HTMLElement>("#question-list li");
+      const card = document.querySelector<HTMLElement>('section[aria-label="Questions for your lender"]');
+      const header = card?.firstElementChild as HTMLElement | null;
+      if (!t || !row || !card || !header) return;
+      const tr = t.getBoundingClientRect();
+      const h = tr.height;
+      const hits = (top: number, r: DOMRect) => top < r.bottom && top + h > r.top;
+      const rowR = row.getBoundingClientRect();
+      const headR = header.getBoundingClientRect();
+      if (!hits(tr.top, rowR)) return;
+      const minTop = NAV_OFFSET + 8;
+      const candidates = [rowR.top - 8 - h, card.getBoundingClientRect().top - 8 - h];
+      const top = candidates.find((c) => c >= minTop && !hits(c, rowR) && !hits(c, headR));
+      if (top !== undefined) setToastLift(tr.top - top);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [toast]);
 
   // persist the checklist on this device (save effect is declared before load so the first, empty pass is skipped)
   useEffect(() => {
@@ -474,7 +507,7 @@ export function LoanEstimateAdvisor() {
                       // keeps ≥160px; the sticky column then scrolls to reach the checklist.
                       maxH={
                         questionsOpen
-                          ? "lg:max-h-[max(min(25rem,calc(100dvh-6rem)),calc(100dvh-25rem))]"
+                          ? "lg:max-h-[max(min(25rem,calc(100dvh-6rem)),calc(100dvh-23.5rem))]"
                           : "lg:max-h-[max(min(25rem,calc(100dvh-6rem)),calc(100dvh-12.5rem))]"
                       }
                     />
@@ -484,6 +517,7 @@ export function LoanEstimateAdvisor() {
                 </div>
                 <div className="le-checklist-wrap lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
                   <QuestionList
+                    compactDesktop={questionsOpen}
                     open={questionsOpen}
                     onOpenChange={setQuestionsOpen}
                     onShare={shareList}
@@ -526,12 +560,13 @@ export function LoanEstimateAdvisor() {
         aria-live="polite"
         aria-atomic="true"
         className="le-toast pointer-events-none fixed inset-x-0 z-50 flex justify-center px-4"
-        style={{ "--sheet-h": `${sheetMounted ? sheetContentH : 0}px` } as CSSProperties}
+        style={{ "--sheet-h": `${sheetMounted ? sheetContentH : 0}px`, "--toast-lift": `${toastLift}px` } as CSSProperties}
       >
         {toast ? (
           <p
             key={toast.id}
-            className={`animate-[fadeIn_.25s_ease] inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-[0_12px_30px_-10px_rgba(18,22,28,0.5)] ${
+            ref={toastRef}
+            className={`le-toast-pill inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-[0_12px_30px_-10px_rgba(18,22,28,0.5)] ${
               toast.tone === "ok" ? "bg-accent text-paper" : "bg-ink text-paper"
             }`}
           >
@@ -1461,8 +1496,44 @@ function PhoneSheet({
    Questions checklist
    ===================================================================== */
 
+const iconProps = {
+  width: 14,
+  height: 14,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 2,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+function CopyIcon() {
+  return (
+    <svg {...iconProps}>
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+    </svg>
+  );
+}
+function ShareIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="M12 3v12" />
+      <path d="m7 8 5-5 5 5" />
+      <path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+    </svg>
+  );
+}
+function CheckIcon() {
+  return (
+    <svg {...iconProps}>
+      <path d="m5 12 5 5 9-10" />
+    </svg>
+  );
+}
+
 function QuestionList({
   questions,
+  compactDesktop = false,
   open,
   onOpenChange,
   onToggle,
@@ -1473,6 +1544,8 @@ function QuestionList({
   shareState,
 }: {
   questions: Question[];
+  /** desktop (lg+): one tight header row — short label + meta, icon-only Copy / Share — so the advisor keeps height */
+  compactDesktop?: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onToggle: (key: string) => void;
@@ -1484,8 +1557,12 @@ function QuestionList({
 }) {
   const done = questions.filter((q) => q.done).length;
   const n = questions.length;
-  const smallBtn =
-    "rounded-full border border-ink/15 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-ink-2 transition-colors hover:border-ink/40";
+  const c = compactDesktop;
+  const smallBtn = `rounded-full border border-ink/15 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-ink-2 transition-colors hover:border-ink/40 ${
+    c ? "lg:grid lg:size-8 lg:place-items-center lg:p-0" : ""
+  }`;
+  const copyLabel = copyState === "copied" ? "Copied ✓" : copyState === "error" ? "Copy failed" : "Copy list";
+  const shareLabel = shareState === "idle" ? "Share / email" : "Shared ✓";
   return (
     <section
       aria-label="Questions for your lender"
@@ -1493,7 +1570,11 @@ function QuestionList({
     >
       {/* phone (<640px): grid — row 1 chevron + "Questions (n)", row 2 meta, row 3 full-width Copy | Share.
           sm+: one row, buttons on the right. */}
-      <div className="grid shrink-0 grid-cols-1 gap-y-3 px-5 py-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-3 sm:gap-y-2">
+      <div
+        className={`grid shrink-0 grid-cols-1 gap-y-3 px-5 py-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-3 sm:gap-y-2 ${
+          c ? "lg:flex-nowrap lg:gap-x-2 lg:py-2.5 lg:pl-4 lg:pr-3" : ""
+        }`}
+      >
         <button
           type="button"
           onClick={() => onOpenChange(!open)}
@@ -1510,23 +1591,45 @@ function QuestionList({
             ▸
           </span>
           <span className="min-w-0 flex-1">
-            <span className="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-muted sm:block">Your checklist</span>
-            <span className="block whitespace-nowrap text-base font-semibold tracking-tight">
-              <span className="sr-only sm:hidden">Your checklist: </span>
-              Questions <span className="font-mono text-sm tabular-nums text-accent">({n})</span>
+            <span className={`hidden font-mono text-[10px] uppercase tracking-[0.16em] text-muted sm:block ${c ? "lg:hidden" : ""}`}>
+              Your checklist
             </span>
-            <span className="block text-xs text-muted">
+            <span className="block whitespace-nowrap text-base font-semibold tracking-tight">
+              <span className={`sr-only sm:hidden ${c ? "lg:inline" : ""}`}>Your checklist: </span>
+              Questions <span className="font-mono text-sm tabular-nums text-accent">({n})</span>
+              {c && n ? (
+                <span className="hidden pl-1.5 text-xs font-normal tracking-normal text-muted lg:inline">
+                  · {done}/{n} asked
+                </span>
+              ) : null}
+            </span>
+            <span className={`block text-xs text-muted ${c && n ? "lg:hidden" : ""}`}>
               {n ? `${done} asked · saved on this device` : "Collects as you explore"}
             </span>
           </span>
         </button>
         {n ? (
-          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:shrink-0">
-            <button onClick={onCopy} className={`${smallBtn} whitespace-nowrap sm:min-w-[6.75rem]`}>
-              {copyState === "copied" ? "Copied ✓" : copyState === "error" ? "Copy failed" : "Copy list"}
+          <div className={`grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:shrink-0 ${c ? "lg:gap-1.5" : ""}`}>
+            <button
+              onClick={onCopy}
+              className={`${smallBtn} whitespace-nowrap sm:min-w-[6.75rem] ${c ? "lg:min-w-0" : ""}`}
+              aria-label={copyState === "copied" ? "Copied your question list" : copyState === "error" ? "Copy failed. Try again" : "Copy your question list"}
+              title={copyLabel}
+            >
+              <span className={c ? "lg:hidden" : ""}>{copyLabel}</span>
+              {c ? (
+                <span aria-hidden className="hidden lg:inline-flex">
+                  {copyState === "copied" ? <CheckIcon /> : <CopyIcon />}
+                </span>
+              ) : null}
             </button>
-            <button onClick={onShare} className={`${smallBtn} whitespace-nowrap`} aria-label="Share or email your question list">
-              {shareState === "idle" ? "Share / email" : "Shared ✓"}
+            <button onClick={onShare} className={`${smallBtn} whitespace-nowrap`} aria-label="Share or email your question list" title={shareLabel}>
+              <span className={c ? "lg:hidden" : ""}>{shareLabel}</span>
+              {c ? (
+                <span aria-hidden className="hidden lg:inline-flex">
+                  {shareState === "idle" ? <ShareIcon /> : <CheckIcon />}
+                </span>
+              ) : null}
             </button>
           </div>
         ) : null}
@@ -1584,6 +1687,8 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
   const [years, setYears] = useState(5);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [scroll, setScroll] = useState({ overflow: false, atStart: true, atEnd: true });
+  // the swipe hint goes away for good after the first horizontal swipe, once Diff is in view, or when dismissed
+  const [hintGone, setHintGone] = useState(false);
   const A = offers.A;
   const B = offers.B;
   const piA = monthlyPI(A);
@@ -1630,6 +1735,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
       const max = el.scrollWidth - el.clientWidth;
       const next = { overflow: max > 1, atStart: el.scrollLeft <= 1, atEnd: el.scrollLeft >= max - 1 };
       setScroll((p) => (p.overflow === next.overflow && p.atStart === next.atStart && p.atEnd === next.atEnd ? p : next));
+      if (el.scrollLeft > 8) setHintGone(true);
     };
     update();
     el.addEventListener("scroll", update, { passive: true });
@@ -1652,26 +1758,34 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
         <p className="text-sm font-semibold tracking-tight">Two sample Loan Estimates</p>
       </div>
 
-      {scroll.overflow ? (
+      {scroll.overflow && !hintGone && !scroll.atEnd ? (
         <p className="flex items-center gap-1.5 px-3 pt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-muted sm:px-5">
-          <span aria-hidden>↔</span> {scroll.atEnd ? "All columns in view" : "Swipe for Diff (B vs A)"}
+          <span aria-hidden>↔</span> Swipe for Diff (B vs A)
+          <button
+            type="button"
+            onClick={() => setHintGone(true)}
+            aria-label="Dismiss swipe hint"
+            className="-my-1 ml-auto grid size-6 place-items-center rounded-full text-[13px] leading-none text-muted hover:bg-paper hover:text-ink"
+          >
+            ×
+          </button>
         </p>
       ) : null}
       <div className="relative">
-        {/* phone: label 84 + A 88 + B 88 = 260px always in view (fits ~335px); the short "Diff" column (76px) sits at
-            the right edge behind the fade / a short swipe.
+        {/* phone: label 84 + A 88 + B 88 = 260px always in view (fits ~335px); the "Diff" column (88px, 12.5px text)
+            sits at the right edge behind the fade / a short swipe.
             Snap points sit on the value columns and scroll-padding equals the sticky label width, so a swipe always
             lands with a column edge flush against the labels. */}
         <div
           ref={scrollerRef}
           className="max-w-full snap-x snap-mandatory scroll-pl-[5.25rem] overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin] sm:snap-none sm:scroll-pl-0"
         >
-          <table className="w-full min-w-[336px] table-fixed text-[12px] sm:text-[13px]">
+          <table className="w-full min-w-[348px] table-fixed text-[12px] sm:text-[13px]">
             <colgroup>
               <col className="w-[5.25rem] sm:w-auto" />
               <col className="w-[5.5rem] sm:w-[8.5rem]" />
               <col className="w-[5.5rem] sm:w-[8.5rem]" />
-              <col className="w-[4.75rem] sm:w-[7rem]" />
+              <col className="w-[5.5rem] sm:w-[7rem]" />
             </colgroup>
             <thead>
               <tr className="text-left">
@@ -1686,7 +1800,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                     <span className="block text-[11.5px] font-semibold leading-tight text-balance sm:text-[13px]">{o.lender}</span>
                   </th>
                 ))}
-                <th className="snap-start pb-3 pl-1.5 pr-3 text-right align-bottom font-mono text-[9px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
+                <th className="snap-start pb-3 pl-1.5 pr-3 text-right align-bottom font-mono text-[10px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
                   <span aria-hidden title="Difference: B vs A">Diff</span>
                   <span className="sr-only">Difference, B versus A</span>
                 </th>
@@ -1717,7 +1831,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                         </span>
                       </td>
                     ))}
-                    <td className="py-2.5 pl-1 pr-3 text-right align-top font-mono text-[11px] tabular-nums text-muted sm:pl-2 sm:pr-5 sm:text-[12px]">
+                    <td className="whitespace-nowrap py-2.5 pl-1 pr-3 text-right align-top font-mono text-[12.5px] tabular-nums text-ink-2 sm:pl-2 sm:pr-5 sm:text-[12px] sm:text-muted">
                       {d === 0 ? "—" : `B ${d > 0 ? "+" : "−"}${r.k === "Interest rate" ? pct(Math.abs(d)) : r.k === "APR" ? `${Math.abs(d).toFixed(3)}%` : usd(Math.abs(d))}`}
                     </td>
                   </tr>
