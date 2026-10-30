@@ -78,6 +78,7 @@ export function LoanEstimateAdvisor() {
   // phone: extra lift (px) so the toast clears the first checklist row instead of covering it
   const [toastLift, setToastLift] = useState(0);
   const toastRef = useRef<HTMLParagraphElement>(null);
+  const toastLiftRef = useRef(0);
   const [sheet, setSheet] = useState<SheetState>("closed");
   const [sheetH, setSheetH] = useState(0);
   // height of the sheet's content (without the safe-area padding) → --sheet-h for the toast
@@ -181,13 +182,13 @@ export function LoanEstimateAdvisor() {
   };
 
   const showToast = useCallback((text: string, tone: Toast["tone"] = "ok") => {
-    setToastLift(0);
     setToast({ id: Date.now(), text, tone });
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => {
       setToast(null);
+      toastLiftRef.current = 0;
       setToastLift(0);
-    }, 2500);
+    }, 3000);
   }, []);
 
   const plural = (n: number) => `${n} question${n === 1 ? "" : "s"}`;
@@ -285,39 +286,64 @@ export function LoanEstimateAdvisor() {
     [],
   );
 
-  // phone: the toast sits just above the sheet unless that would cover the checklist. Then it anchors next to the
-  // Copy / Share action: centred in the gap between the buttons and row 1 (it's a compact pill on phones, so it fits
-  // that gap), else just above the checklist card. Every spot must clear row 1, the
-  // Copy / Share buttons and the fixed nav. Desktop keeps its bottom-centre spot.
+  // phone: the toast stays tied to the Copy / Share bar. It sits centred in the gap between those buttons and
+  // checklist row 1 (a compact pill on phones, so it fits that gap), else just above the checklist card, else at its
+  // default spot just above the sheet. Every spot clears row 1, the buttons, the title and the fixed nav. If the
+  // checklist is scrolled away when the toast appears (e.g. Copy from the advisor), the page scrolls the bar into
+  // view first; the toast then follows the bar while the page scrolls. Desktop keeps its bottom-centre spot.
   useEffect(() => {
     if (!toast || !isNarrow()) return;
-    const raf = requestAnimationFrame(() => {
+    let raf = 0;
+    let first = true;
+    const place = () => {
       const t = toastRef.current;
       const card = document.querySelector<HTMLElement>('section[aria-label="Questions for your lender"]');
       const header = card?.firstElementChild as HTMLElement | null;
       if (!t || !card || !header) return;
       const row = document.querySelector<HTMLElement>("#question-list li");
+      const titleEl = header.firstElementChild as HTMLElement;
       const btns = header.lastElementChild as HTMLElement | null;
-      // measure the fixed wrapper, not the pill: the pill's slide-up transform would skew its rect by ~14px
-      const tr = (t.parentElement ?? t).getBoundingClientRect();
+      // default spot = 12px above the sheet's top edge. Derived from the sheet itself, not the toast's own rect,
+      // which lags behind while its slide-up / bottom transitions run.
       const h = t.offsetHeight;
-      const cardR = card.getBoundingClientRect();
-      const headR = header.getBoundingClientRect();
-      const rowR = row?.getBoundingClientRect();
-      const btnR = btns && btns !== header.firstElementChild ? btns.getBoundingClientRect() : headR;
-      const hits = (top: number, r?: DOMRect) => !!r && top < r.bottom - 1 && top + h > r.top + 1;
-      const titleR = (header.firstElementChild as HTMLElement).getBoundingClientRect();
-      const covers = (top: number) => hits(top, rowR) || hits(top, btnR) || hits(top, titleR);
-      // only move when the default spot actually lands on the checklist
-      if (!hits(tr.top, cardR)) return;
+      const sheetTop = sheetContentRef.current?.getBoundingClientRect().top ?? window.innerHeight;
+      const baseTop = Math.min(sheetTop, window.innerHeight) - 12 - h;
       const minTop = NAV_OFFSET + 8;
-      const maxTop = tr.top; // never lower than the default (it would slide under the sheet)
+      const headR = header.getBoundingClientRect();
+      const btnR = btns && btns !== titleEl ? btns.getBoundingClientRect() : headR;
+      if (first) {
+        first = false;
+        if (btnR.top < minTop || btnR.bottom > baseTop - 8) {
+          window.scrollBy({ top: headR.top - (NAV_OFFSET + 12), behavior: prefersReducedMotion() ? "auto" : "smooth" });
+          return; // the scroll listener re-places it as the page moves
+        }
+      }
+      const cardR = card.getBoundingClientRect();
+      const rowR = row?.getBoundingClientRect();
+      const titleR = titleEl.getBoundingClientRect();
+      const hits = (top: number, r?: DOMRect) => !!r && top < r.bottom - 1 && top + h > r.top + 1;
+      const covers = (top: number) => hits(top, rowR) || hits(top, btnR) || hits(top, titleR);
       const gapTop = rowR ? (btnR.bottom + rowR.top) / 2 - h / 2 : headR.bottom + 6;
       const candidates = [gapTop, cardR.top - 8 - h];
-      const top = candidates.find((c) => Number.isFinite(c) && c >= minTop && c <= maxTop && !covers(c));
-      if (top !== undefined) setToastLift(tr.top - top);
-    });
-    return () => cancelAnimationFrame(raf);
+      const top = candidates.find((c) => c >= minTop && c <= baseTop && !covers(c));
+      const lift = top === undefined ? 0 : Math.round(baseTop - top);
+      if (lift !== toastLiftRef.current) {
+        toastLiftRef.current = lift;
+        setToastLift(lift);
+      }
+    };
+    const schedule = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(place);
+    };
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
   }, [toast]);
 
   // persist the checklist on this device (save effect is declared before load so the first, empty pass is skipped)
@@ -500,7 +526,7 @@ export function LoanEstimateAdvisor() {
             <div className="min-w-0 lg:col-span-5">
               <div
                 ref={stickyRef}
-                className="space-y-4 lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-5rem)] lg:flex-col lg:gap-4 lg:space-y-0 lg:overflow-y-auto lg:overscroll-contain lg:pb-4 [scrollbar-width:thin]"
+                className="le-adv-col space-y-4 lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-5rem)] lg:flex-col lg:gap-4 lg:space-y-0 lg:overflow-y-auto lg:overscroll-contain lg:pb-4 [scrollbar-width:thin]"
               >
                 <div
                   ref={advisorRef}
@@ -1158,11 +1184,15 @@ function JumpButton({ remaining, onJump, dark = true }: { remaining: number; onJ
   return (
     <button
       onClick={onJump}
+      aria-label={`Jump to next unexplored line, ${remaining} left`}
       className={`font-mono text-[11px] uppercase tracking-wider underline decoration-dotted underline-offset-4 transition-colors ${
         dark ? "text-accent-soft hover:text-paper" : "text-accent hover:text-ink"
       }`}
     >
-      Jump to next unexplored line · {remaining} left →
+      <span className="le-jump-long">Jump to next unexplored line · {remaining} left →</span>
+      <span className="le-jump-short">
+        Next unexplored · {remaining} →
+      </span>
     </button>
   );
 }
@@ -1200,7 +1230,7 @@ function AdvisorPanel({
   const padX = sheet ? "px-5" : "px-6 sm:px-7";
 
   const completeBox = complete ? (
-    <div className={`${sheet ? "mt-3" : "mt-5"} animate-[fadeIn_.35s_ease] rounded-2xl border border-accent-2/60 bg-accent-2/25 p-4`}>
+    <div className={`le-complete ${sheet ? "mt-3" : "mt-5"} animate-[fadeIn_.35s_ease] rounded-2xl border border-accent-2/60 bg-accent-2/25 p-4`}>
       <p className="font-serif text-2xl leading-tight tracking-tight">
         <span aria-hidden>🎉 </span>You&apos;ve explored every line.
       </p>
@@ -1232,7 +1262,7 @@ function AdvisorPanel({
     <section
       aria-label="Advisor explanation"
       className={`relative flex flex-col overflow-hidden bg-ink text-paper ${
-        sheet ? "pb-5 pt-1" : `min-h-0 rounded-3xl shadow-2xl ${maxH} ${compact ? "le-adv-card" : ""}`
+        sheet ? "pb-5 pt-1" : `min-h-0 rounded-3xl shadow-2xl ${maxH} le-adv-card`
       }`}
     >
       <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-accent-2/25 blur-3xl" />
@@ -1240,7 +1270,7 @@ function AdvisorPanel({
       {/* pinned header: status + title + value (desktop card only) */}
       {sheet ? null : (
         <div data-advisor-header className={`le-adv-head relative z-10 shrink-0 bg-ink ${padX} ${compact ? "pt-5" : "pt-6 sm:pt-7"}`} aria-live="polite">
-          <div className="flex items-center justify-between gap-3">
+          <div className="le-adv-status flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="pulse-dot size-2 rounded-full bg-accent-2" aria-hidden />
               <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/60">Advisor · plain English</p>
@@ -1282,7 +1312,7 @@ function AdvisorPanel({
             {sheet ? (
               <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">{hotspot.section}</p>
             ) : null}
-            <dl className={`${sheet ? "mt-3" : "mt-4"} space-y-4 text-[14px] leading-relaxed`}>
+            <dl className={`le-adv-dl ${sheet ? "mt-3" : "mt-4"} space-y-4 text-[14px] leading-relaxed`}>
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">What it means</dt>
                 <WhatItMeans text={hotspot.what} />
@@ -1293,10 +1323,10 @@ function AdvisorPanel({
               </div>
             </dl>
 
-            <div className="mt-5 rounded-2xl border border-paper/10 bg-paper/[0.06] p-4">
+            <div className="le-ask mt-5 rounded-2xl border border-paper/10 bg-paper/[0.06] p-4">
               <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-accent-soft">Ask your lender</p>
               <p className="mt-1.5 text-[14px] leading-relaxed">“{hotspot.ask}”</p>
-              <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-paper/45">✓ Added to your questions</p>
+              <p className="le-ask-added mt-2 font-mono text-[10px] uppercase tracking-wider text-paper/45">✓ Added to your questions</p>
             </div>
 
             {hotspot.tip ? (
@@ -1332,17 +1362,17 @@ function AdvisorPanel({
       {/* pinned footer: Prev / Next + jump (desktop card only; the phone sheet has its own stepper) */}
       {hotspot && !sheet ? (
         <div className={`le-adv-foot relative shrink-0 border-t border-paper/10 ${padX} ${compact ? "pb-5 pt-3" : "pb-6 pt-4 sm:pb-7"}`}>
-          <div className="flex items-center justify-between gap-3">
+          <div className="le-adv-nav flex items-center justify-between gap-3">
             <button
               onClick={onPrev}
-              className="rounded-full border border-paper/20 px-3.5 py-2 text-sm transition-colors hover:border-paper/50"
+              className="le-adv-prev rounded-full border border-paper/20 px-3.5 py-2 text-sm transition-colors hover:border-paper/50"
             >
               ← Prev
             </button>
-            <span className="hidden font-mono text-[10px] text-paper/40 sm:inline">or use ← → keys</span>
+            <span className="le-adv-keys hidden font-mono text-[10px] text-paper/40 sm:inline">or use ← → keys</span>
             <button
               onClick={onNext}
-              className="rounded-full bg-paper px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft"
+              className="le-adv-next rounded-full bg-paper px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft"
             >
               Next line →
             </button>
@@ -1803,7 +1833,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
     el?.scrollTo({ left: el.scrollWidth, behavior: prefersReducedMotion() ? "auto" : "smooth" });
   };
 
-  const stickyCol = `sticky left-0 z-10 bg-white pl-3 sm:pl-5 transition-shadow ${
+  const stickyCol = `sticky left-0 z-10 bg-white pl-3 max-[359px]:pl-2 sm:pl-5 transition-shadow ${
     scroll.atStart ? "" : "shadow-[6px_0_8px_-6px_rgba(18,22,28,0.25)]"
   }`;
 
@@ -1834,19 +1864,20 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
         </p>
       ) : null}
       <div className="relative">
-        {/* phone: label 80 + A 84 + B 84 + Diff 84 = 332px, so all four columns fit at 375px+ with no swipe. On narrower
+        {/* phone: label 76 + A 80 + B 80 + Diff 80 = 316px, so all four columns fit at 360px+ with no swipe; under 360px
+            the columns drop to 64 + 72 + 72 + 70 = 278px with 11px type so 320px phones fit too. On anything narrower
             phones Diff peeks at the right edge (left-aligned on phone so "Diff" and most of each value stay readable),
             with a light fade and a tappable hint. Proximity snap so the short overflow never snaps back. */}
         <div
           ref={scrollerRef}
-          className="max-w-full snap-x snap-proximity scroll-pl-[5rem] overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin] sm:snap-none sm:scroll-pl-0"
+          className="max-w-full snap-x snap-proximity scroll-pl-[4.75rem] max-[359px]:scroll-pl-16 overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin] sm:snap-none sm:scroll-pl-0"
         >
-          <table className="w-full min-w-[332px] table-fixed text-[12px] sm:text-[13px]">
+          <table className="w-full min-w-[316px] table-fixed text-[12px] max-[359px]:min-w-[278px] max-[359px]:text-[11px] sm:text-[13px]">
             <colgroup>
-              <col className="w-[5rem] sm:w-auto" />
-              <col className="w-[5.25rem] sm:w-[8.5rem]" />
-              <col className="w-[5.25rem] sm:w-[8.5rem]" />
-              <col className="w-[5.25rem] sm:w-[7rem]" />
+              <col className="w-[4.75rem] max-[359px]:w-16 sm:w-auto" />
+              <col className="w-[5rem] max-[359px]:w-[4.5rem] sm:w-[8.5rem]" />
+              <col className="w-[5rem] max-[359px]:w-[4.5rem] sm:w-[8.5rem]" />
+              <col className="w-[5rem] max-[359px]:w-[4.375rem] sm:w-[7rem]" />
             </colgroup>
             <thead>
               <tr className="text-left">
@@ -1861,7 +1892,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                     <span className="block text-[11.5px] font-semibold leading-tight text-balance sm:text-[13px]">{o.lender}</span>
                   </th>
                 ))}
-                <th className="snap-start pb-3 pl-2 pr-2 text-left align-bottom font-mono sm:text-right text-[10px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
+                <th className="snap-start pb-3 pl-1.5 pr-2 text-left align-bottom font-mono sm:text-right text-[10px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
                   <span aria-hidden title="Difference: B vs A">Diff</span>
                   <span className="sr-only">Difference, B versus A</span>
                 </th>
@@ -1874,7 +1905,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                 const d = r.b - r.a;
                 return (
                   <tr key={r.k.startsWith("In ") ? "horizon" : r.k}>
-                    <th scope="row" className={`${stickyCol} py-2.5 pr-1.5 text-left align-top text-[11.5px] font-normal leading-snug text-ink-2 sm:pr-2 sm:text-[13px]`}>
+                    <th scope="row" className={`${stickyCol} py-2.5 pr-1.5 text-left align-top text-[11.5px] max-[359px]:text-[11px] font-normal leading-snug text-ink-2 sm:pr-2 sm:text-[13px]`}>
                       {r.k}
                       {r.note ? <span className="mt-0.5 block text-[10.5px] text-muted sm:text-[11px]">{r.note}</span> : null}
                     </th>
@@ -1892,7 +1923,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                         </span>
                       </td>
                     ))}
-                    <td className="whitespace-nowrap py-2.5 pl-2 pr-2 text-left align-top font-mono text-[12.5px] sm:text-right tabular-nums text-ink-2 sm:pl-2 sm:pr-5 sm:text-[12px] sm:text-muted">
+                    <td className="whitespace-nowrap py-2.5 pl-1.5 pr-2 text-left align-top font-mono text-[12px] max-[359px]:pl-1 max-[359px]:pr-1.5 max-[359px]:text-[11px] sm:text-right tabular-nums text-ink-2 sm:pl-2 sm:pr-5 sm:text-[12px] sm:text-muted">
                       {d === 0 ? "—" : `B ${d > 0 ? "+" : "−"}${r.k === "Interest rate" ? pct(Math.abs(d)) : r.k === "APR" ? `${Math.abs(d).toFixed(3)}%` : usd(Math.abs(d))}`}
                     </td>
                   </tr>
