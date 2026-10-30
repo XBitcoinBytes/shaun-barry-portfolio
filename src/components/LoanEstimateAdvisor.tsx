@@ -1,13 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import {
   borrower,
   cashToClose,
   closingCosts,
   compareQuestions,
   hotspots,
-  interestPaid,
   loanCosts,
   monthlyPI,
   offers,
@@ -15,6 +14,7 @@ import {
   otherCosts,
   pct,
   totalMonthly,
+  totalPaid,
   usd,
   type Flag,
   type Hotspot,
@@ -23,6 +23,7 @@ import {
 
 type Mode = "explore" | "compare";
 type Question = { key: string; text: string; source: string; done: boolean };
+type CopyState = "idle" | "copied" | "error";
 
 const flagMeta: Record<Flag, { label: string; chip: string; dot: string }> = {
   ask: { label: "Worth a question", chip: "bg-btc/20 text-[#ffd49a]", dot: "bg-btc" },
@@ -31,6 +32,10 @@ const flagMeta: Record<Flag, { label: string; chip: string; dot: string }> = {
 };
 
 const byId = Object.fromEntries(hotspots.map((h) => [h.id, h])) as Record<string, Hotspot>;
+
+const isNarrow = () => typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /* =====================================================================
    Main
@@ -43,36 +48,60 @@ export function LoanEstimateAdvisor() {
   const [selected, setSelected] = useState<string | null>(null);
   const [visited, setVisited] = useState<string[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<CopyState>("idle");
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [demoInView, setDemoInView] = useState(false);
   const advisorRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const demoRef = useRef<HTMLDivElement>(null);
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const offer = offers.A;
+  const complete = visited.length === hotspots.length;
+  const compareAdded = compareQuestions.every((_, i) => questions.some((q) => q.key === `cmp-${i}`));
 
   const addQuestion = useCallback((key: string, text: string, source: string) => {
     setQuestions((qs) => (qs.some((q) => q.key === key) ? qs : [...qs, { key, text, source, done: false }]));
   }, []);
 
+  /** Make sure the advisor is visible after a selection changes. */
+  const revealAdvisor = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (isNarrow()) {
+      setSheetOpen(true); // bottom sheet on phones / tablets
+      return;
+    }
+    requestAnimationFrame(() => {
+      const el = advisorRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const offscreen = r.top < 64 || r.top > window.innerHeight - 160;
+      if (offscreen) {
+        el.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+        headingRef.current?.focus({ preventScroll: true });
+      }
+    });
+  }, []);
+
   const select = useCallback(
-    (id: string, opts: { scroll?: boolean } = {}) => {
+    (id: string) => {
       const h = byId[id];
       if (!h) return;
       setSelected(id);
       setPage(h.page);
       setVisited((v) => (v.includes(id) ? v : [...v, id]));
       addQuestion(id, h.ask, h.label);
-      if (opts.scroll !== false && typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
-        requestAnimationFrame(() => advisorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
-      }
+      revealAdvisor();
     },
-    [addQuestion],
+    [addQuestion, revealAdvisor],
   );
 
   const start = (m: Mode) => {
     setStarted(true);
     setMode(m);
-    if (m === "explore" && !selected) select("rateLock", { scroll: false });
-    requestAnimationFrame(() => demoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    requestAnimationFrame(() =>
+      demoRef.current?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" }),
+    );
   };
 
   const reset = () => {
@@ -81,13 +110,15 @@ export function LoanEstimateAdvisor() {
     setQuestions([]);
     setPage(1);
     setMode("explore");
+    setSheetOpen(false);
+    setCopyState("idle");
     setStarted(false);
   };
 
   const idx = selected ? hotspots.findIndex((h) => h.id === selected) : -1;
   const goStep = (d: 1 | -1) => {
-    const next = hotspots[(idx + d + hotspots.length) % hotspots.length];
-    select(next.id, { scroll: false });
+    const nextIdx = idx < 0 ? (d === 1 ? 0 : hotspots.length - 1) : (idx + d + hotspots.length) % hotspots.length;
+    select(hotspots[nextIdx].id);
   };
 
   const copyList = async () => {
@@ -95,13 +126,29 @@ export function LoanEstimateAdvisor() {
       "Questions for my lender (from the Loan Estimate Advisor demo):",
       ...questions.map((q, i) => `${i + 1}. ${q.text}`),
     ].join("\n");
+    let ok = false;
     try {
       await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
+      ok = true;
     } catch {
-      /* clipboard unavailable — ignore */
+      // fallback for browsers without async clipboard permission
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {
+        ok = false;
+      }
     }
+    setCopyState(ok ? "copied" : "error");
+    if (copyTimer.current) clearTimeout(copyTimer.current);
+    copyTimer.current = setTimeout(() => setCopyState("idle"), 2400);
   };
 
   // keyboard: ← / → step through lines while exploring
@@ -116,6 +163,32 @@ export function LoanEstimateAdvisor() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
+
+  // only show the phone bottom sheet while the demo is on screen
+  useEffect(() => {
+    if (!started) return;
+    const el = demoRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setDemoInView(entry.isIntersecting), { threshold: 0 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [started]);
+
+  useEffect(() => () => {
+    if (copyTimer.current) clearTimeout(copyTimer.current);
+  }, []);
+
+  const panelProps = {
+    hotspot: selected ? byId[selected] : null,
+    offer,
+    step: idx + 1,
+    onPrev: () => goStep(-1),
+    onNext: () => goStep(1),
+    complete,
+    questionCount: questions.length,
+    onCopy: copyList,
+    copyState,
+  };
 
   return (
     <div>
@@ -137,10 +210,7 @@ export function LoanEstimateAdvisor() {
                   key={m}
                   role="tab"
                   aria-selected={mode === m}
-                  onClick={() => {
-                    setMode(m);
-                    if (m === "explore" && !selected) select("rateLock", { scroll: false });
-                  }}
+                  onClick={() => setMode(m)}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                     mode === m ? "bg-ink text-paper" : "text-ink-2 hover:text-ink"
                   }`}
@@ -152,14 +222,21 @@ export function LoanEstimateAdvisor() {
             <div className="flex items-center gap-4">
               <div className="min-w-44">
                 <div className="flex justify-between font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
-                  <span>Lines explored</span>
+                  <span>{complete ? "All lines explored ✓" : "Lines explored"}</span>
                   <span className="tabular-nums text-ink">
                     {visited.length}/{hotspots.length}
                   </span>
                 </div>
-                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line">
+                <div
+                  className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line"
+                  role="progressbar"
+                  aria-label="Lines explored"
+                  aria-valuemin={0}
+                  aria-valuemax={hotspots.length}
+                  aria-valuenow={visited.length}
+                >
                   <div
-                    className="h-full rounded-full bg-accent-2 transition-[width] duration-500"
+                    className={`h-full rounded-full transition-[width] duration-500 ${complete ? "bg-accent" : "bg-accent-2"}`}
                     style={{ width: `${(visited.length / hotspots.length) * 100}%` }}
                   />
                 </div>
@@ -186,25 +263,18 @@ export function LoanEstimateAdvisor() {
                   onSelect={select}
                 />
               ) : (
-                <CompareView onAddQuestions={() => compareQuestions.forEach((q, i) => addQuestion(`cmp-${i}`, q, "Compare"))} />
+                <CompareView
+                  added={compareAdded}
+                  onAddQuestions={() => compareQuestions.forEach((q, i) => addQuestion(`cmp-${i}`, q, "Compare"))}
+                />
               )}
             </div>
 
-            {/* right: advisor + questions */}
+            {/* right: advisor + questions (sticky under the fixed nav on desktop) */}
             <div className="lg:col-span-5">
-              <div className="space-y-6 lg:sticky lg:top-24">
-                <div ref={advisorRef} className="scroll-mt-24">
-                  {mode === "explore" ? (
-                    <AdvisorPanel
-                      hotspot={selected ? byId[selected] : null}
-                      offer={offer}
-                      step={idx + 1}
-                      onPrev={() => goStep(-1)}
-                      onNext={() => goStep(1)}
-                    />
-                  ) : (
-                    <CompareAdvisor />
-                  )}
+              <div className="space-y-6 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:overscroll-contain lg:pb-2 [scrollbar-width:thin]">
+                <div ref={advisorRef} className={`scroll-mt-20 ${mode === "explore" ? "hidden lg:block" : ""}`}>
+                  {mode === "explore" ? <AdvisorPanel {...panelProps} headingRef={headingRef} /> : <CompareAdvisor />}
                 </div>
                 <QuestionList
                   questions={questions}
@@ -213,11 +283,48 @@ export function LoanEstimateAdvisor() {
                   }
                   onRemove={(key) => setQuestions((qs) => qs.filter((q) => q.key !== key))}
                   onCopy={copyList}
-                  copied={copied}
+                  copyState={copyState}
                 />
               </div>
             </div>
           </div>
+
+          {/* room for the phone bottom sheet so it never covers the last content */}
+          {mode === "explore" ? <div aria-hidden className="h-20 lg:hidden" /> : null}
+
+          {/* ---------- phone / tablet bottom sheet ---------- */}
+          {mode === "explore" && demoInView ? (
+            <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+              <div className="mx-auto max-w-2xl overflow-hidden rounded-t-3xl bg-ink text-paper shadow-[0_-20px_50px_-20px_rgba(18,22,28,0.55)]">
+                <button
+                  type="button"
+                  onClick={() => setSheetOpen((o) => !o)}
+                  aria-expanded={sheetOpen}
+                  aria-controls="advisor-sheet"
+                  className="relative flex w-full items-center justify-between gap-3 px-5 pb-3 pt-4 text-left"
+                >
+                  <span aria-hidden className="absolute left-1/2 top-1.5 h-1 w-10 -translate-x-1/2 rounded-full bg-paper/25" />
+                  <span className="min-w-0">
+                    <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">
+                      Advisor{selected ? ` · ${idx + 1}/${hotspots.length}` : ""}
+                      {complete ? " · all explored ✓" : ""}
+                    </span>
+                    <span className="block truncate text-sm font-medium">
+                      {selected ? byId[selected].label : "Click a numbered line to begin"}
+                    </span>
+                  </span>
+                  <span className="shrink-0 rounded-full border border-paper/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider">
+                    {sheetOpen ? "Hide ▾" : "Show ▴"}
+                  </span>
+                </button>
+                {sheetOpen ? (
+                  <div id="advisor-sheet" className="max-h-[62vh] overflow-y-auto overscroll-contain border-t border-paper/10">
+                    <AdvisorPanel {...panelProps} variant="sheet" />
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>
@@ -296,12 +403,14 @@ function Spot({
   const seen = visited.includes(id);
   const h = byId[id];
   const n = hotspots.findIndex((x) => x.id === id) + 1;
+  // nudge toward line 1 until the visitor opens their first line
+  const hint = n === 1 && !selected && visited.length === 0;
   return (
     <button
       type="button"
       onClick={() => onSelect(id)}
       aria-pressed={isSel}
-      aria-label={`${h.label} — explain this line`}
+      aria-label={`Line ${n}: ${h.label} — explain this line`}
       className={`group/spot relative block w-full rounded-lg pl-2 text-left outline-offset-2 transition-[background-color,box-shadow] duration-200 ${
         isSel
           ? "bg-accent-soft/70 ring-2 ring-accent"
@@ -315,11 +424,19 @@ function Spot({
             ? "bg-accent text-paper"
             : seen
               ? "bg-accent-2/20 text-accent"
-              : "bg-btc text-white shadow-[0_0_0_3px_rgba(232,137,12,0.18)]"
+              : `bg-btc text-white shadow-[0_0_0_3px_rgba(232,137,12,0.18)] ${hint ? "hint-ring" : ""}`
         }`}
       >
         {seen && !isSel ? "✓" : n}
       </span>
+      {hint ? (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -top-3 left-4 z-10 rounded-full bg-btc px-2 py-0.5 font-mono text-[9px] font-medium uppercase tracking-wider text-white shadow-sm"
+        >
+          Start here
+        </span>
+      ) : null}
       {children}
     </button>
   );
@@ -766,21 +883,35 @@ function AdvisorPanel({
   step,
   onPrev,
   onNext,
+  complete,
+  questionCount,
+  onCopy,
+  copyState,
+  headingRef,
+  variant = "card",
 }: {
   hotspot: Hotspot | null;
   offer: Offer;
   step: number;
   onPrev: () => void;
   onNext: () => void;
+  complete: boolean;
+  questionCount: number;
+  onCopy: () => void;
+  copyState: CopyState;
+  headingRef?: RefObject<HTMLHeadingElement | null>;
+  variant?: "card" | "sheet";
 }) {
+  const headingCls = "outline-none focus-visible:ring-2 focus-visible:ring-accent-soft/60 focus-visible:ring-offset-0 rounded-md";
   return (
     <section
-      aria-live="polite"
       aria-label="Advisor explanation"
-      className="relative overflow-hidden rounded-3xl bg-ink p-6 text-paper shadow-2xl sm:p-7"
+      className={`relative overflow-hidden bg-ink text-paper ${
+        variant === "sheet" ? "px-5 pb-6 pt-1" : "rounded-3xl p-6 shadow-2xl sm:p-7"
+      }`}
     >
       <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-accent-2/25 blur-3xl" />
-      <div className="relative">
+      <div className="relative" aria-live="polite">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <span className="pulse-dot size-2 rounded-full bg-accent-2" aria-hidden />
@@ -793,11 +924,33 @@ function AdvisorPanel({
           ) : null}
         </div>
 
+        {complete ? (
+          <div className="mt-5 animate-[fadeIn_.35s_ease] rounded-2xl border border-accent-2/60 bg-accent-2/25 p-4">
+            <p className="font-serif text-2xl leading-tight tracking-tight">
+              <span aria-hidden>🎉 </span>You&apos;ve explored every line.
+            </p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-paper/75">
+              {questionCount
+                ? `Copy your ${questionCount} question${questionCount === 1 ? "" : "s"} and bring them to your lender.`
+                : "Your question list is empty. Open a line again to add its question."}
+            </p>
+            <button
+              onClick={onCopy}
+              disabled={!questionCount}
+              className="mt-3 rounded-full bg-paper px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft disabled:opacity-40"
+            >
+              {copyState === "copied" ? "Copied ✓" : copyState === "error" ? "Couldn’t copy. Try again" : "Copy my questions"}
+            </button>
+          </div>
+        ) : null}
+
         {hotspot ? (
           <div key={hotspot.id} className="animate-[fadeIn_.35s_ease]">
             <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">{hotspot.section}</p>
             <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h2 className="font-serif text-3xl leading-tight tracking-tight">{hotspot.label}</h2>
+              <h2 ref={headingRef} tabIndex={-1} className={`font-serif text-3xl leading-tight tracking-tight ${headingCls}`}>
+                {hotspot.label}
+              </h2>
               <p className="font-mono text-sm tabular-nums text-accent-soft">{hotspotValue(hotspot.id, offer)}</p>
             </div>
             <span
@@ -851,15 +1004,18 @@ function AdvisorPanel({
           </div>
         ) : (
           <div className="mt-6">
-            <p className="font-serif text-3xl leading-tight tracking-tight">Click any numbered line on the estimate.</p>
+            <h2 ref={headingRef} tabIndex={-1} className={`font-serif text-3xl leading-tight tracking-tight ${headingCls}`}>
+              Click a numbered line to begin.
+            </h2>
             <p className="mt-3 text-[14px] leading-relaxed text-paper/70">
-              The advisor explains it in plain English, tells you why it matters, and adds a smart question to your list.
+              Look for the orange numbers on the estimate. The advisor explains each line in plain English, tells you why
+              it matters, and adds a smart question to your list.
             </p>
             <button
               onClick={onNext}
               className="mt-6 rounded-full bg-paper px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft"
             >
-              Start with the first line →
+              Start with line 1 →
             </button>
           </div>
         )}
@@ -877,13 +1033,13 @@ function QuestionList({
   onToggle,
   onRemove,
   onCopy,
-  copied,
+  copyState,
 }: {
   questions: Question[];
   onToggle: (key: string) => void;
   onRemove: (key: string) => void;
   onCopy: () => void;
-  copied: boolean;
+  copyState: CopyState;
 }) {
   const done = questions.filter((q) => q.done).length;
   return (
@@ -898,10 +1054,21 @@ function QuestionList({
             onClick={onCopy}
             className="shrink-0 rounded-full border border-ink/15 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-ink-2 transition-colors hover:border-ink/40"
           >
-            {copied ? "Copied ✓" : "Copy list"}
+            {copyState === "copied" ? "Copied ✓" : "Copy list"}
           </button>
         ) : null}
       </div>
+      <p role="status" className="min-h-0 text-xs">
+        {copyState === "copied" ? (
+          <span className="mt-2 inline-block rounded-full bg-accent-soft px-2.5 py-1 text-accent">
+            Copied {questions.length} question{questions.length === 1 ? "" : "s"} to your clipboard
+          </span>
+        ) : copyState === "error" ? (
+          <span className="mt-2 inline-block rounded-full bg-btc/15 px-2.5 py-1 text-ink-2">
+            Couldn’t reach the clipboard. Try again.
+          </span>
+        ) : null}
+      </p>
       {questions.length === 0 ? (
         <p className="mt-4 rounded-2xl border border-dashed border-ink/15 p-4 text-sm text-muted">
           Your questions will collect here as you explore the estimate.
@@ -947,7 +1114,9 @@ function QuestionList({
    Compare mode
    ===================================================================== */
 
-function CompareView({ onAddQuestions }: { onAddQuestions: () => void }) {
+const MAX_YEARS = 30;
+
+function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions: () => void }) {
   const [years, setYears] = useState(5);
   const A = offers.A;
   const B = offers.B;
@@ -955,10 +1124,12 @@ function CompareView({ onAddQuestions }: { onAddQuestions: () => void }) {
   const piB = monthlyPI(B);
   const months = years * 12;
 
-  const costA = useMemo(() => interestPaid(A, months) + loanCosts(A), [A, months]);
-  const costB = useMemo(() => interestPaid(B, months) + loanCosts(B), [B, months]);
+  // Same measure as the Loan Estimate's "In 5 years" line: payments + loan costs. Using one measure everywhere keeps
+  // the table, the cards, and the break-even marker in agreement.
+  const costA = useMemo(() => totalPaid(A, months), [A, months]);
+  const costB = useMemo(() => totalPaid(B, months), [B, months]);
   const breakEven = Math.ceil((loanCosts(B) - loanCosts(A)) / (piA - piB));
-  const [added, setAdded] = useState(false);
+  const breakEvenYears = breakEven / 12;
 
   type R = { k: string; a: number; b: number; fmt: (n: number) => string; lowerIsBetter?: boolean; note?: string };
   const rows: R[] = [
@@ -969,10 +1140,20 @@ function CompareView({ onAddQuestions }: { onAddQuestions: () => void }) {
     { k: "Monthly principal & interest", a: Math.round(piA), b: Math.round(piB), fmt: usd, lowerIsBetter: true },
     { k: "Estimated cash to close", a: cashToClose(A), b: cashToClose(B), fmt: usd, lowerIsBetter: true },
     { k: "APR", a: A.apr, b: B.apr, fmt: (n) => `${n.toFixed(3)}%`, lowerIsBetter: true },
-    { k: "In 5 years — total paid", a: A.in5Total, b: B.in5Total, fmt: usd, lowerIsBetter: true },
+    {
+      k: `In ${years} year${years === 1 ? "" : "s"} — total paid`,
+      a: Math.round(costA),
+      b: Math.round(costB),
+      fmt: usd,
+      lowerIsBetter: true,
+      note: "Payments + loan costs · moves with the slider below",
+    },
   ];
 
   const better = costA <= costB ? "A" : "B";
+  const keep = `${years} year${years === 1 ? "" : "s"}`;
+  // centre of the range thumb (≈16px wide) at a given year value
+  const markerLeft = `calc(8px + ${(Math.min(Math.max(breakEvenYears, 1), MAX_YEARS) - 1) / (MAX_YEARS - 1)} * (100% - 16px))`;
   const diff = Math.abs(costA - costB);
 
   return (
@@ -1006,7 +1187,7 @@ function CompareView({ onAddQuestions }: { onAddQuestions: () => void }) {
               const lowB = r.b < r.a;
               const d = r.b - r.a;
               return (
-                <tr key={r.k}>
+                <tr key={r.k.startsWith("In ") ? "horizon" : r.k}>
                   <th scope="row" className="px-2 py-2.5 text-left font-normal text-ink-2">
                     {r.k}
                     {r.note ? <span className="block text-[11px] text-muted">{r.note}</span> : null}
@@ -1040,19 +1221,39 @@ function CompareView({ onAddQuestions }: { onAddQuestions: () => void }) {
       <div className="border-t border-line/70 px-5 py-6 sm:px-8">
         <label htmlFor="horizon" className="flex items-baseline justify-between gap-4">
           <span className="text-sm font-semibold">How long do you expect to keep this loan?</span>
-          <span className="font-mono text-sm tabular-nums text-accent">
-            {years} year{years === 1 ? "" : "s"}
-          </span>
+          <span className="font-mono text-sm tabular-nums text-accent">{keep}</span>
         </label>
-        <input
-          id="horizon"
-          type="range"
-          min={1}
-          max={15}
-          value={years}
-          onChange={(e) => setYears(Number(e.target.value))}
-          className="mt-3 w-full accent-[#0f5e4f]"
-        />
+        <div className="relative mt-7">
+          {/* break-even marker */}
+          <div aria-hidden className="pointer-events-none absolute -top-6 z-20 -translate-x-1/2 whitespace-nowrap" style={{ left: markerLeft }}>
+            <span className="rounded-full bg-btc/15 px-2 py-0.5 font-mono text-[10px] text-[#9a5806]">
+              Break-even ≈ {breakEvenYears.toFixed(1)} yr
+            </span>
+          </div>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 z-20 h-5 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-btc"
+            style={{ left: markerLeft }}
+          />
+          <input
+            id="horizon"
+            type="range"
+            min={1}
+            max={MAX_YEARS}
+            step={1}
+            value={years}
+            onChange={(e) => setYears(Number(e.target.value))}
+            aria-valuetext={keep}
+            aria-describedby="horizon-breakeven"
+            className="relative z-10 block w-full accent-[#0f5e4f]"
+          />
+        </div>
+        <div className="mt-1 flex justify-between font-mono text-[10px] text-muted">
+          <span>1 yr</span>
+          <span>10</span>
+          <span>20</span>
+          <span>{MAX_YEARS} yr</span>
+        </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {[
             [A, costA],
@@ -1066,24 +1267,25 @@ function CompareView({ onAddQuestions }: { onAddQuestions: () => void }) {
                 className={`rounded-2xl border p-4 transition-colors ${win ? "border-accent bg-accent-soft/60" : "border-line bg-paper/60"}`}
               >
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">{offer.lender}</p>
-                <p className="mt-1 font-mono text-2xl tabular-nums">{usd(c as number)}</p>
-                <p className="text-[12px] text-ink-2">interest + loan costs over {years} yr</p>
-                {win ? <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-accent">Lower cost at this horizon</p> : null}
+                <p className="mt-1 font-mono text-2xl tabular-nums">{usd(Math.round(c as number))}</p>
+                <p className="text-[12px] text-ink-2">payments + loan costs over {keep}</p>
+                {win ? (
+                  <p className="mt-2 font-mono text-[10px] uppercase tracking-wider text-accent">Cheaper if you keep it {keep}</p>
+                ) : null}
               </div>
             );
           })}
         </div>
-        <p className="mt-4 text-[13px] leading-relaxed text-ink-2">
+        <p id="horizon-breakeven" className="mt-4 text-[13px] leading-relaxed text-ink-2">
           Lender B charges {usd(loanCosts(B) - loanCosts(A))} more upfront to save about {usd(Math.round(piA - piB))}/month.
-          Break-even is roughly <strong className="text-ink">{breakEven} months (~{(breakEven / 12).toFixed(1)} years)</strong>.
-          At {years} year{years === 1 ? "" : "s"}, Lender {better} costs about <strong className="text-ink">{usd(diff)}</strong> less.
+          Break-even is roughly <strong className="text-ink">{breakEven} months (~{breakEvenYears.toFixed(1)} years)</strong>:
+          keep the loan longer and B comes out ahead; sell or refinance sooner and A does. If you keep it {keep}, Lender {better}{" "}
+          costs about <strong className="text-ink">{usd(Math.round(diff))}</strong> less.
         </p>
         <button
-          onClick={() => {
-            onAddQuestions();
-            setAdded(true);
-          }}
-          className="mt-5 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
+          onClick={onAddQuestions}
+          disabled={added}
+          className="mt-5 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent disabled:cursor-default disabled:bg-accent disabled:opacity-80"
         >
           {added ? "Compare questions added ✓" : "Add compare questions to my list"}
         </button>

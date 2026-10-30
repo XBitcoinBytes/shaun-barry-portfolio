@@ -125,6 +125,11 @@ export const otherCosts = (o: Offer) => o.taxesGov + o.prepaids + o.initialEscro
 export const closingCosts = (o: Offer) => loanCosts(o) + otherCosts(o) - o.lenderCredits; // J
 export const cashToClose = (o: Offer) => closingCosts(o) + borrower.downPayment - borrower.deposit;
 export const totalMonthly = (o: Offer) => Math.round(monthlyPI(o)) + o.monthlyEscrow;
+/**
+ * Total paid in principal, interest, mortgage insurance ($0 here) and loan costs over the first `months`
+ * payments — the same measure as the "In 5 years" line on page 3 of the Loan Estimate.
+ */
+export const totalPaid = (o: Offer, months: number) => monthlyPI(o) * months + loanCosts(o);
 
 export const usd = (n: number) =>
   n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });

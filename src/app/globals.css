@@ -99,3 +99,15 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-\[fadeIn_\.35s_ease\] { animation: none; }
 }
+
+/* first-line nudge on the Loan Estimate Advisor */
+@keyframes hint-ring {
+  0%, 100% { box-shadow: 0 0 0 3px rgb(232 137 12 / 0.25); }
+  50% { box-shadow: 0 0 0 9px rgb(232 137 12 / 0); }
+}
+.hint-ring {
+  animation: hint-ring 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hint-ring { animation: none; }
+}
