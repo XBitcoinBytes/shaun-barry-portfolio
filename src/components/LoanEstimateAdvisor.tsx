@@ -30,6 +30,7 @@ type SheetState = "closed" | "peek" | "full";
 
 const STORAGE_KEY = "lea:questions:v1";
 const NAV_OFFSET = 80; // fixed nav (4rem) + breathing room
+const PEEK_FALLBACK = 200; // phone peek sheet height before it has been measured
 
 const isQuestion = (q: unknown): q is Question =>
   !!q &&
@@ -306,15 +307,16 @@ export function LoanEstimateAdvisor() {
     const raf = requestAnimationFrame(() => {
       const el = document.querySelector<HTMLElement>(`[data-spot="${id}"]`);
       if (!el) return;
-      const sheetHeight = sheetRef.current?.offsetHeight ?? 0;
+      // scroll-margin-bottom = live sheet height (falls back to the ~200px peek in CSS) so "nearest" lands the row
+      // just above the sheet; scroll-margin-top keeps it clear of the fixed nav.
+      const sheetHeight = sheetRef.current?.offsetHeight ?? PEEK_FALLBACK;
+      el.style.scrollMarginBottom = `${sheetHeight + 16}px`;
+      el.style.scrollMarginTop = `${NAV_OFFSET}px`;
       const r = el.getBoundingClientRect();
-      const bottomLimit = window.innerHeight - sheetHeight - 12;
-      let delta = 0;
-      if (r.top < NAV_OFFSET) delta = r.top - NAV_OFFSET;
-      else if (r.bottom > bottomLimit) delta = Math.min(r.bottom - bottomLimit, r.top - NAV_OFFSET);
-      if (Math.abs(delta) < 2) return;
+      const fits = r.top >= NAV_OFFSET - 1 && r.bottom <= window.innerHeight - sheetHeight - 12;
+      if (fits) return;
       programmaticUntil.current = Date.now() + 900;
-      window.scrollBy({ top: delta, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+      el.scrollIntoView({ block: "nearest", behavior: prefersReducedMotion() ? "auto" : "smooth" });
     });
     return () => cancelAnimationFrame(raf);
   }, [selected, page, sheet]);
@@ -446,16 +448,23 @@ export function LoanEstimateAdvisor() {
             <div className="min-w-0 lg:col-span-5">
               <div
                 ref={stickyRef}
-                className="space-y-4 lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100vh-5rem)] lg:flex-col lg:gap-4 lg:space-y-0 lg:pb-4"
+                className="space-y-4 lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-5rem)] lg:flex-col lg:gap-4 lg:space-y-0 lg:overflow-hidden lg:pb-4"
               >
                 <div
                   ref={advisorRef}
-                  className={`scroll-mt-20 lg:flex lg:shrink-0 lg:flex-col ${
-                    // leave room for the checklist header, or for header + open list when it's expanded
-                    questionsOpen ? "lg:max-h-[max(20rem,55vh)]" : "lg:max-h-[calc(100vh-12.5rem)]"
-                  } ${mode === "explore" ? "hidden" : ""}`}
+                  className={`scroll-mt-20 lg:flex lg:min-h-0 lg:shrink-0 lg:flex-col ${mode === "explore" ? "hidden" : ""}`}
                 >
-                  {mode === "explore" ? <AdvisorPanel {...panelProps} headingRef={headingRef} /> : <CompareAdvisor />}
+                  {mode === "explore" ? (
+                    <AdvisorPanel
+                      {...panelProps}
+                      headingRef={headingRef}
+                      compact={questionsOpen}
+                      // leave room for the checklist header, or for header + open list when it's expanded
+                      maxH={questionsOpen ? "lg:max-h-[max(22rem,calc(100dvh-25rem))]" : "lg:max-h-[calc(100dvh-12.5rem)]"}
+                    />
+                  ) : (
+                    <CompareAdvisor />
+                  )}
                 </div>
                 <div className="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
                   <QuestionList
@@ -598,7 +607,7 @@ function Spot({
       data-spot={id}
       aria-pressed={isSel}
       aria-label={`Line ${n}: ${h.label} — explain this line`}
-      className={`group/spot relative block w-full rounded-lg pl-2 text-left outline-offset-2 transition-[background-color,box-shadow] duration-200 ${
+      className={`group/spot relative block w-full scroll-mt-20 rounded-lg pl-2 text-left outline-offset-2 max-lg:scroll-mb-[13.5rem] transition-[background-color,box-shadow] duration-200 ${
         isSel
           ? "bg-accent-soft/70 ring-2 ring-accent"
           : "hover:bg-accent-soft/40 hover:ring-1 hover:ring-accent/40"
@@ -1094,33 +1103,6 @@ function JumpButton({ remaining, onJump, dark = true }: { remaining: number; onJ
   );
 }
 
-/** One-line confirmation under Copy / Share buttons. */
-function ShareNote({ copyState, shareState, count, dark }: { copyState: CopyState; shareState: ShareState; count: number; dark?: boolean }) {
-  const n = `${count} question${count === 1 ? "" : "s"}`;
-  const text =
-    copyState === "copied"
-      ? `Copied ${n} to your clipboard.`
-      : copyState === "error"
-        ? "Couldn’t reach the clipboard. Try Share / email instead."
-        : shareState === "shared"
-          ? `Shared ${n}.`
-          : shareState === "emailed"
-            ? `Opened your email app with ${n}. Didn’t open? Use Copy instead.`
-            : "";
-  if (!text) return null;
-  const warn = copyState === "error";
-  return (
-    <p
-      className={`mt-2 animate-[fadeIn_.25s_ease] text-xs ${
-        dark ? (warn ? "text-btc" : "text-accent-soft") : warn ? "text-[#9a5806]" : "text-accent"
-      }`}
-    >
-      {warn ? "! " : "✓ "}
-      {text}
-    </p>
-  );
-}
-
 function AdvisorPanel({
   hotspot,
   offer,
@@ -1138,9 +1120,15 @@ function AdvisorPanel({
   onJump,
   headingRef,
   variant = "card",
+  compact = false,
+  maxH = "",
 }: PanelProps & {
   headingRef?: RefObject<HTMLHeadingElement | null>;
   variant?: "card" | "sheet";
+  /** desktop: tighter header while the checklist is open, so the body keeps room to read */
+  compact?: boolean;
+  /** desktop height cap (Tailwind class) applied to the card itself, so header/footer pin and only the body scrolls */
+  maxH?: string;
 }) {
   const sheet = variant === "sheet";
   const showJump = !complete && explored > 0 && remaining > 0;
@@ -1173,7 +1161,6 @@ function AdvisorPanel({
           {shareState === "idle" ? "Share / email" : "Shared ✓"}
         </button>
       </div>
-      <ShareNote copyState={copyState} shareState={shareState} count={questionCount} dark />
     </div>
   ) : null;
 
@@ -1181,14 +1168,14 @@ function AdvisorPanel({
     <section
       aria-label="Advisor explanation"
       className={`relative flex flex-col overflow-hidden bg-ink text-paper ${
-        sheet ? "pb-5 pt-1" : "min-h-0 flex-1 rounded-3xl shadow-2xl"
+        sheet ? "pb-5 pt-1" : `min-h-0 rounded-3xl shadow-2xl ${maxH}`
       }`}
     >
       <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-accent-2/25 blur-3xl" />
 
       {/* pinned header: status + title + value (desktop card only) */}
       {sheet ? null : (
-        <div className={`relative shrink-0 ${padX} pt-6 sm:pt-7`} aria-live="polite">
+        <div data-advisor-header className={`relative z-10 shrink-0 bg-ink ${padX} ${compact ? "pt-5" : "pt-6 sm:pt-7"}`} aria-live="polite">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="pulse-dot size-2 rounded-full bg-accent-2" aria-hidden />
@@ -1202,14 +1189,18 @@ function AdvisorPanel({
           </div>
           {hotspot ? (
             <div key={hotspot.id} className="animate-[fadeIn_.35s_ease] pb-3">
-              <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">{hotspot.section}</p>
+              <p className={`${compact ? "mt-3" : "mt-5"} font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50`}>{hotspot.section}</p>
               <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <h2 ref={headingRef} tabIndex={-1} className={`font-serif text-3xl leading-tight tracking-tight ${headingCls}`}>
+                <h2
+                  ref={headingRef}
+                  tabIndex={-1}
+                  className={`font-serif leading-tight tracking-tight ${compact ? "text-2xl" : "text-3xl"} ${headingCls}`}
+                >
                   {hotspot.label}
                 </h2>
                 <p className="font-mono text-sm tabular-nums text-accent-soft">{hotspotValue(hotspot.id, offer)}</p>
               </div>
-              <FlagChip flag={hotspot.flag} className="mt-3" />
+              <FlagChip flag={hotspot.flag} className={compact ? "mt-2" : "mt-3"} />
             </div>
           ) : null}
         </div>
@@ -1218,7 +1209,7 @@ function AdvisorPanel({
       {/* body: scrolls inside the card on desktop so the header and stepper stay put */}
       <div
         data-advisor-body
-        className={`relative ${padX} ${sheet ? "" : `min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-width:thin] ${hotspot ? "border-t border-paper/10" : ""} pb-5`}`}
+        className={`relative ${padX} ${sheet ? "" : `min-h-0 flex-auto overflow-y-auto overscroll-contain [scrollbar-width:thin] ${hotspot ? "border-t border-paper/10" : ""} pb-5`}`}
       >
         {completeBox}
 
@@ -1276,7 +1267,7 @@ function AdvisorPanel({
 
       {/* pinned footer: Prev / Next + jump (desktop card only; the phone sheet has its own stepper) */}
       {hotspot && !sheet ? (
-        <div className={`relative shrink-0 border-t border-paper/10 ${padX} pb-6 pt-4 sm:pb-7`}>
+        <div className={`relative shrink-0 border-t border-paper/10 ${padX} ${compact ? "pb-5 pt-3" : "pb-6 pt-4 sm:pb-7"}`}>
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={onPrev}
@@ -1508,8 +1499,8 @@ function QuestionList({
         </button>
         {n ? (
           <div className="flex shrink-0 gap-2">
-            <button onClick={onCopy} className={smallBtn}>
-              {copyState === "copied" ? "Copied ✓" : "Copy list"}
+            <button onClick={onCopy} className={`${smallBtn} min-w-[6.75rem]`}>
+              {copyState === "copied" ? "Copied ✓" : copyState === "error" ? "Copy failed" : "Copy list"}
             </button>
             <button onClick={onShare} className={smallBtn} aria-label="Share or email your question list">
               {shareState === "idle" ? "Share / email" : "Shared ✓"}
@@ -1517,11 +1508,6 @@ function QuestionList({
           </div>
         ) : null}
       </div>
-      {copyState !== "idle" || shareState !== "idle" ? (
-        <div className="-mt-2 shrink-0 px-5 pb-3">
-          <ShareNote copyState={copyState} shareState={shareState} count={n} />
-        </div>
-      ) : null}
       {open ? (
         <div
           id="question-list"
@@ -1649,28 +1635,34 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
         </p>
       ) : null}
       <div className="relative">
-        <div ref={scrollerRef} className="max-w-full overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin]">
-          <table className="w-full min-w-[420px] table-fixed text-[13px]">
+        {/* phone: label 96 + A 88 + B 88 = 272px always in view (fits ~335px); Difference (76px) sits behind a swipe.
+            Snap points sit on the value columns and scroll-padding equals the sticky label width, so a swipe always
+            lands with a column edge flush against the labels. */}
+        <div
+          ref={scrollerRef}
+          className="max-w-full snap-x snap-mandatory scroll-pl-24 overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin] sm:snap-none sm:scroll-pl-0"
+        >
+          <table className="w-full min-w-[348px] table-fixed text-[12px] sm:text-[13px]">
             <colgroup>
-              <col />
-              <col className="w-[7.5rem] sm:w-[8.5rem]" />
-              <col className="w-[7.5rem] sm:w-[8.5rem]" />
-              <col className="w-[5.5rem] sm:w-[7rem]" />
+              <col className="w-24 sm:w-auto" />
+              <col className="w-[5.5rem] sm:w-[8.5rem]" />
+              <col className="w-[5.5rem] sm:w-[8.5rem]" />
+              <col className="w-[4.75rem] sm:w-[7rem]" />
             </colgroup>
             <thead>
               <tr className="text-left">
-                <th className={`${stickyCol} pb-3 pr-2 font-normal`}>
+                <th className={`${stickyCol} pb-3 pr-1.5 font-normal sm:pr-2`}>
                   <span className="sr-only">Line</span>
                 </th>
                 {[A, B].map((o) => (
-                  <th key={o.id} className="px-2 pb-3 text-right align-bottom">
-                    <span className="block font-mono text-[10px] font-normal uppercase tracking-[0.14em] text-muted">
+                  <th key={o.id} className="snap-start px-1.5 pb-3 text-right align-bottom sm:px-2">
+                    <span className="block font-mono text-[9px] font-normal uppercase tracking-[0.1em] text-muted sm:text-[10px] sm:tracking-[0.14em]">
                       {o.rateLock.locked ? "Rate locked" : "Not locked"}
                     </span>
-                    <span className="block font-semibold leading-tight text-balance">{o.lender}</span>
+                    <span className="block text-[11.5px] font-semibold leading-tight text-balance sm:text-[13px]">{o.lender}</span>
                   </th>
                 ))}
-                <th className="pb-3 pl-2 pr-3 text-right align-bottom font-mono text-[10px] font-normal uppercase tracking-[0.14em] text-muted sm:pr-5">
+                <th className="snap-start pb-3 pl-1.5 pr-3 text-right align-bottom font-mono text-[9px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
                   Difference
                 </th>
               </tr>
@@ -1682,17 +1674,17 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                 const d = r.b - r.a;
                 return (
                   <tr key={r.k.startsWith("In ") ? "horizon" : r.k}>
-                    <th scope="row" className={`${stickyCol} py-2.5 pr-2 text-left align-top text-[12px] font-normal leading-snug text-ink-2 sm:text-[13px]`}>
+                    <th scope="row" className={`${stickyCol} py-2.5 pr-1.5 text-left align-top text-[11.5px] font-normal leading-snug text-ink-2 sm:pr-2 sm:text-[13px]`}>
                       {r.k}
-                      {r.note ? <span className="mt-0.5 block text-[11px] text-muted">{r.note}</span> : null}
+                      {r.note ? <span className="mt-0.5 block text-[10.5px] text-muted sm:text-[11px]">{r.note}</span> : null}
                     </th>
                     {[
                       [r.a, lowA],
                       [r.b, lowB],
                     ].map(([v, low], i) => (
-                      <td key={i} className="px-2 py-2.5 text-right align-top">
+                      <td key={i} className="px-1 py-2.5 text-right align-top sm:px-2">
                         <span
-                          className={`rounded-md px-1.5 py-0.5 font-mono tabular-nums ${
+                          className={`rounded-md px-1 py-0.5 font-mono tabular-nums sm:px-1.5 ${
                             low ? "bg-accent-soft font-semibold text-accent" : ""
                           }`}
                         >
@@ -1700,7 +1692,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                         </span>
                       </td>
                     ))}
-                    <td className="py-2.5 pl-2 pr-3 text-right align-top font-mono text-[12px] tabular-nums text-muted sm:pr-5">
+                    <td className="py-2.5 pl-1 pr-3 text-right align-top font-mono text-[11px] tabular-nums text-muted sm:pl-2 sm:pr-5 sm:text-[12px]">
                       {d === 0 ? "—" : `B ${d > 0 ? "+" : "−"}${r.k === "Interest rate" ? pct(Math.abs(d)) : r.k === "APR" ? `${Math.abs(d).toFixed(3)}%` : usd(Math.abs(d))}`}
                     </td>
                   </tr>
