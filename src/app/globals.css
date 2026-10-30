@@ -111,3 +111,19 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .hint-ring { animation: none; }
 }
+
+/* Loan Estimate Advisor: toast anchored just above the phone peek/full sheet (--sheet-h is measured in JS) */
+.le-toast {
+  bottom: calc(var(--sheet-h, 0px) + 12px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1024px) {
+  /* desktop: bottom-centre, well clear of the sticky advisor title at the top of the column */
+  .le-toast { bottom: 1.5rem; }
+}
+
+/* Loan Estimate Advisor: short desktop viewports (under ~700px tall). The advisor card keeps its readable height,
+   the checklist takes its natural height (list capped at 30vh) and the sticky column scrolls to reach it. */
+@media (min-width: 1024px) and (max-height: 700px) {
+  .le-checklist-wrap { flex-shrink: 0; }
+  .le-checklist-list { max-height: 30vh; }
+}

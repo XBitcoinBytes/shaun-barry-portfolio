@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import {
   borrower,
   cashToClose,
@@ -77,11 +77,14 @@ export function LoanEstimateAdvisor() {
   const [toast, setToast] = useState<Toast | null>(null);
   const [sheet, setSheet] = useState<SheetState>("closed");
   const [sheetH, setSheetH] = useState(0);
+  // height of the sheet's content (without the safe-area padding) → --sheet-h for the toast
+  const [sheetContentH, setSheetContentH] = useState(0);
   const [questionsOpen, setQuestionsOpen] = useState(false);
   const [demoInView, setDemoInView] = useState(false);
   const advisorRef = useRef<HTMLDivElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
+  const sheetContentRef = useRef<HTMLDivElement>(null);
   const scrollTarget = useRef<string | null>(null);
   const programmaticUntil = useRef(0);
   const hydrated = useRef(false);
@@ -108,7 +111,9 @@ export function LoanEstimateAdvisor() {
       return;
     }
     requestAnimationFrame(() => {
-      // new line → show its title/badge at the top of the sticky column
+      // new line → show its title/badge at the top of the sticky column (on short viewports the column itself can
+      // scroll to reach the checklist; bring it back to the advisor)
+      stickyRef.current?.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
       advisorRef.current
         ?.querySelector<HTMLElement>("[data-advisor-body]")
         ?.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
@@ -175,7 +180,7 @@ export function LoanEstimateAdvisor() {
   const showToast = useCallback((text: string, tone: Toast["tone"] = "ok") => {
     setToast({ id: Date.now(), text, tone });
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 2800);
+    toastTimer.current = setTimeout(() => setToast(null), 2500);
   }, []);
 
   const plural = (n: number) => `${n} question${n === 1 ? "" : "s"}`;
@@ -341,8 +346,13 @@ export function LoanEstimateAdvisor() {
   useEffect(() => {
     const el = sheetRef.current;
     if (!sheetMounted || !el || typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(() => setSheetH(el.offsetHeight));
+    const inner = sheetContentRef.current;
+    const ro = new ResizeObserver(() => {
+      setSheetH(el.offsetHeight);
+      setSheetContentH(inner ? inner.offsetHeight : el.offsetHeight);
+    });
     ro.observe(el);
+    if (inner) ro.observe(inner);
     return () => ro.disconnect();
   }, [sheetMounted]);
 
@@ -448,7 +458,7 @@ export function LoanEstimateAdvisor() {
             <div className="min-w-0 lg:col-span-5">
               <div
                 ref={stickyRef}
-                className="space-y-4 lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-5rem)] lg:flex-col lg:gap-4 lg:space-y-0 lg:overflow-hidden lg:pb-4"
+                className="space-y-4 lg:sticky lg:top-20 lg:flex lg:max-h-[calc(100dvh-5rem)] lg:flex-col lg:gap-4 lg:space-y-0 lg:overflow-y-auto lg:overscroll-contain lg:pb-4 [scrollbar-width:thin]"
               >
                 <div
                   ref={advisorRef}
@@ -459,14 +469,20 @@ export function LoanEstimateAdvisor() {
                       {...panelProps}
                       headingRef={headingRef}
                       compact={questionsOpen}
-                      // leave room for the checklist header, or for header + open list when it's expanded
-                      maxH={questionsOpen ? "lg:max-h-[max(22rem,calc(100dvh-25rem))]" : "lg:max-h-[calc(100dvh-12.5rem)]"}
+                      // leave room for the checklist header, or for header + open list when it's expanded. On short
+                      // viewports the card keeps ~25rem (never taller than the viewport minus the nav + 16px) so the body
+                      // keeps ≥160px; the sticky column then scrolls to reach the checklist.
+                      maxH={
+                        questionsOpen
+                          ? "lg:max-h-[max(min(25rem,calc(100dvh-6rem)),calc(100dvh-25rem))]"
+                          : "lg:max-h-[max(min(25rem,calc(100dvh-6rem)),calc(100dvh-12.5rem))]"
+                      }
                     />
                   ) : (
                     <CompareAdvisor />
                   )}
                 </div>
-                <div className="lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
+                <div className="le-checklist-wrap lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
                   <QuestionList
                     open={questionsOpen}
                     onOpenChange={setQuestionsOpen}
@@ -494,19 +510,23 @@ export function LoanEstimateAdvisor() {
           {sheetMounted ? (
             <div ref={sheetRef} className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
               <div className="mx-auto max-w-2xl overflow-hidden rounded-t-3xl bg-ink pb-[env(safe-area-inset-bottom)] text-paper shadow-[0_-20px_50px_-20px_rgba(18,22,28,0.55)]">
-                <PhoneSheet state={sheet} onState={setSheet} panel={panelProps} />
+                <div ref={sheetContentRef}>
+                  <PhoneSheet state={sheet} onState={setSheet} panel={panelProps} />
+                </div>
               </div>
             </div>
           ) : null}
         </div>
       ) : null}
 
-      {/* toast: sits above the phone sheet when it is open */}
+      {/* toast: a persistent live region. Phone: anchored 12px above the peek/full sheet (--sheet-h is measured by a
+          ResizeObserver, safe area added on top). Desktop: bottom-centre, clear of the sticky advisor title. */}
       <div
         role="status"
         aria-live="polite"
-        className="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-4"
-        style={{ bottom: (sheetMounted ? sheetH : 0) + 16 }}
+        aria-atomic="true"
+        className="le-toast pointer-events-none fixed inset-x-0 z-50 flex justify-center px-4"
+        style={{ "--sheet-h": `${sheetMounted ? sheetContentH : 0}px` } as CSSProperties}
       >
         {toast ? (
           <p
@@ -1209,7 +1229,7 @@ function AdvisorPanel({
       {/* body: scrolls inside the card on desktop so the header and stepper stay put */}
       <div
         data-advisor-body
-        className={`relative ${padX} ${sheet ? "" : `min-h-0 flex-auto overflow-y-auto overscroll-contain [scrollbar-width:thin] ${hotspot ? "border-t border-paper/10" : ""} pb-5`}`}
+        className={`relative ${padX} ${sheet ? "" : `min-h-0 flex-auto overflow-y-auto overscroll-contain [scrollbar-width:thin] lg:min-h-[160px] ${hotspot ? "border-t border-paper/10" : ""} pb-5`}`}
       >
         {completeBox}
 
@@ -1471,13 +1491,15 @@ function QuestionList({
       aria-label="Questions for your lender"
       className="rounded-3xl border border-line bg-white lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:overflow-hidden"
     >
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-2 px-5 py-4">
+      {/* phone (<640px): grid — row 1 chevron + "Questions (n)", row 2 meta, row 3 full-width Copy | Share.
+          sm+: one row, buttons on the right. */}
+      <div className="grid shrink-0 grid-cols-1 gap-y-3 px-5 py-4 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-3 sm:gap-y-2">
         <button
           type="button"
           onClick={() => onOpenChange(!open)}
           aria-expanded={open}
           aria-controls="question-list"
-          className="group flex min-w-0 flex-1 items-center gap-3 rounded-xl text-left"
+          className="group grid w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 rounded-xl text-left sm:flex sm:w-auto sm:flex-1"
         >
           <span
             aria-hidden
@@ -1487,9 +1509,10 @@ function QuestionList({
           >
             ▸
           </span>
-          <span className="min-w-0">
-            <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Your checklist</span>
-            <span className="block text-base font-semibold tracking-tight">
+          <span className="min-w-0 flex-1">
+            <span className="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-muted sm:block">Your checklist</span>
+            <span className="block whitespace-nowrap text-base font-semibold tracking-tight">
+              <span className="sr-only sm:hidden">Your checklist: </span>
               Questions <span className="font-mono text-sm tabular-nums text-accent">({n})</span>
             </span>
             <span className="block text-xs text-muted">
@@ -1498,11 +1521,11 @@ function QuestionList({
           </span>
         </button>
         {n ? (
-          <div className="flex shrink-0 gap-2">
-            <button onClick={onCopy} className={`${smallBtn} min-w-[6.75rem]`}>
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:shrink-0">
+            <button onClick={onCopy} className={`${smallBtn} whitespace-nowrap sm:min-w-[6.75rem]`}>
               {copyState === "copied" ? "Copied ✓" : copyState === "error" ? "Copy failed" : "Copy list"}
             </button>
-            <button onClick={onShare} className={smallBtn} aria-label="Share or email your question list">
+            <button onClick={onShare} className={`${smallBtn} whitespace-nowrap`} aria-label="Share or email your question list">
               {shareState === "idle" ? "Share / email" : "Shared ✓"}
             </button>
           </div>
@@ -1511,7 +1534,7 @@ function QuestionList({
       {open ? (
         <div
           id="question-list"
-          className="border-t border-line/70 px-5 pb-5 pt-4 lg:max-h-[40vh] lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain [scrollbar-width:thin]"
+          className="le-checklist-list border-t border-line/70 px-5 pb-5 pt-4 lg:max-h-[40vh] lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:overscroll-contain [scrollbar-width:thin]"
         >
           {n === 0 ? (
             <p className="rounded-2xl border border-dashed border-ink/15 p-4 text-sm text-muted">
@@ -1631,20 +1654,21 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
 
       {scroll.overflow ? (
         <p className="flex items-center gap-1.5 px-3 pt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-muted sm:px-5">
-          <span aria-hidden>↔</span> {scroll.atEnd ? "All columns in view" : "Swipe for the difference column"}
+          <span aria-hidden>↔</span> {scroll.atEnd ? "All columns in view" : "Swipe for Diff (B vs A)"}
         </p>
       ) : null}
       <div className="relative">
-        {/* phone: label 96 + A 88 + B 88 = 272px always in view (fits ~335px); Difference (76px) sits behind a swipe.
+        {/* phone: label 84 + A 88 + B 88 = 260px always in view (fits ~335px); the short "Diff" column (76px) sits at
+            the right edge behind the fade / a short swipe.
             Snap points sit on the value columns and scroll-padding equals the sticky label width, so a swipe always
             lands with a column edge flush against the labels. */}
         <div
           ref={scrollerRef}
-          className="max-w-full snap-x snap-mandatory scroll-pl-24 overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin] sm:snap-none sm:scroll-pl-0"
+          className="max-w-full snap-x snap-mandatory scroll-pl-[5.25rem] overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin] sm:snap-none sm:scroll-pl-0"
         >
-          <table className="w-full min-w-[348px] table-fixed text-[12px] sm:text-[13px]">
+          <table className="w-full min-w-[336px] table-fixed text-[12px] sm:text-[13px]">
             <colgroup>
-              <col className="w-24 sm:w-auto" />
+              <col className="w-[5.25rem] sm:w-auto" />
               <col className="w-[5.5rem] sm:w-[8.5rem]" />
               <col className="w-[5.5rem] sm:w-[8.5rem]" />
               <col className="w-[4.75rem] sm:w-[7rem]" />
@@ -1663,7 +1687,8 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                   </th>
                 ))}
                 <th className="snap-start pb-3 pl-1.5 pr-3 text-right align-bottom font-mono text-[9px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
-                  Difference
+                  <span aria-hidden title="Difference: B vs A">Diff</span>
+                  <span className="sr-only">Difference, B versus A</span>
                 </th>
               </tr>
             </thead>
