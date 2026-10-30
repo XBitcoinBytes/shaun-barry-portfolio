@@ -285,27 +285,36 @@ export function LoanEstimateAdvisor() {
     [],
   );
 
-  // phone: the toast sits just above the sheet unless that would cover the first checklist row. Then it slides up to
-  // the first spot that keeps both the checklist header (where Copy / Share live, showing "Copied ✓") and row 1
-  // readable: just above row 1 if that clears the header, otherwise just above the checklist card. Never under the
-  // fixed nav. Desktop keeps its bottom-centre spot.
+  // phone: the toast sits just above the sheet unless that would cover the checklist. Then it anchors next to the
+  // Copy / Share action: centred in the gap between the buttons and row 1 (it's a compact pill on phones, so it fits
+  // that gap), else just above the checklist card. Every spot must clear row 1, the
+  // Copy / Share buttons and the fixed nav. Desktop keeps its bottom-centre spot.
   useEffect(() => {
     if (!toast || !isNarrow()) return;
     const raf = requestAnimationFrame(() => {
       const t = toastRef.current;
-      const row = document.querySelector<HTMLElement>("#question-list li");
       const card = document.querySelector<HTMLElement>('section[aria-label="Questions for your lender"]');
       const header = card?.firstElementChild as HTMLElement | null;
-      if (!t || !row || !card || !header) return;
-      const tr = t.getBoundingClientRect();
-      const h = tr.height;
-      const hits = (top: number, r: DOMRect) => top < r.bottom && top + h > r.top;
-      const rowR = row.getBoundingClientRect();
+      if (!t || !card || !header) return;
+      const row = document.querySelector<HTMLElement>("#question-list li");
+      const btns = header.lastElementChild as HTMLElement | null;
+      // measure the fixed wrapper, not the pill: the pill's slide-up transform would skew its rect by ~14px
+      const tr = (t.parentElement ?? t).getBoundingClientRect();
+      const h = t.offsetHeight;
+      const cardR = card.getBoundingClientRect();
       const headR = header.getBoundingClientRect();
-      if (!hits(tr.top, rowR)) return;
+      const rowR = row?.getBoundingClientRect();
+      const btnR = btns && btns !== header.firstElementChild ? btns.getBoundingClientRect() : headR;
+      const hits = (top: number, r?: DOMRect) => !!r && top < r.bottom - 1 && top + h > r.top + 1;
+      const titleR = (header.firstElementChild as HTMLElement).getBoundingClientRect();
+      const covers = (top: number) => hits(top, rowR) || hits(top, btnR) || hits(top, titleR);
+      // only move when the default spot actually lands on the checklist
+      if (!hits(tr.top, cardR)) return;
       const minTop = NAV_OFFSET + 8;
-      const candidates = [rowR.top - 8 - h, card.getBoundingClientRect().top - 8 - h];
-      const top = candidates.find((c) => c >= minTop && !hits(c, rowR) && !hits(c, headR));
+      const maxTop = tr.top; // never lower than the default (it would slide under the sheet)
+      const gapTop = rowR ? (btnR.bottom + rowR.top) / 2 - h / 2 : headR.bottom + 6;
+      const candidates = [gapTop, cardR.top - 8 - h];
+      const top = candidates.find((c) => Number.isFinite(c) && c >= minTop && c <= maxTop && !covers(c));
       if (top !== undefined) setToastLift(tr.top - top);
     });
     return () => cancelAnimationFrame(raf);
@@ -566,7 +575,7 @@ export function LoanEstimateAdvisor() {
           <p
             key={toast.id}
             ref={toastRef}
-            className={`le-toast-pill inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-[0_12px_30px_-10px_rgba(18,22,28,0.5)] ${
+            className={`le-toast-pill inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-[13px] font-medium lg:px-4 lg:py-2.5 lg:text-sm shadow-[0_12px_30px_-10px_rgba(18,22,28,0.5)] ${
               toast.tone === "ok" ? "bg-accent text-paper" : "bg-ink text-paper"
             }`}
           >
@@ -1223,14 +1232,14 @@ function AdvisorPanel({
     <section
       aria-label="Advisor explanation"
       className={`relative flex flex-col overflow-hidden bg-ink text-paper ${
-        sheet ? "pb-5 pt-1" : `min-h-0 rounded-3xl shadow-2xl ${maxH}`
+        sheet ? "pb-5 pt-1" : `min-h-0 rounded-3xl shadow-2xl ${maxH} ${compact ? "le-adv-card" : ""}`
       }`}
     >
       <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-accent-2/25 blur-3xl" />
 
       {/* pinned header: status + title + value (desktop card only) */}
       {sheet ? null : (
-        <div data-advisor-header className={`relative z-10 shrink-0 bg-ink ${padX} ${compact ? "pt-5" : "pt-6 sm:pt-7"}`} aria-live="polite">
+        <div data-advisor-header className={`le-adv-head relative z-10 shrink-0 bg-ink ${padX} ${compact ? "pt-5" : "pt-6 sm:pt-7"}`} aria-live="polite">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="pulse-dot size-2 rounded-full bg-accent-2" aria-hidden />
@@ -1244,18 +1253,18 @@ function AdvisorPanel({
           </div>
           {hotspot ? (
             <div key={hotspot.id} className="animate-[fadeIn_.35s_ease] pb-3">
-              <p className={`${compact ? "mt-3" : "mt-5"} font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50`}>{hotspot.section}</p>
+              <p className={`le-adv-section ${compact ? "mt-3" : "mt-5"} font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50`}>{hotspot.section}</p>
               <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                 <h2
                   ref={headingRef}
                   tabIndex={-1}
-                  className={`font-serif leading-tight tracking-tight ${compact ? "text-2xl" : "text-3xl"} ${headingCls}`}
+                  className={`le-adv-title font-serif leading-tight tracking-tight ${compact ? "text-2xl" : "text-3xl"} ${headingCls}`}
                 >
                   {hotspot.label}
                 </h2>
                 <p className="font-mono text-sm tabular-nums text-accent-soft">{hotspotValue(hotspot.id, offer)}</p>
               </div>
-              <FlagChip flag={hotspot.flag} className={compact ? "mt-2" : "mt-3"} />
+              <FlagChip flag={hotspot.flag} className={`le-adv-chip ${compact ? "mt-2" : "mt-3"}`} />
             </div>
           ) : null}
         </div>
@@ -1276,7 +1285,7 @@ function AdvisorPanel({
             <dl className={`${sheet ? "mt-3" : "mt-4"} space-y-4 text-[14px] leading-relaxed`}>
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">What it means</dt>
-                <dd className="mt-1 text-paper/85">{hotspot.what}</dd>
+                <WhatItMeans text={hotspot.what} />
               </div>
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">Why it matters</dt>
@@ -1322,7 +1331,7 @@ function AdvisorPanel({
 
       {/* pinned footer: Prev / Next + jump (desktop card only; the phone sheet has its own stepper) */}
       {hotspot && !sheet ? (
-        <div className={`relative shrink-0 border-t border-paper/10 ${padX} ${compact ? "pb-5 pt-3" : "pb-6 pt-4 sm:pb-7"}`}>
+        <div className={`le-adv-foot relative shrink-0 border-t border-paper/10 ${padX} ${compact ? "pb-5 pt-3" : "pb-6 pt-4 sm:pb-7"}`}>
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={onPrev}
@@ -1339,13 +1348,34 @@ function AdvisorPanel({
             </button>
           </div>
           {showJump ? (
-            <div className="mt-3 text-center">
+            <div className="le-adv-jump mt-3 text-center">
               <JumpButton remaining={remaining} onJump={onJump} />
             </div>
           ) : null}
         </div>
       ) : null}
     </section>
+  );
+}
+
+/** "What it means" — on short desktop viewports (CSS) it clamps to two lines with a More toggle so "Why it matters"
+ *  sits right under it instead of behind a long inner scroll. Elsewhere it renders in full and the toggle is hidden. */
+function WhatItMeans({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <dd className="mt-1 text-paper/85">
+      <span className="le-what block" data-expanded={expanded ? "" : undefined}>
+        {text}
+      </span>
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
+        className="le-what-more mt-1 items-center gap-1 rounded font-mono text-[10px] uppercase tracking-[0.14em] text-accent-soft hover:text-paper"
+      >
+        {expanded ? "Less ▴" : "More ▾"}
+      </button>
+    </dd>
   );
 }
 
@@ -1737,15 +1767,41 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
       setScroll((p) => (p.overflow === next.overflow && p.atStart === next.atStart && p.atEnd === next.atEnd ? p : next));
       if (el.scrollLeft > 8) setHintGone(true);
     };
+    // a real horizontal gesture clears the hint even if snap / the short overflow leaves scrollLeft near 0
+    let sx = 0;
+    let sy = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      sx = e.touches[0].clientX;
+      sy = e.touches[0].clientY;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const dx = Math.abs(e.touches[0].clientX - sx);
+      if (dx > 10 && dx > Math.abs(e.touches[0].clientY - sy)) setHintGone(true);
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaX) > 4 && Math.abs(e.deltaX) > Math.abs(e.deltaY)) setHintGone(true);
+    };
     update();
     el.addEventListener("scroll", update, { passive: true });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: true });
+    el.addEventListener("wheel", onWheel, { passive: true });
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
     ro?.observe(el);
     return () => {
       el.removeEventListener("scroll", update);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("wheel", onWheel);
       ro?.disconnect();
     };
   }, []);
+
+  const showDiff = () => {
+    const el = scrollerRef.current;
+    setHintGone(true);
+    el?.scrollTo({ left: el.scrollWidth, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+  };
 
   const stickyCol = `sticky left-0 z-10 bg-white pl-3 sm:pl-5 transition-shadow ${
     scroll.atStart ? "" : "shadow-[6px_0_8px_-6px_rgba(18,22,28,0.25)]"
@@ -1760,7 +1816,13 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
 
       {scroll.overflow && !hintGone && !scroll.atEnd ? (
         <p className="flex items-center gap-1.5 px-3 pt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-muted sm:px-5">
-          <span aria-hidden>↔</span> Swipe for Diff (B vs A)
+          <button
+            type="button"
+            onClick={showDiff}
+            className="-my-1 inline-flex items-center gap-1.5 rounded-full py-1 pr-2 uppercase hover:text-ink"
+          >
+            <span aria-hidden>↔</span> Swipe for Diff (B vs A) <span aria-hidden className="text-accent">→</span>
+          </button>
           <button
             type="button"
             onClick={() => setHintGone(true)}
@@ -1772,20 +1834,19 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
         </p>
       ) : null}
       <div className="relative">
-        {/* phone: label 84 + A 88 + B 88 = 260px always in view (fits ~335px); the "Diff" column (88px, 12.5px text)
-            sits at the right edge behind the fade / a short swipe.
-            Snap points sit on the value columns and scroll-padding equals the sticky label width, so a swipe always
-            lands with a column edge flush against the labels. */}
+        {/* phone: label 80 + A 84 + B 84 + Diff 84 = 332px, so all four columns fit at 375px+ with no swipe. On narrower
+            phones Diff peeks at the right edge (left-aligned on phone so "Diff" and most of each value stay readable),
+            with a light fade and a tappable hint. Proximity snap so the short overflow never snaps back. */}
         <div
           ref={scrollerRef}
-          className="max-w-full snap-x snap-mandatory scroll-pl-[5.25rem] overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin] sm:snap-none sm:scroll-pl-0"
+          className="max-w-full snap-x snap-proximity scroll-pl-[5rem] overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin] sm:snap-none sm:scroll-pl-0"
         >
-          <table className="w-full min-w-[348px] table-fixed text-[12px] sm:text-[13px]">
+          <table className="w-full min-w-[332px] table-fixed text-[12px] sm:text-[13px]">
             <colgroup>
-              <col className="w-[5.25rem] sm:w-auto" />
-              <col className="w-[5.5rem] sm:w-[8.5rem]" />
-              <col className="w-[5.5rem] sm:w-[8.5rem]" />
-              <col className="w-[5.5rem] sm:w-[7rem]" />
+              <col className="w-[5rem] sm:w-auto" />
+              <col className="w-[5.25rem] sm:w-[8.5rem]" />
+              <col className="w-[5.25rem] sm:w-[8.5rem]" />
+              <col className="w-[5.25rem] sm:w-[7rem]" />
             </colgroup>
             <thead>
               <tr className="text-left">
@@ -1800,7 +1861,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                     <span className="block text-[11.5px] font-semibold leading-tight text-balance sm:text-[13px]">{o.lender}</span>
                   </th>
                 ))}
-                <th className="snap-start pb-3 pl-1.5 pr-3 text-right align-bottom font-mono text-[10px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
+                <th className="snap-start pb-3 pl-2 pr-2 text-left align-bottom font-mono sm:text-right text-[10px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
                   <span aria-hidden title="Difference: B vs A">Diff</span>
                   <span className="sr-only">Difference, B versus A</span>
                 </th>
@@ -1831,7 +1892,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                         </span>
                       </td>
                     ))}
-                    <td className="whitespace-nowrap py-2.5 pl-1 pr-3 text-right align-top font-mono text-[12.5px] tabular-nums text-ink-2 sm:pl-2 sm:pr-5 sm:text-[12px] sm:text-muted">
+                    <td className="whitespace-nowrap py-2.5 pl-2 pr-2 text-left align-top font-mono text-[12.5px] sm:text-right tabular-nums text-ink-2 sm:pl-2 sm:pr-5 sm:text-[12px] sm:text-muted">
                       {d === 0 ? "—" : `B ${d > 0 ? "+" : "−"}${r.k === "Interest rate" ? pct(Math.abs(d)) : r.k === "APR" ? `${Math.abs(d).toFixed(3)}%` : usd(Math.abs(d))}`}
                     </td>
                   </tr>
@@ -1843,7 +1904,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
         {/* right-edge fade: there's more to the right until you reach the end */}
         <div
           aria-hidden
-          className={`pointer-events-none absolute inset-y-0 right-0 w-6 bg-linear-to-l from-white to-white/0 transition-opacity duration-200 ${
+          className={`pointer-events-none absolute inset-y-0 right-0 w-4 bg-linear-to-l sm:w-6 from-white to-white/0 transition-opacity duration-200 ${
             scroll.overflow && !scroll.atEnd ? "opacity-100" : "opacity-0"
           }`}
         />
