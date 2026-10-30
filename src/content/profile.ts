@@ -38,7 +38,7 @@ export const experience: Role[] = [
     summary:
       "Designing borrower-first AI tools for mortgage: a Loan Estimate advisor for consumers and an AI adoption roadmap for lenders. Publishing BitcoinBytes on the side.",
     highlights: [
-      "Designing a Loan Estimate upload → plain-English guidance flow",
+      "Built a clickable Loan Estimate Advisor demo: plain-English explanations, lender questions, and offer comparison",
       "Drafting a phased, compliance-aware AI roadmap for mortgage lenders",
     ],
   },

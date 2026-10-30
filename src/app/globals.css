@@ -91,3 +91,11 @@ body {
   .reveal { opacity: 1; transform: none; transition: none; }
   .scanline, .pulse-dot { animation: none; }
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-\[fadeIn_\.35s_ease\] { animation: none; }
+}

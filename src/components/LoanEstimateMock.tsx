@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /** Purely illustrative visual for the Loan Estimate Advisor concept. Sample numbers only. */
 export function LoanEstimateMock() {
   const rows = [
@@ -62,8 +64,16 @@ export function LoanEstimateMock() {
           </li>
         </ul>
       </div>
-      <figcaption className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-muted">
-        Concept preview · illustrative numbers
+      <figcaption className="mt-5 text-center">
+        <Link
+          href="/loan-estimate-advisor"
+          className="group inline-flex items-center gap-2 rounded-full border border-line bg-white/70 px-3.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-2 transition-colors hover:border-accent hover:text-accent"
+        >
+          <span className="pulse-dot size-1.5 rounded-full bg-accent-2" aria-hidden />
+          Try the interactive demo
+          <span aria-hidden className="transition-transform group-hover:translate-x-0.5">→</span>
+        </Link>
+        <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Sample numbers only</p>
       </figcaption>
     </figure>
   );

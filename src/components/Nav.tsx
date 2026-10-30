@@ -1,17 +1,23 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const items = [
-  { href: "#about", label: "About" },
-  { href: "#experience", label: "Experience" },
-  { href: "#projects", label: "Projects" },
-  { href: "#skills", label: "Skills" },
+  { href: "/#about", label: "About" },
+  { href: "/#experience", label: "Experience" },
+  { href: "/#projects", label: "Projects" },
+  { href: "/#skills", label: "Skills" },
 ];
+
+const DEMO_HREF = "/loan-estimate-advisor";
 
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const onDemo = pathname === DEMO_HREF;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -32,31 +38,54 @@ export function Nav() {
         aria-label="Primary"
         className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8"
       >
-        <a href="#top" className="group flex items-center gap-2.5" aria-label="Shaun Barry — home">
+        <Link
+          href="/"
+          onClick={(e) => {
+            if (pathname === "/") {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              history.replaceState(null, "", "/");
+            }
+          }}
+          className="group flex items-center gap-2.5"
+          aria-label="Shaun Barry — home"
+        >
           <span className="grid size-8 place-items-center rounded-lg bg-ink font-serif text-[15px] text-paper">
             SB
           </span>
           <span className="text-[15px] font-medium tracking-tight">Shaun Barry</span>
-        </a>
+        </Link>
 
         <ul className="hidden items-center gap-1 md:flex">
           {items.map((i) => (
             <li key={i.href}>
-              <a
+              <Link
                 href={i.href}
                 className="rounded-md px-3 py-2 text-sm text-ink-2 transition-colors hover:text-ink"
               >
                 {i.label}
-              </a>
+              </Link>
             </li>
           ))}
+          <li>
+            <Link
+              href={DEMO_HREF}
+              aria-current={onDemo ? "page" : undefined}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm transition-colors ${
+                onDemo ? "font-medium text-accent" : "text-ink-2 hover:text-ink"
+              }`}
+            >
+              <span className="size-1.5 rounded-full bg-accent-2" aria-hidden />
+              Demo
+            </Link>
+          </li>
           <li className="ml-2">
-            <a
-              href="#contact"
+            <Link
+              href="/#contact"
               className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper transition-colors hover:bg-accent"
             >
               Get in touch
-            </a>
+            </Link>
           </li>
         </ul>
 
@@ -81,17 +110,33 @@ export function Nav() {
 
       <div id="mobile-menu" hidden={!open} className="border-t border-line/70 md:hidden">
         <ul className="mx-auto flex max-w-6xl flex-col px-5 py-3">
-          {[...items, { href: "#contact", label: "Get in touch" }].map((i) => (
+          {items.map((i) => (
             <li key={i.href}>
-              <a
+              <Link
                 href={i.href}
                 onClick={() => setOpen(false)}
                 className="block py-3 text-lg tracking-tight text-ink"
               >
                 {i.label}
-              </a>
+              </Link>
             </li>
           ))}
+          <li>
+            <Link
+              href={DEMO_HREF}
+              onClick={() => setOpen(false)}
+              aria-current={onDemo ? "page" : undefined}
+              className={`flex items-center gap-2 py-3 text-lg tracking-tight ${onDemo ? "text-accent" : "text-ink"}`}
+            >
+              <span className="size-2 rounded-full bg-accent-2" aria-hidden />
+              Demo · Loan Estimate Advisor
+            </Link>
+          </li>
+          <li>
+            <Link href="/#contact" onClick={() => setOpen(false)} className="block py-3 text-lg tracking-tight text-ink">
+              Get in touch
+            </Link>
+          </li>
         </ul>
       </div>
     </header>

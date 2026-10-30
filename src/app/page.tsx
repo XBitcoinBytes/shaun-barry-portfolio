@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { RevealObserver } from "@/components/RevealObserver";
 import { LoanEstimateMock } from "@/components/LoanEstimateMock";
@@ -76,9 +77,16 @@ export default function Home() {
                 >
                   See the work <Arrow />
                 </a>
+                <Link
+                  href="/loan-estimate-advisor"
+                  className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/50 px-5 py-3 text-sm font-medium transition-colors hover:border-ink/40"
+                >
+                  <span className="size-1.5 rounded-full bg-accent-2" aria-hidden />
+                  Try the Loan Estimate demo
+                </Link>
                 <a
                   href="#contact"
-                  className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/50 px-5 py-3 text-sm font-medium transition-colors hover:border-ink/40"
+                  className="inline-flex items-center px-2 py-3 text-sm font-medium text-ink-2 underline-offset-4 transition-colors hover:text-ink hover:underline"
                 >
                   Get in touch
                 </a>
@@ -193,7 +201,7 @@ export default function Home() {
               index="03"
               kicker="Projects"
               title="Three bets on a better mortgage experience."
-              intro="Two concepts in active design, and one live project. Each starts from a real pain point I’ve seen up close."
+              intro="An interactive demo, a concept in active design, and one live project. Each starts from a real pain point I’ve seen up close."
             />
 
             <div className="mt-16 grid gap-6 lg:grid-cols-2">
@@ -201,8 +209,9 @@ export default function Home() {
               <article className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:col-span-2 lg:grid lg:grid-cols-2 lg:gap-12">
                 <div>
                   <div className="flex items-center gap-3">
-                    <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                      Concept · In design
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                      <span className="pulse-dot size-1.5 rounded-full bg-accent-2" aria-hidden />
+                      Interactive demo
                     </span>
                     <span className="font-mono text-[11px] text-muted">Consumer app</span>
                   </div>
@@ -216,6 +225,16 @@ export default function Home() {
                     Educational guidance, not a lending decision — designed to make borrowers better-informed
                     customers.
                   </p>
+                  <div className="mt-7 flex flex-wrap items-center gap-3">
+                    <Link
+                      href="/loan-estimate-advisor"
+                      className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                    >
+                      Try the demo
+                      <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
+                    </Link>
+                    <span className="font-mono text-[11px] text-muted">Clickable sample estimate · ~2 min</span>
+                  </div>
                 </div>
                 <ol className="mt-8 grid gap-3 lg:mt-0">
                   {[
