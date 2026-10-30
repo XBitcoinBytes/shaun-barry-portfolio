@@ -24,6 +24,27 @@ import {
 type Mode = "explore" | "compare";
 type Question = { key: string; text: string; source: string; done: boolean };
 type CopyState = "idle" | "copied" | "error";
+type SheetState = "closed" | "peek" | "full";
+
+const STORAGE_KEY = "lea:questions:v1";
+const NAV_OFFSET = 80; // fixed nav (4rem) + breathing room
+
+const isQuestion = (q: unknown): q is Question =>
+  !!q &&
+  typeof q === "object" &&
+  typeof (q as Question).key === "string" &&
+  typeof (q as Question).text === "string" &&
+  typeof (q as Question).source === "string" &&
+  typeof (q as Question).done === "boolean";
+
+/** First sentence of an explanation, for the phone peek. */
+const firstSentence = (t: string) => {
+  const m = t.match(/^.*?[.!?](?=\s|$)/);
+  return m ? m[0] : t;
+};
+
+const questionsText = (qs: Question[]) =>
+  ["Questions for my lender (from the Loan Estimate Advisor demo):", ...qs.map((q, i) => `${i + 1}. ${q.text}`)].join("\n");
 
 const flagMeta: Record<Flag, { label: string; chip: string; dot: string }> = {
   ask: { label: "Worth a question", chip: "bg-btc/20 text-[#ffd49a]", dot: "bg-btc" },
@@ -49,9 +70,16 @@ export function LoanEstimateAdvisor() {
   const [visited, setVisited] = useState<string[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [copyState, setCopyState] = useState<CopyState>("idle");
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sheet, setSheet] = useState<SheetState>("closed");
+  const [sheetH, setSheetH] = useState(0);
+  const [questionsOpen, setQuestionsOpen] = useState(false);
   const [demoInView, setDemoInView] = useState(false);
   const advisorRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const scrollTarget = useRef<string | null>(null);
+  const programmaticUntil = useRef(0);
+  const hydrated = useRef(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const demoRef = useRef<HTMLDivElement>(null);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -68,10 +96,13 @@ export function LoanEstimateAdvisor() {
   const revealAdvisor = useCallback(() => {
     if (typeof window === "undefined") return;
     if (isNarrow()) {
-      setSheetOpen(true); // bottom sheet on phones / tablets
+      // bottom sheet on phones / tablets: open as a peek, keep "full" if the reader expanded it
+      setSheet((s) => (s === "closed" ? "peek" : s));
       return;
     }
     requestAnimationFrame(() => {
+      // new line → show its title/badge at the top of the sticky column
+      stickyRef.current?.scrollTo({ top: 0, behavior: prefersReducedMotion() ? "auto" : "smooth" });
       const el = advisorRef.current;
       if (!el) return;
       const r = el.getBoundingClientRect();
@@ -91,6 +122,7 @@ export function LoanEstimateAdvisor() {
       setPage(h.page);
       setVisited((v) => (v.includes(id) ? v : [...v, id]));
       addQuestion(id, h.ask, h.label);
+      scrollTarget.current = id;
       revealAdvisor();
     },
     [addQuestion, revealAdvisor],
@@ -110,7 +142,8 @@ export function LoanEstimateAdvisor() {
     setQuestions([]);
     setPage(1);
     setMode("explore");
-    setSheetOpen(false);
+    setSheet("closed");
+    setQuestionsOpen(false);
     setCopyState("idle");
     setStarted(false);
   };
@@ -121,11 +154,30 @@ export function LoanEstimateAdvisor() {
     select(hotspots[nextIdx].id);
   };
 
+  const remaining = hotspots.length - visited.length;
+  const jumpUnexplored = () => {
+    for (let i = 1; i <= hotspots.length; i++) {
+      const h = hotspots[(Math.max(idx, 0) + i) % hotspots.length];
+      if (!visited.includes(h.id)) return select(h.id);
+    }
+  };
+
+  const shareList = async () => {
+    const text = questionsText(questions);
+    const subject = "Questions for my lender";
+    if (isNarrow() && typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: subject, text });
+        return;
+      } catch (e) {
+        if ((e as DOMException)?.name === "AbortError") return; // user closed the share sheet
+      }
+    }
+    window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+  };
+
   const copyList = async () => {
-    const text = [
-      "Questions for my lender (from the Loan Estimate Advisor demo):",
-      ...questions.map((q, i) => `${i + 1}. ${q.text}`),
-    ].join("\n");
+    const text = questionsText(questions);
     let ok = false;
     try {
       await navigator.clipboard.writeText(text);
@@ -178,6 +230,78 @@ export function LoanEstimateAdvisor() {
     if (copyTimer.current) clearTimeout(copyTimer.current);
   }, []);
 
+  // persist the checklist on this device (save effect is declared before load so the first, empty pass is skipped)
+  useEffect(() => {
+    if (!hydrated.current) return;
+    try {
+      if (questions.length) localStorage.setItem(STORAGE_KEY, JSON.stringify(questions));
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // storage unavailable (private mode, quota) — the list still works for this visit
+    }
+  }, [questions]);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const parsed: unknown = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(parsed)) {
+        const saved = parsed.filter(isQuestion);
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time restore from localStorage
+        if (saved.length) setQuestions(saved);
+      }
+    } catch {
+      // ignore corrupt / unavailable storage
+    }
+    hydrated.current = true;
+  }, []);
+
+  // phone: keep the line you just opened visible ABOVE the bottom sheet
+  useEffect(() => {
+    const id = scrollTarget.current;
+    if (!id) return;
+    scrollTarget.current = null;
+    if (!isNarrow()) return;
+    const raf = requestAnimationFrame(() => {
+      const el = document.querySelector<HTMLElement>(`[data-spot="${id}"]`);
+      if (!el) return;
+      const sheetHeight = sheetRef.current?.offsetHeight ?? 0;
+      const r = el.getBoundingClientRect();
+      const bottomLimit = window.innerHeight - sheetHeight - 12;
+      let delta = 0;
+      if (r.top < NAV_OFFSET) delta = r.top - NAV_OFFSET;
+      else if (r.bottom > bottomLimit) delta = Math.min(r.bottom - bottomLimit, r.top - NAV_OFFSET);
+      if (Math.abs(delta) < 2) return;
+      programmaticUntil.current = Date.now() + 900;
+      window.scrollBy({ top: delta, behavior: prefersReducedMotion() ? "auto" : "smooth" });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [selected, page, sheet]);
+
+  // phone: an expanded sheet drops back to a peek once the reader scrolls the estimate meaningfully
+  useEffect(() => {
+    if (sheet !== "full") return;
+    let startY = window.scrollY;
+    const onScroll = () => {
+      if (Date.now() < programmaticUntil.current) {
+        startY = window.scrollY;
+        return;
+      }
+      if (Math.abs(window.scrollY - startY) > 140) setSheet("peek");
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [sheet]);
+
+  // measure the sheet so the page always leaves room for it
+  const sheetMounted = started && mode === "explore" && demoInView;
+  useEffect(() => {
+    const el = sheetRef.current;
+    if (!sheetMounted || !el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setSheetH(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [sheetMounted]);
+
   const panelProps = {
     hotspot: selected ? byId[selected] : null,
     offer,
@@ -187,7 +311,11 @@ export function LoanEstimateAdvisor() {
     complete,
     questionCount: questions.length,
     onCopy: copyList,
+    onShare: shareList,
     copyState,
+    remaining,
+    explored: visited.length,
+    onJump: jumpUnexplored,
   };
 
   return (
@@ -250,9 +378,9 @@ export function LoanEstimateAdvisor() {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-12">
-            {/* left: document or compare */}
-            <div className="lg:col-span-7">
+          <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
+            {/* left: document or compare (min-w-0 so wide tables scroll inside, never the page) */}
+            <div className="min-w-0 lg:col-span-7">
               {mode === "explore" ? (
                 <LoanEstimateDoc
                   offer={offer}
@@ -271,12 +399,18 @@ export function LoanEstimateAdvisor() {
             </div>
 
             {/* right: advisor + questions (sticky under the fixed nav on desktop) */}
-            <div className="lg:col-span-5">
-              <div className="space-y-6 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:overscroll-contain lg:pb-2 [scrollbar-width:thin]">
+            <div className="min-w-0 lg:col-span-5">
+              <div
+                ref={stickyRef}
+                className="space-y-4 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto lg:overscroll-contain lg:rounded-3xl lg:pb-2 [scrollbar-width:thin]"
+              >
                 <div ref={advisorRef} className={`scroll-mt-20 ${mode === "explore" ? "hidden lg:block" : ""}`}>
                   {mode === "explore" ? <AdvisorPanel {...panelProps} headingRef={headingRef} /> : <CompareAdvisor />}
                 </div>
                 <QuestionList
+                  open={questionsOpen}
+                  onOpenChange={setQuestionsOpen}
+                  onShare={shareList}
                   questions={questions}
                   onToggle={(key) =>
                     setQuestions((qs) => qs.map((q) => (q.key === key ? { ...q, done: !q.done } : q)))
@@ -290,38 +424,15 @@ export function LoanEstimateAdvisor() {
           </div>
 
           {/* room for the phone bottom sheet so it never covers the last content */}
-          {mode === "explore" ? <div aria-hidden className="h-20 lg:hidden" /> : null}
+          {mode === "explore" ? (
+            <div aria-hidden className="lg:hidden" style={{ height: Math.max(sheetH, 64) + 16 }} />
+          ) : null}
 
           {/* ---------- phone / tablet bottom sheet ---------- */}
-          {mode === "explore" && demoInView ? (
-            <div className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
-              <div className="mx-auto max-w-2xl overflow-hidden rounded-t-3xl bg-ink text-paper shadow-[0_-20px_50px_-20px_rgba(18,22,28,0.55)]">
-                <button
-                  type="button"
-                  onClick={() => setSheetOpen((o) => !o)}
-                  aria-expanded={sheetOpen}
-                  aria-controls="advisor-sheet"
-                  className="relative flex w-full items-center justify-between gap-3 px-5 pb-3 pt-4 text-left"
-                >
-                  <span aria-hidden className="absolute left-1/2 top-1.5 h-1 w-10 -translate-x-1/2 rounded-full bg-paper/25" />
-                  <span className="min-w-0">
-                    <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">
-                      Advisor{selected ? ` · ${idx + 1}/${hotspots.length}` : ""}
-                      {complete ? " · all explored ✓" : ""}
-                    </span>
-                    <span className="block truncate text-sm font-medium">
-                      {selected ? byId[selected].label : "Click a numbered line to begin"}
-                    </span>
-                  </span>
-                  <span className="shrink-0 rounded-full border border-paper/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider">
-                    {sheetOpen ? "Hide ▾" : "Show ▴"}
-                  </span>
-                </button>
-                {sheetOpen ? (
-                  <div id="advisor-sheet" className="max-h-[62vh] overflow-y-auto overscroll-contain border-t border-paper/10">
-                    <AdvisorPanel {...panelProps} variant="sheet" />
-                  </div>
-                ) : null}
+          {sheetMounted ? (
+            <div ref={sheetRef} className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
+              <div className="mx-auto max-w-2xl overflow-hidden rounded-t-3xl bg-ink pb-[env(safe-area-inset-bottom)] text-paper shadow-[0_-20px_50px_-20px_rgba(18,22,28,0.55)]">
+                <PhoneSheet state={sheet} onState={setSheet} panel={panelProps} />
               </div>
             </div>
           ) : null}
@@ -409,6 +520,7 @@ function Spot({
     <button
       type="button"
       onClick={() => onSelect(id)}
+      data-spot={id}
       aria-pressed={isSel}
       aria-label={`Line ${n}: ${h.label} — explain this line`}
       className={`group/spot relative block w-full rounded-lg pl-2 text-left outline-offset-2 transition-[background-color,box-shadow] duration-200 ${
@@ -877,6 +989,35 @@ function hotspotValue(id: string, o: Offer): string | null {
   }
 }
 
+type PanelProps = {
+  hotspot: Hotspot | null;
+  offer: Offer;
+  step: number;
+  onPrev: () => void;
+  onNext: () => void;
+  complete: boolean;
+  questionCount: number;
+  onCopy: () => void;
+  onShare: () => void;
+  copyState: CopyState;
+  remaining: number;
+  explored: number;
+  onJump: () => void;
+};
+
+function JumpButton({ remaining, onJump, dark = true }: { remaining: number; onJump: () => void; dark?: boolean }) {
+  return (
+    <button
+      onClick={onJump}
+      className={`font-mono text-[11px] uppercase tracking-wider underline decoration-dotted underline-offset-4 transition-colors ${
+        dark ? "text-accent-soft hover:text-paper" : "text-accent hover:text-ink"
+      }`}
+    >
+      Jump to next unexplored line · {remaining} left →
+    </button>
+  );
+}
+
 function AdvisorPanel({
   hotspot,
   offer,
@@ -886,33 +1027,30 @@ function AdvisorPanel({
   complete,
   questionCount,
   onCopy,
+  onShare,
   copyState,
+  remaining,
+  explored,
+  onJump,
   headingRef,
   variant = "card",
-}: {
-  hotspot: Hotspot | null;
-  offer: Offer;
-  step: number;
-  onPrev: () => void;
-  onNext: () => void;
-  complete: boolean;
-  questionCount: number;
-  onCopy: () => void;
-  copyState: CopyState;
+}: PanelProps & {
   headingRef?: RefObject<HTMLHeadingElement | null>;
   variant?: "card" | "sheet";
 }) {
+  const sheet = variant === "sheet";
+  const showJump = !complete && explored > 0 && remaining > 0;
   const headingCls = "outline-none focus-visible:ring-2 focus-visible:ring-accent-soft/60 focus-visible:ring-offset-0 rounded-md";
   return (
     <section
       aria-label="Advisor explanation"
       className={`relative overflow-hidden bg-ink text-paper ${
-        variant === "sheet" ? "px-5 pb-6 pt-1" : "rounded-3xl p-6 shadow-2xl sm:p-7"
+        sheet ? "px-5 pb-5 pt-1" : "rounded-3xl p-6 shadow-2xl sm:p-7"
       }`}
     >
       <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-accent-2/25 blur-3xl" />
-      <div className="relative" aria-live="polite">
-        <div className="flex items-center justify-between gap-3">
+      <div className="relative" aria-live={sheet ? undefined : "polite"}>
+        <div className={`flex items-center justify-between gap-3 ${sheet ? "hidden" : ""}`}>
           <div className="flex items-center gap-2">
             <span className="pulse-dot size-2 rounded-full bg-accent-2" aria-hidden />
             <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/60">Advisor · plain English</p>
@@ -925,7 +1063,7 @@ function AdvisorPanel({
         </div>
 
         {complete ? (
-          <div className="mt-5 animate-[fadeIn_.35s_ease] rounded-2xl border border-accent-2/60 bg-accent-2/25 p-4">
+          <div className={`${sheet ? "mt-3" : "mt-5"} animate-[fadeIn_.35s_ease] rounded-2xl border border-accent-2/60 bg-accent-2/25 p-4`}>
             <p className="font-serif text-2xl leading-tight tracking-tight">
               <span aria-hidden>🎉 </span>You&apos;ve explored every line.
             </p>
@@ -934,33 +1072,39 @@ function AdvisorPanel({
                 ? `Copy your ${questionCount} question${questionCount === 1 ? "" : "s"} and bring them to your lender.`
                 : "Your question list is empty. Open a line again to add its question."}
             </p>
-            <button
-              onClick={onCopy}
-              disabled={!questionCount}
-              className="mt-3 rounded-full bg-paper px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft disabled:opacity-40"
-            >
-              {copyState === "copied" ? "Copied ✓" : copyState === "error" ? "Couldn’t copy. Try again" : "Copy my questions"}
-            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                onClick={onCopy}
+                disabled={!questionCount}
+                className="rounded-full bg-paper px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft disabled:opacity-40"
+              >
+                {copyState === "copied" ? "Copied ✓" : copyState === "error" ? "Couldn’t copy. Try again" : "Copy my questions"}
+              </button>
+              <button
+                onClick={onShare}
+                disabled={!questionCount}
+                className="rounded-full border border-paper/25 px-4 py-2 text-sm transition-colors hover:border-paper/60 disabled:opacity-40"
+              >
+                Share / email
+              </button>
+            </div>
           </div>
         ) : null}
 
         {hotspot ? (
           <div key={hotspot.id} className="animate-[fadeIn_.35s_ease]">
-            <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">{hotspot.section}</p>
-            <div className="mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <p className={`font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50 ${sheet ? "mt-3" : "mt-5"}`}>
+              {hotspot.section}
+            </p>
+            <div className={`mt-1 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 ${sheet ? "hidden" : ""}`}>
               <h2 ref={headingRef} tabIndex={-1} className={`font-serif text-3xl leading-tight tracking-tight ${headingCls}`}>
                 {hotspot.label}
               </h2>
               <p className="font-mono text-sm tabular-nums text-accent-soft">{hotspotValue(hotspot.id, offer)}</p>
             </div>
-            <span
-              className={`mt-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] ${flagMeta[hotspot.flag].chip}`}
-            >
-              <span className={`size-1.5 rounded-full ${flagMeta[hotspot.flag].dot}`} aria-hidden />
-              {flagMeta[hotspot.flag].label}
-            </span>
+            {sheet ? null : <FlagChip flag={hotspot.flag} className="mt-3" />}
 
-            <dl className="mt-5 space-y-4 text-[14px] leading-relaxed">
+            <dl className={`${sheet ? "mt-3" : "mt-5"} space-y-4 text-[14px] leading-relaxed`}>
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">What it means</dt>
                 <dd className="mt-1 text-paper/85">{hotspot.what}</dd>
@@ -986,7 +1130,13 @@ function AdvisorPanel({
               </p>
             ) : null}
 
-            <div className="mt-6 flex items-center justify-between gap-3 border-t border-paper/10 pt-4">
+            {showJump && sheet ? (
+              <div className="mt-5">
+                <JumpButton remaining={remaining} onJump={onJump} />
+              </div>
+            ) : null}
+
+            <div className={`mt-6 flex items-center justify-between gap-3 border-t border-paper/10 pt-4 ${sheet ? "hidden" : ""}`}>
               <button
                 onClick={onPrev}
                 className="rounded-full border border-paper/20 px-3.5 py-2 text-sm transition-colors hover:border-paper/50"
@@ -1001,12 +1151,19 @@ function AdvisorPanel({
                 Next line →
               </button>
             </div>
+            {showJump && !sheet ? (
+              <div className="mt-4 text-center">
+                <JumpButton remaining={remaining} onJump={onJump} />
+              </div>
+            ) : null}
           </div>
         ) : (
-          <div className="mt-6">
-            <h2 ref={headingRef} tabIndex={-1} className={`font-serif text-3xl leading-tight tracking-tight ${headingCls}`}>
-              Click a numbered line to begin.
-            </h2>
+          <div className={sheet ? "mt-3" : "mt-6"}>
+            {sheet ? null : (
+              <h2 ref={headingRef} tabIndex={-1} className={`font-serif text-3xl leading-tight tracking-tight ${headingCls}`}>
+                Click a numbered line to begin.
+              </h2>
+            )}
             <p className="mt-3 text-[14px] leading-relaxed text-paper/70">
               Look for the orange numbers on the estimate. The advisor explains each line in plain English, tells you why
               it matters, and adds a smart question to your list.
@@ -1024,88 +1181,254 @@ function AdvisorPanel({
   );
 }
 
+function FlagChip({ flag, className = "" }: { flag: Flag; className?: string }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] ${flagMeta[flag].chip} ${className}`}
+    >
+      <span className={`size-1.5 rounded-full ${flagMeta[flag].dot}`} aria-hidden />
+      {flagMeta[flag].label}
+    </span>
+  );
+}
+
+/* =====================================================================
+   Phone / tablet bottom sheet: closed bar → short peek → full explanation
+   ===================================================================== */
+
+function PhoneSheet({
+  state,
+  onState,
+  panel,
+}: {
+  state: SheetState;
+  onState: (s: SheetState) => void;
+  panel: PanelProps;
+}) {
+  const h = panel.hotspot;
+  const full = state === "full";
+  const status = `Advisor${h ? ` · ${panel.step}/${hotspots.length}` : ""}${panel.complete ? " · all explored ✓" : ""}`;
+  const handle = <span aria-hidden className="absolute left-1/2 top-1.5 h-1 w-10 -translate-x-1/2 rounded-full bg-paper/25" />;
+
+  if (state === "closed") {
+    return (
+      <button
+        type="button"
+        onClick={() => onState("peek")}
+        aria-expanded={false}
+        aria-controls="advisor-sheet"
+        className="relative flex w-full items-center justify-between gap-3 px-5 pb-3 pt-4 text-left"
+      >
+        {handle}
+        <span className="min-w-0">
+          <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">{status}</span>
+          <span className="block truncate text-sm font-medium">{h ? h.label : "Tap a numbered line to begin"}</span>
+        </span>
+        <span className="shrink-0 rounded-full border border-paper/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider">
+          Show ▴
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <section id="advisor-sheet" aria-label="Advisor explanation" className={`relative flex max-h-[78vh] flex-col ${full ? "" : "min-h-[26vh]"}`}>
+      {/* header: always visible */}
+      <div className="relative shrink-0 px-5 pb-2 pt-4">
+        <button
+          type="button"
+          onClick={() => onState(full ? "peek" : "full")}
+          aria-label={full ? "Show less" : "Expand explanation"}
+          className="absolute inset-x-0 top-0 h-4"
+        >
+          {handle}
+        </button>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0" aria-live="polite">
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">{status}</p>
+            <p className="mt-0.5 truncate font-serif text-[22px] leading-tight tracking-tight">
+              {h ? h.label : "Tap a numbered line to begin"}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => onState("closed")}
+            aria-expanded
+            className="shrink-0 rounded-full border border-paper/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors hover:border-paper/50"
+          >
+            Hide ▾
+          </button>
+        </div>
+        {h ? (
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <FlagChip flag={h.flag} />
+            <span className="font-mono text-[12px] tabular-nums text-accent-soft">{hotspotValue(h.id, panel.offer)}</span>
+          </div>
+        ) : null}
+      </div>
+
+      {/* body: one-sentence peek, or the full scrollable explanation */}
+      {full ? (
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain border-t border-paper/10">
+          <AdvisorPanel {...panel} variant="sheet" />
+        </div>
+      ) : (
+        <div className="min-h-0 flex-1 px-5 pb-2">
+          <p className="line-clamp-3 text-[13.5px] leading-snug text-paper/80">
+            {h
+              ? firstSentence(h.what)
+              : panel.complete
+                ? "Every line explored. Expand to copy or share your questions."
+                : "Look for the orange numbers on the estimate. The advisor explains each line and adds a question to your list."}
+          </p>
+        </div>
+      )}
+
+      {/* pinned stepper: works in both peek and full */}
+      <div className="flex shrink-0 items-center gap-2 border-t border-paper/10 px-4 py-2.5">
+        <button
+          type="button"
+          onClick={panel.onPrev}
+          disabled={!h}
+          aria-label="Previous line"
+          className="rounded-full border border-paper/20 px-3.5 py-2 text-sm transition-colors hover:border-paper/50 disabled:opacity-30"
+        >
+          ← Prev
+        </button>
+        <button
+          type="button"
+          onClick={() => onState(full ? "peek" : "full")}
+          aria-expanded={full}
+          disabled={!h && !panel.complete}
+          className="flex-1 rounded-full px-2 py-2 font-mono text-[10px] uppercase tracking-wider text-paper/70 transition-colors hover:text-paper disabled:opacity-0"
+        >
+          {full ? "Less ▾" : "Expand ▴"}
+        </button>
+        <button
+          type="button"
+          onClick={panel.onNext}
+          className="rounded-full bg-paper px-3.5 py-2 text-sm font-medium text-ink transition-colors hover:bg-accent-soft"
+        >
+          {h ? "Next →" : "Start →"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
 /* =====================================================================
    Questions checklist
    ===================================================================== */
 
 function QuestionList({
   questions,
+  open,
+  onOpenChange,
   onToggle,
   onRemove,
   onCopy,
+  onShare,
   copyState,
 }: {
   questions: Question[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   onToggle: (key: string) => void;
   onRemove: (key: string) => void;
   onCopy: () => void;
+  onShare: () => void;
   copyState: CopyState;
 }) {
   const done = questions.filter((q) => q.done).length;
+  const n = questions.length;
+  const smallBtn =
+    "rounded-full border border-ink/15 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-ink-2 transition-colors hover:border-ink/40";
   return (
-    <section aria-label="Questions for your lender" className="rounded-3xl border border-line bg-white p-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Your checklist</p>
-          <h2 className="mt-1 text-lg font-semibold tracking-tight">Questions for your lender</h2>
-        </div>
-        {questions.length ? (
-          <button
-            onClick={onCopy}
-            className="shrink-0 rounded-full border border-ink/15 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-ink-2 transition-colors hover:border-ink/40"
+    <section aria-label="Questions for your lender" className="rounded-3xl border border-line bg-white">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 px-5 py-4">
+        <button
+          type="button"
+          onClick={() => onOpenChange(!open)}
+          aria-expanded={open}
+          aria-controls="question-list"
+          className="group flex min-w-0 flex-1 items-center gap-3 rounded-xl text-left"
+        >
+          <span
+            aria-hidden
+            className={`grid size-7 shrink-0 place-items-center rounded-full border border-line text-[11px] text-ink-2 transition-transform group-hover:border-ink/40 ${
+              open ? "rotate-90" : ""
+            }`}
           >
-            {copyState === "copied" ? "Copied ✓" : "Copy list"}
-          </button>
+            ▸
+          </span>
+          <span className="min-w-0">
+            <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Your checklist</span>
+            <span className="block text-base font-semibold tracking-tight">
+              Questions <span className="font-mono text-sm tabular-nums text-accent">({n})</span>
+            </span>
+            <span className="block text-xs text-muted">
+              {n ? `${done} asked · saved on this device` : "Collects as you explore"}
+            </span>
+          </span>
+        </button>
+        {n ? (
+          <div className="flex shrink-0 gap-2">
+            <button onClick={onCopy} className={smallBtn}>
+              {copyState === "copied" ? "Copied ✓" : "Copy list"}
+            </button>
+            <button onClick={onShare} className={smallBtn} aria-label="Share or email your question list">
+              Share / email
+            </button>
+          </div>
         ) : null}
       </div>
-      <p role="status" className="min-h-0 text-xs">
+      <p role="status" className="min-h-0 px-5 text-xs empty:hidden">
         {copyState === "copied" ? (
-          <span className="mt-2 inline-block rounded-full bg-accent-soft px-2.5 py-1 text-accent">
-            Copied {questions.length} question{questions.length === 1 ? "" : "s"} to your clipboard
+          <span className="mb-3 inline-block rounded-full bg-accent-soft px-2.5 py-1 text-accent">
+            Copied {n} question{n === 1 ? "" : "s"} to your clipboard
           </span>
         ) : copyState === "error" ? (
-          <span className="mt-2 inline-block rounded-full bg-btc/15 px-2.5 py-1 text-ink-2">
+          <span className="mb-3 inline-block rounded-full bg-btc/15 px-2.5 py-1 text-ink-2">
             Couldn’t reach the clipboard. Try again.
           </span>
         ) : null}
       </p>
-      {questions.length === 0 ? (
-        <p className="mt-4 rounded-2xl border border-dashed border-ink/15 p-4 text-sm text-muted">
-          Your questions will collect here as you explore the estimate.
-        </p>
-      ) : (
-        <>
-          <p className="mt-1 text-xs text-muted">
-            {questions.length} question{questions.length === 1 ? "" : "s"} · {done} asked
-          </p>
-          <ol className="mt-4 max-h-[22rem] space-y-2 overflow-y-auto pr-1">
-            {questions.map((q) => (
-              <li key={q.key} className="group flex gap-3 rounded-2xl border border-line/80 bg-paper/50 p-3">
-                <input
-                  type="checkbox"
-                  checked={q.done}
-                  onChange={() => onToggle(q.key)}
-                  aria-label={`Mark as asked: ${q.text}`}
-                  className="mt-1 size-4 shrink-0 accent-[#0f5e4f]"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="font-mono text-[10px] uppercase tracking-wider text-accent">{q.source}</p>
-                  <p className={`mt-0.5 text-[13px] leading-snug ${q.done ? "text-muted line-through" : "text-ink"}`}>
-                    {q.text}
-                  </p>
-                </div>
-                <button
-                  onClick={() => onRemove(q.key)}
-                  aria-label="Remove question"
-                  className="self-start rounded px-1 text-muted opacity-60 transition-opacity hover:text-ink group-hover:opacity-100"
-                >
-                  ×
-                </button>
-              </li>
-            ))}
-          </ol>
-        </>
-      )}
+      {open ? (
+        <div id="question-list" className="border-t border-line/70 px-5 pb-5 pt-4">
+          {n === 0 ? (
+            <p className="rounded-2xl border border-dashed border-ink/15 p-4 text-sm text-muted">
+              Your questions will collect here as you explore the estimate.
+            </p>
+          ) : (
+            <ol className="space-y-2">
+              {questions.map((q) => (
+                <li key={q.key} className="group flex gap-3 rounded-2xl border border-line/80 bg-paper/50 p-3">
+                  <input
+                    type="checkbox"
+                    checked={q.done}
+                    onChange={() => onToggle(q.key)}
+                    aria-label={`Mark as asked: ${q.text}`}
+                    className="mt-1 size-4 shrink-0 accent-[#0f5e4f]"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono text-[10px] uppercase tracking-wider text-accent">{q.source}</p>
+                    <p className={`mt-0.5 text-[13px] leading-snug ${q.done ? "text-muted line-through" : "text-ink"}`}>
+                      {q.text}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onRemove(q.key)}
+                    aria-label="Remove question"
+                    className="self-start rounded px-1 text-muted opacity-60 transition-opacity hover:text-ink group-hover:opacity-100"
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -1163,8 +1486,8 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
         <p className="text-sm font-semibold tracking-tight">Two sample Loan Estimates</p>
       </div>
 
-      <div className="overflow-x-auto px-3 py-4 sm:px-5">
-        <table className="w-full min-w-[30rem] text-[13px]">
+      <div className="max-w-full overflow-x-auto overscroll-x-contain px-3 py-4 sm:px-5">
+        <table className="w-full min-w-[28rem] text-[13px]">
           <thead>
             <tr className="text-left">
               <th className="px-2 pb-3 font-normal" />
@@ -1214,22 +1537,23 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
             })}
           </tbody>
         </table>
-        <p className="mt-2 px-2 text-[11px] text-muted">Green = lower of the two. Lower isn’t automatically better — see the time-horizon check below.</p>
+        <p className="sticky left-0 mt-2 px-2 text-[11px] text-muted sm:hidden">Swipe the table sideways to see every column →</p>
+        <p className="sticky left-0 mt-2 max-w-[calc(100vw-4.5rem)] px-2 text-[11px] text-muted sm:max-w-none">Green = lower of the two. Lower isn’t automatically better — see the time-horizon check below.</p>
       </div>
 
       {/* horizon */}
-      <div className="border-t border-line/70 px-5 py-6 sm:px-8">
-        <label htmlFor="horizon" className="flex items-baseline justify-between gap-4">
-          <span className="text-sm font-semibold">How long do you expect to keep this loan?</span>
+      <div className="min-w-0 border-t border-line/70 px-5 py-6 sm:px-8">
+        <label htmlFor="horizon" className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <span className="min-w-0 text-sm font-semibold">How long do you expect to keep this loan?</span>
           <span className="font-mono text-sm tabular-nums text-accent">{keep}</span>
         </label>
-        <div className="relative mt-7">
-          {/* break-even marker */}
-          <div aria-hidden className="pointer-events-none absolute -top-6 z-20 -translate-x-1/2 whitespace-nowrap" style={{ left: markerLeft }}>
-            <span className="rounded-full bg-btc/15 px-2 py-0.5 font-mono text-[10px] text-[#9a5806]">
-              Break-even ≈ {breakEvenYears.toFixed(1)} yr
-            </span>
-          </div>
+        {/* break-even legend: in normal flow so it wraps on narrow screens instead of overflowing */}
+        <p className="mt-3 flex flex-wrap items-center gap-2 font-mono text-[10px] text-[#9a5806]">
+          <span aria-hidden className="inline-block h-3 w-0.5 rounded-full bg-btc" />
+          <span className="rounded-full bg-btc/15 px-2 py-0.5">Break-even ≈ {breakEvenYears.toFixed(1)} yr</span>
+          <span className="text-muted">orange tick on the slider</span>
+        </p>
+        <div className="relative mt-3 w-full min-w-0">
           <div
             aria-hidden
             className="pointer-events-none absolute top-1/2 z-20 h-5 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-btc"
@@ -1245,7 +1569,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
             onChange={(e) => setYears(Number(e.target.value))}
             aria-valuetext={keep}
             aria-describedby="horizon-breakeven"
-            className="relative z-10 block w-full accent-[#0f5e4f]"
+            className="relative z-10 m-0 box-border block w-full min-w-0 max-w-full accent-[#0f5e4f]"
           />
         </div>
         <div className="mt-1 flex justify-between font-mono text-[10px] text-muted">
@@ -1254,7 +1578,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
           <span>20</span>
           <span>{MAX_YEARS} yr</span>
         </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {[
             [A, costA],
             [B, costB],
@@ -1264,7 +1588,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
             return (
               <div
                 key={offer.id}
-                className={`rounded-2xl border p-4 transition-colors ${win ? "border-accent bg-accent-soft/60" : "border-line bg-paper/60"}`}
+                className={`min-w-0 rounded-2xl border p-4 transition-colors ${win ? "border-accent bg-accent-soft/60" : "border-line bg-paper/60"}`}
               >
                 <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">{offer.lender}</p>
                 <p className="mt-1 font-mono text-2xl tabular-nums">{usd(Math.round(c as number))}</p>
@@ -1285,7 +1609,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
         <button
           onClick={onAddQuestions}
           disabled={added}
-          className="mt-5 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent disabled:cursor-default disabled:bg-accent disabled:opacity-80"
+          className="mt-5 w-full rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent disabled:cursor-default disabled:bg-accent disabled:opacity-80 sm:w-auto"
         >
           {added ? "Compare questions added ✓" : "Add compare questions to my list"}
         </button>

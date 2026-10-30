@@ -54,7 +54,7 @@ export default function LoanEstimateAdvisorPage() {
         Skip to content
       </a>
       <Nav />
-      <main id="main" className="relative pt-28 sm:pt-32">
+      <main id="main" className="relative overflow-x-clip pt-28 sm:pt-32">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[34rem] bg-[linear-gradient(to_right,rgba(18,22,28,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(18,22,28,0.05)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_70%_60%_at_30%_20%,black,transparent)]"
