@@ -188,7 +188,7 @@ export function LoanEstimateAdvisor() {
       setToast(null);
       toastLiftRef.current = 0;
       setToastLift(0);
-    }, 3000);
+    }, 3400); // ~3s fully visible after the 0.25s slide-in, before it goes
   }, []);
 
   const plural = (n: number) => `${n} question${n === 1 ? "" : "s"}`;
@@ -251,7 +251,7 @@ export function LoanEstimateAdvisor() {
     setCopyState(ok ? "copied" : "error");
     showToast(ok ? `Copied ${plural(questions.length)}` : "Couldn’t reach the clipboard. Try Share / email instead.", ok ? "ok" : "warn");
     if (copyTimer.current) clearTimeout(copyTimer.current);
-    copyTimer.current = setTimeout(() => setCopyState("idle"), 2400);
+    copyTimer.current = setTimeout(() => setCopyState("idle"), 3400);
   };
 
   // keyboard: ← / → step through lines while exploring
@@ -336,10 +336,15 @@ export function LoanEstimateAdvisor() {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(place);
     };
+    // open a little extra room between the Copy / Share bar and row 1 while the toast sits there, so the pill has
+    // clear space above row 1 (instant, so the measurement below is final)
+    const list = document.getElementById("question-list");
+    list?.setAttribute("data-toast-room", "");
     schedule();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
     return () => {
+      list?.removeAttribute("data-toast-room");
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
@@ -1315,7 +1320,7 @@ function AdvisorPanel({
             <dl className={`le-adv-dl ${sheet ? "mt-3" : "mt-4"} space-y-4 text-[14px] leading-relaxed`}>
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">What it means</dt>
-                <WhatItMeans text={hotspot.what} />
+                <WhatItMeans text={hotspot.what} tip={hotspot.tip} />
               </div>
               <div>
                 <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">Why it matters</dt>
@@ -1330,7 +1335,7 @@ function AdvisorPanel({
             </div>
 
             {hotspot.tip ? (
-              <p className="mt-4 flex gap-2 text-[13px] leading-snug text-paper/70">
+              <p className="le-tip mt-4 flex gap-2 text-[13px] leading-snug text-paper/70">
                 <span className="text-btc" aria-hidden>
                   ◆
                 </span>
@@ -1390,12 +1395,20 @@ function AdvisorPanel({
 
 /** "What it means" — on short desktop viewports (CSS) it clamps to two lines with a More toggle so "Why it matters"
  *  sits right under it instead of behind a long inner scroll. Elsewhere it renders in full and the toggle is hidden. */
-function WhatItMeans({ text }: { text: string }) {
+function WhatItMeans({ text, tip }: { text: string; tip?: string }) {
   const [expanded, setExpanded] = useState(false);
   return (
     <dd className="mt-1 text-paper/85">
       <span className="le-what block" data-expanded={expanded ? "" : undefined}>
         {text}
+        {tip ? (
+          <span className="le-tip-inline mt-2 gap-2 text-[13px] leading-snug text-paper/70">
+            <span className="text-btc" aria-hidden>
+              ◆
+            </span>
+            <span>{tip}</span>
+          </span>
+        ) : null}
       </span>
       <button
         type="button"
@@ -1863,21 +1876,21 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
           </button>
         </p>
       ) : null}
-      <div className="relative">
-        {/* phone: label 76 + A 80 + B 80 + Diff 80 = 316px, so all four columns fit at 360px+ with no swipe; under 360px
-            the columns drop to 64 + 72 + 72 + 70 = 278px with 11px type so 320px phones fit too. On anything narrower
-            phones Diff peeks at the right edge (left-aligned on phone so "Diff" and most of each value stay readable),
-            with a light fade and a tappable hint. Proximity snap so the short overflow never snaps back. */}
+      <div className="le-cmp relative">
+        {/* phone: label 76 + A 80 + B 80 + Diff 80 = 316px. The wrapper is a size container: when it is narrower than
+            332px (≈360px phones, 320px phones, or a 375px window that loses width to a scrollbar) the Diff column is
+            dropped and each row's difference is stacked under B's value ("+$3,200 vs A"), so nothing ever needs a
+            swipe or slides under the sticky labels. The swipe hint / fade only appear if the table still overflows. */}
         <div
           ref={scrollerRef}
           className="max-w-full snap-x snap-proximity scroll-pl-[4.75rem] max-[359px]:scroll-pl-16 overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:thin] sm:snap-none sm:scroll-pl-0"
         >
           <table className="w-full min-w-[316px] table-fixed text-[12px] max-[359px]:min-w-[278px] max-[359px]:text-[11px] sm:text-[13px]">
             <colgroup>
-              <col className="w-[4.75rem] max-[359px]:w-16 sm:w-auto" />
-              <col className="w-[5rem] max-[359px]:w-[4.5rem] sm:w-[8.5rem]" />
-              <col className="w-[5rem] max-[359px]:w-[4.5rem] sm:w-[8.5rem]" />
-              <col className="w-[5rem] max-[359px]:w-[4.375rem] sm:w-[7rem]" />
+              <col className="le-col-line w-[4.75rem] max-[359px]:w-16 sm:w-auto" />
+              <col className="le-col-val w-[5rem] max-[359px]:w-[4.5rem] sm:w-[8.5rem]" />
+              <col className="le-col-val w-[5rem] max-[359px]:w-[4.5rem] sm:w-[8.5rem]" />
+              <col className="le-diff-col w-[5rem] max-[359px]:w-[4.375rem] sm:w-[7rem]" />
             </colgroup>
             <thead>
               <tr className="text-left">
@@ -1892,7 +1905,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                     <span className="block text-[11.5px] font-semibold leading-tight text-balance sm:text-[13px]">{o.lender}</span>
                   </th>
                 ))}
-                <th className="snap-start pb-3 pl-1.5 pr-2 text-left align-bottom font-mono sm:text-right text-[10px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
+                <th className="le-diff-cell snap-start pb-3 pl-1.5 pr-2 text-left align-bottom font-mono sm:text-right text-[10px] font-normal uppercase tracking-[0.1em] text-muted sm:pl-2 sm:pr-5 sm:text-[10px] sm:tracking-[0.14em]">
                   <span aria-hidden title="Difference: B vs A">Diff</span>
                   <span className="sr-only">Difference, B versus A</span>
                 </th>
@@ -1903,6 +1916,7 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                 const lowA = r.a < r.b;
                 const lowB = r.b < r.a;
                 const d = r.b - r.a;
+                const dAbs = r.k === "Interest rate" ? pct(Math.abs(d)) : r.k === "APR" ? `${Math.abs(d).toFixed(3)}%` : usd(Math.abs(d));
                 return (
                   <tr key={r.k.startsWith("In ") ? "horizon" : r.k}>
                     <th scope="row" className={`${stickyCol} py-2.5 pr-1.5 text-left align-top text-[11.5px] max-[359px]:text-[11px] font-normal leading-snug text-ink-2 sm:pr-2 sm:text-[13px]`}>
@@ -1921,10 +1935,15 @@ function CompareView({ added, onAddQuestions }: { added: boolean; onAddQuestions
                         >
                           {r.fmt(v as number)}
                         </span>
+                        {i === 1 ? (
+                          <span className="le-diff-stack mt-1 whitespace-nowrap text-[10.5px] leading-tight text-muted">
+                            {d === 0 ? "same as A" : `${d > 0 ? "+" : "−"}${dAbs} vs A`}
+                          </span>
+                        ) : null}
                       </td>
                     ))}
-                    <td className="whitespace-nowrap py-2.5 pl-1.5 pr-2 text-left align-top font-mono text-[12px] max-[359px]:pl-1 max-[359px]:pr-1.5 max-[359px]:text-[11px] sm:text-right tabular-nums text-ink-2 sm:pl-2 sm:pr-5 sm:text-[12px] sm:text-muted">
-                      {d === 0 ? "—" : `B ${d > 0 ? "+" : "−"}${r.k === "Interest rate" ? pct(Math.abs(d)) : r.k === "APR" ? `${Math.abs(d).toFixed(3)}%` : usd(Math.abs(d))}`}
+                    <td className="le-diff-cell whitespace-nowrap py-2.5 pl-1.5 pr-2 text-left align-top font-mono text-[12px] max-[359px]:pl-1 max-[359px]:pr-1.5 max-[359px]:text-[11px] sm:text-right tabular-nums text-ink-2 sm:pl-2 sm:pr-5 sm:text-[12px] sm:text-muted">
+                      {d === 0 ? "—" : `B ${d > 0 ? "+" : "−"}${dAbs}`}
                     </td>
                   </tr>
                 );

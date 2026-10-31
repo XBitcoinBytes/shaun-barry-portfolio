@@ -197,3 +197,32 @@ body {
   [data-advisor-body] { display: flex; flex-direction: column; }
   .le-complete { order: 2; margin-top: 0.75rem; padding: 0.75rem; }
 }
+
+/* phone: extra room above checklist row 1 while the toast sits under the Copy / Share bar */
+@media (max-width: 1023px) {
+  #question-list[data-toast-room] { padding-top: 2.75rem; }
+}
+/* the "Ask"-adjacent tip moves into the More panel on very short desktops (see below) */
+.le-tip-inline { display: none; }
+
+/* phone Compare: drop the Diff column and stack each difference under B when the table area is under 332px */
+.le-cmp { container-type: inline-size; }
+.le-diff-stack { display: none; }
+@container (width < 332px) {
+  .le-cmp table { min-width: 0; }
+  .le-col-line { width: 34%; }
+  .le-col-val { width: 33%; }
+  .le-diff-col { width: 0; }
+  .le-diff-cell { display: none; }
+  .le-diff-stack { display: block; }
+}
+
+/* very short desktop: no leftover inner scrollbar — the ◆ tip lives inside More, and the body's bottom padding is
+   trimmed so content that fits doesn't overflow by a few px */
+@media (min-width: 1024px) and (max-height: 600px) {
+  .le-tip { display: none; }
+  .le-tip-inline { display: flex; }
+  [data-advisor-body] { padding-bottom: 0.5rem; }
+  .le-ask { margin-top: 0.5rem; }
+  .le-adv-dl > * + * { margin-top: 0.5rem; }
+}
