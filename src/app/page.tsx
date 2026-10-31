@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { RevealObserver } from "@/components/RevealObserver";
-import { LoanEstimateMock } from "@/components/LoanEstimateMock";
 import { Arrow, SectionHeader, ToConfirm } from "@/components/ui";
 import { credentials, experience, links, profile, skills } from "@/content/profile";
 
@@ -50,8 +49,8 @@ export default function Home() {
             aria-hidden
             className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,rgba(18,22,28,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(18,22,28,0.05)_1px,transparent_1px)] bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_70%_60%_at_30%_20%,black,transparent)]"
           />
-          <div className="mx-auto grid max-w-6xl items-center gap-14 px-5 pb-20 sm:px-8 lg:grid-cols-12 lg:gap-10 lg:pb-28">
-            <div className="lg:col-span-7">
+          <div className="mx-auto max-w-6xl px-5 pb-20 sm:px-8 lg:pb-28">
+            <div className="max-w-4xl">
               <p className="reveal inline-flex items-center gap-2 rounded-full border border-line bg-white/60 px-3 py-1 text-xs text-ink-2">
                 <span className="pulse-dot size-1.5 rounded-full bg-accent-2" aria-hidden />
                 {profile.openTo}
@@ -109,9 +108,6 @@ export default function Home() {
                   <dd className="mt-1 text-sm font-medium">Michigan</dd>
                 </div>
               </dl>
-            </div>
-            <div className="reveal lg:col-span-5" style={{ ["--d" as string]: "200ms" }}>
-              <LoanEstimateMock />
             </div>
           </div>
         </section>
