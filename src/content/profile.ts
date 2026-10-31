@@ -12,9 +12,9 @@ export const profile = {
   openTo: "Open to full-time, base-salary roles",
 
   // ---- Needs Shaun's input ----
-  email: null as string | null, // e.g. "shaun@example.com"
-  phone: null as string | null,
-  linkedin: null as string | null, // full URL once verified
+  email: "keeptheclient@yahoo.com" as string | null,
+  phone: "248 842 7104" as string | null,
+  linkedin: "https://www.linkedin.com/in/barryshaun/" as string | null,
   github: null as string | null, // full URL once verified
   photo: null as string | null, // e.g. "/shaun.jpg" placed in /public
   resumePdf: null as string | null, // e.g. "/Shaun-Barry-Resume.pdf" placed in /public

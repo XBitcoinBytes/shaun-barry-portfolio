@@ -429,6 +429,14 @@ export default function Home() {
                     Email to add
                   </span>
                 )}
+                {profile.phone ? (
+                  <a
+                    href={`tel:+1${profile.phone.replace(/\D/g, "")}`}
+                    className="group inline-flex items-center gap-2 rounded-full border border-paper/20 px-5 py-3 text-sm font-medium hover:border-paper/50"
+                  >
+                    {profile.phone} <Arrow />
+                  </a>
+                ) : null}
                 {profile.linkedin ? (
                   <a
                     href={profile.linkedin}
