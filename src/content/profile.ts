@@ -7,7 +7,7 @@
 export const profile = {
   name: "Shaun Barry",
   location: "Clarkston / Waterford, Michigan",
-  headline: "Mortgage lending professional building toward AI × mortgage.",
+  headline: "Mortgage loan originator with 25+ years in home lending, now building borrower-first AI for mortgage.",
   nmlsId: "30170",
   openTo: "Open to full-time, base-salary roles",
 
@@ -17,7 +17,7 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/barryshaun/" as string | null,
   github: null as string | null, // full URL once verified
   photo: null as string | null, // e.g. "/shaun.jpg" placed in /public
-  resumePdf: null as string | null, // e.g. "/Shaun-Barry-Resume.pdf" placed in /public
+  resumePdf: "/Shaun-Barry-Resume.pdf" as string | null,
 };
 
 export type Role = {
@@ -40,22 +40,79 @@ export const experience: Role[] = [
     highlights: [
       "Built a clickable Loan Estimate Advisor demo: plain-English explanations, lender questions, and offer comparison",
       "Drafting a phased, compliance-aware AI roadmap for mortgage lenders",
+      "Created 25+ financial education podcast episodes on YouTube (@MyBitcoinBytes), using AI to simplify complex finance topics",
     ],
   },
   {
     org: "Refi.com / Veterans United",
-    title: null,
-    dates: null,
+    title: "Mortgage Loan Originator",
+    dates: "Nov 2025 – 2026",
     summary:
-      "Mortgage and home lending — working directly in the process that takes a borrower from application to closing.",
-    highlights: [null, null, null],
+      "Originated refinance and purchase loans, working directly in the process that takes a borrower from application to closing.",
+    highlights: [
+      "Cultivated client relationships by collecting financial information and running credit to determine loan eligibility",
+      "Advised borrowers on suitable loan options, clearly explaining terms, rates, and the entire loan process",
+      "Managed client paperwork and loan files from initial application to final closing",
+    ],
+  },
+  {
+    org: "Perry Johnson Mortgage",
+    title: "Executive Mortgage Loan Originator · Remote",
+    dates: "Apr 2024 – Apr 2025",
+    summary: "FHA, VA, Conventional, and Jumbo origination with AI-assisted workflows.",
+    highlights: [
+      "Streamlined origination and underwriting with AI tools, reducing processing times by 25%",
+      "Ran data-driven risk assessments while achieving a 95% client satisfaction rate",
+    ],
+  },
+  {
+    org: "AmeriSave Mortgage Corp",
+    title: "Senior Mortgage Loan Originator – Chat Team · Remote",
+    dates: "Mar 2010 – Mar 2024",
+    summary:
+      "High-volume digital originator — most production came through online and chat channels.",
+    highlights: [
+      "Originated and closed 1,400+ residential mortgage loans totaling $400M+, managing a 70+ client pipeline in Salesforce, Botsplash, and LendingTree",
+      "Funded $80M+ in 2020, ranking in the top 5% of U.S. mortgage originators",
+      "Maintained a 95%+ client satisfaction rating with repeat and referral business",
+      "Held active mortgage licenses in 24 states",
+    ],
+  },
+  {
+    org: "Quicken Loans",
+    title: "Executive Mortgage Banker – Chat Team · Troy, MI",
+    dates: "Mar 2005 – Feb 2010",
+    summary: "Personalized mortgage solutions with long-term client relationships and repeat business.",
+    highlights: [
+      "Originated $36M+ in annual loan funding, consistently exceeding sales and performance targets",
+      "Pioneered adoption of chat to improve client communication and streamline loan processing",
+    ],
+  },
+  {
+    org: "Earlier career",
+    title: "Wells Fargo · Home Quarters · Citizens Mortgage",
+    dates: "Before 2005",
+    summary:
+      "Sr. Home Mortgage Consultant at Wells Fargo, Director of Mortgage Banking at Home Quarters, and Presidents Club Loan Officer at Citizens Mortgage Inc.",
+    highlights: [],
   },
 ];
 
-export const credentials = [
+export type Credential = { label: string; value: string | null; href?: string };
+
+export const credentials: Credential[] = [
   { label: "NMLS ID", value: profile.nmlsId },
-  { label: "Education", value: null as string | null },
-  { label: "Certifications", value: null as string | null },
+  {
+    label: "Licensed MLO (NMLS)",
+    value: "AL, CA, CO, ID, IL, MI, MN, MT, SC, SD, TN, WA — plus 12 previous licenses eligible for reinstatement",
+  },
+  {
+    label: "Certifications",
+    value:
+      "18 Generative AI & Prompt Engineering certifications (IBM, Google, Pragmatic AI) · Certified Bitcoin Professional (CBP) – C4 · Bitcoin & Cryptocurrencies – UC Berkeley, 2022",
+    href: "https://www.linkedin.com/in/barryshaun/details/certifications/",
+  },
+  { label: "Education", value: "Cincinnati State — coursework in Marketing" },
 ];
 
 export const skills = {
@@ -73,10 +130,21 @@ export const skills = {
     "Human-in-the-loop process design",
     "Responsible AI & fair-lending awareness",
   ],
-  tools: null as string[] | null, // e.g. LOS / CRM / pricing engines — to confirm
+  tools: [
+    "Encompass",
+    "Salesforce",
+    "Botsplash",
+    "Loan-Sifter",
+    "DocuSign",
+    "HubSpot",
+    "Microsoft Office",
+    "CRM & digital lending platforms",
+    "Fintech & AI-driven tools",
+  ] as string[] | null,
 };
 
 export const links = {
   bitcoinBytesSite: "https://bitcoinbytes.org",
   bitcoinBytesX: "https://x.com/xbitcoinbytes",
+  youtube: "https://www.youtube.com/@MyBitcoinBytes",
 };

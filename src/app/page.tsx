@@ -66,7 +66,8 @@ export default function Home() {
                 className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-2 text-pretty"
                 style={{ ["--d" as string]: "160ms" }}
               >
-                I&apos;m Shaun Barry, a mortgage lending professional (Refi.com / Veterans United) based in the{" "}
+                I&apos;m Shaun Barry, a mortgage loan originator with 25+ years in home lending — Quicken Loans,
+                AmeriSave, and Veterans United among them — based in the{" "}
                 {profile.location} area. I&apos;m focused on where lending experience meets applied AI: tools
                 that help consumers understand their loan, and practical roadmaps that help lenders adopt AI responsibly.
               </p>
@@ -96,8 +97,8 @@ export default function Home() {
                 style={{ ["--d" as string]: "320ms" }}
               >
                 <div>
-                  <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Domain</dt>
-                  <dd className="mt-1 text-sm font-medium">Home lending</dd>
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Lending</dt>
+                  <dd className="mt-1 text-sm font-medium">25+ years</dd>
                 </div>
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Focus</dt>
@@ -128,7 +129,8 @@ export default function Home() {
               }
               intro={
                 <>
-                  My background is in mortgage and home lending at Refi.com / Veterans United — the day-to-day
+                  My background is 25+ years in mortgage origination — 1,400+ loans and $400M+ funded at AmeriSave
+                  alone, plus Quicken Loans, Perry Johnson Mortgage, and Refi.com / Veterans United. It&apos;s the day-to-day
                   reality of disclosures, conditions, timelines, and borrowers who just want to know where they
                   stand. I&apos;m now channeling that experience into AI: not hype, but specific, useful tools
                   that remove confusion from one of the biggest financial decisions people make.
@@ -180,6 +182,7 @@ export default function Home() {
                     )}
                   </p>
                   <p className="mt-4 max-w-2xl leading-relaxed text-ink-2">{r.summary}</p>
+                  {r.highlights.length > 0 && (
                   <ul className="mt-5 space-y-2.5">
                     {r.highlights.map((h, j) => (
                       <li key={j} className="flex gap-3 text-[15px] leading-relaxed">
@@ -188,6 +191,7 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
+                  )}
                 </li>
               ))}
             </ol>
@@ -294,7 +298,8 @@ export default function Home() {
                 </h3>
                 <p className="mt-4 leading-relaxed text-ink-2">
                   Sound, accurate, unbiased Bitcoin information in small, digestible pieces. A website with price
-                  alerts and a newsletter, plus a companion account on X.
+                  alerts and a newsletter, 25+ financial education podcast episodes on YouTube, and a daily
+                  companion account on X. Offline, I promote financial education through the Clarkston Bitcoin Meetup Group.
                 </p>
                 <div className="mt-6 rounded-2xl border border-line bg-paper/60 p-5">
                   <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Editorial standard</p>
@@ -320,6 +325,14 @@ export default function Home() {
                     className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
                   >
                     @xbitcoinbytes on X <Arrow />
+                  </a>
+                  <a
+                    href={links.youtube}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
+                  >
+                    YouTube · @MyBitcoinBytes <Arrow />
                   </a>
                 </div>
               </article>
@@ -381,6 +394,16 @@ export default function Home() {
                       <dt className="text-xs text-muted">{c.label}</dt>
                       <dd className="mt-1 text-[15px] font-medium">
                         {c.value ?? <ToConfirm>To add</ToConfirm>}
+                        {c.href ? (
+                          <a
+                            href={c.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-1.5 block text-xs font-normal text-accent underline-offset-4 hover:underline"
+                          >
+                            View all on LinkedIn ↗
+                          </a>
+                        ) : null}
                       </dd>
                     </div>
                   ))}
