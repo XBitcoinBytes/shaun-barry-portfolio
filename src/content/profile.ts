@@ -9,7 +9,7 @@ export const profile = {
   location: "Clarkston, Michigan",
   headline: "Mortgage loan originator with 25+ years in home lending, now building borrower-first AI for mortgage.",
   nmlsId: "30170",
-  openTo: "Open to full-time, base-salary roles",
+  openTo: "Open to full-time roles",
 
   // ---- Needs Shaun's input ----
   email: "keeptheclient@yahoo.com" as string | null,

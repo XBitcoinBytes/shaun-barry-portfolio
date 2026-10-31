@@ -432,7 +432,7 @@ export default function Home() {
                 Building AI for lending? <em className="text-accent-soft">Let&apos;s talk.</em>
               </h2>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/70">
-                I&apos;m looking for a full-time, base-salary role where mortgage experience and an AI mindset
+                I&apos;m looking for a full-time role where mortgage experience and an AI mindset
                 both matter — product, operations, enablement, or borrower experience.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-3">
