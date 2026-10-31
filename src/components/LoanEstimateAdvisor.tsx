@@ -81,6 +81,10 @@ export function LoanEstimateAdvisor() {
   const toastLiftRef = useRef(0);
   const [sheet, setSheet] = useState<SheetState>("closed");
   const [sheetH, setSheetH] = useState(0);
+  // phone: while the checklist is on screen the peek sheet drops to a slim one-line bar (until the reader reopens it)
+  const [checklistInUse, setChecklistInUse] = useState(false);
+  const [minDismissed, setMinDismissed] = useState(false);
+  const autoMinRef = useRef(false);
   // height of the sheet's content (without the safe-area padding) → --sheet-h for the toast
   const [sheetContentH, setSheetContentH] = useState(0);
   const [questionsOpen, setQuestionsOpen] = useState(false);
@@ -112,6 +116,7 @@ export function LoanEstimateAdvisor() {
     if (isNarrow()) {
       // bottom sheet on phones / tablets: open as a peek, keep "full" if the reader expanded it
       setSheet((s) => (s === "closed" ? "peek" : s));
+      setMinDismissed(true); // picking a line wants the explanation, even with the checklist on screen
       return;
     }
     requestAnimationFrame(() => {
@@ -421,13 +426,55 @@ export function LoanEstimateAdvisor() {
     if (!sheetMounted || !el || typeof ResizeObserver === "undefined") return;
     const inner = sheetContentRef.current;
     const ro = new ResizeObserver(() => {
-      setSheetH(el.offsetHeight);
+      // keep the page spacer at the peek height while the sheet is auto-minimised, so the page doesn't shrink and
+      // jump under the reader's finger
+      if (!autoMinRef.current) setSheetH(el.offsetHeight);
       setSheetContentH(inner ? inner.offsetHeight : el.offsetHeight);
     });
     ro.observe(el);
     if (inner) ro.observe(inner);
     return () => ro.disconnect();
   }, [sheetMounted]);
+
+  // phone: is the checklist in use (its card occupies the upper ~60% of the screen)?
+  useEffect(() => {
+    if (!sheetMounted) return;
+    let raf = 0;
+    const check = () => {
+      const card = document.querySelector<HTMLElement>('section[aria-label="Questions for your lender"]');
+      if (!card || !isNarrow()) {
+        setChecklistInUse(false);
+        return;
+      }
+      const r = card.getBoundingClientRect();
+      const inUse = r.top < window.innerHeight * 0.6 && r.bottom > NAV_OFFSET + 40;
+      setChecklistInUse(inUse);
+      if (!inUse) setMinDismissed(false);
+    };
+    const schedule = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(check);
+    };
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [sheetMounted]);
+  const autoMin = checklistInUse && !minDismissed && sheet === "peek";
+  useEffect(() => {
+    autoMinRef.current = autoMin;
+  }, [autoMin]);
+  const onSheetState = useCallback(
+    (next: SheetState) => {
+      if (autoMin) setMinDismissed(true);
+      setSheet(next);
+    },
+    [autoMin],
+  );
 
   const panelProps = {
     hotspot: selected ? byId[selected] : null,
@@ -585,7 +632,7 @@ export function LoanEstimateAdvisor() {
             <div ref={sheetRef} className="fixed inset-x-0 bottom-0 z-40 lg:hidden">
               <div className="mx-auto max-w-2xl overflow-hidden rounded-t-3xl bg-ink pb-[env(safe-area-inset-bottom)] text-paper shadow-[0_-20px_50px_-20px_rgba(18,22,28,0.55)]">
                 <div ref={sheetContentRef}>
-                  <PhoneSheet state={sheet} onState={setSheet} panel={panelProps} />
+                  <PhoneSheet state={autoMin ? "closed" : sheet} slim={autoMin} onState={onSheetState} panel={panelProps} />
                 </div>
               </div>
             </div>
@@ -1230,6 +1277,26 @@ function AdvisorPanel({
   maxH?: string;
 }) {
   const sheet = variant === "sheet";
+  // desktop card: flag when the body has more below the fold (drives a bottom fade; short screens hide the scrollbar)
+  const bodyRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (sheet || !el) return;
+    const update = () => {
+      const more = el.scrollHeight - el.clientHeight - el.scrollTop > 4;
+      if (more) el.setAttribute("data-more", "");
+      else el.removeAttribute("data-more");
+    };
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+    ro?.observe(el);
+    Array.from(el.children).forEach((c) => ro?.observe(c));
+    return () => {
+      el.removeEventListener("scroll", update);
+      ro?.disconnect();
+    };
+  }, [sheet, hotspot?.id, complete]);
   const showJump = !complete && explored > 0 && remaining > 0;
   const headingCls = "outline-none focus-visible:ring-2 focus-visible:ring-accent-soft/60 focus-visible:ring-offset-0 rounded-md";
   const padX = sheet ? "px-5" : "px-6 sm:px-7";
@@ -1308,6 +1375,7 @@ function AdvisorPanel({
       {/* body: scrolls inside the card on desktop so the header and stepper stay put */}
       <div
         data-advisor-body
+        ref={bodyRef}
         className={`relative ${padX} ${sheet ? "" : `min-h-0 flex-auto overflow-y-auto overscroll-contain [scrollbar-width:thin] lg:min-h-[160px] ${hotspot ? "border-t border-paper/10" : ""} pb-5`}`}
       >
         {completeBox}
@@ -1319,7 +1387,6 @@ function AdvisorPanel({
             ) : null}
             <dl className={`le-adv-dl ${sheet ? "mt-3" : "mt-4"} space-y-4 text-[14px] leading-relaxed`}>
               <div>
-                <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">What it means</dt>
                 <WhatItMeans text={hotspot.what} tip={hotspot.tip} />
               </div>
               <div>
@@ -1398,27 +1465,32 @@ function AdvisorPanel({
 function WhatItMeans({ text, tip }: { text: string; tip?: string }) {
   const [expanded, setExpanded] = useState(false);
   return (
-    <dd className="mt-1 text-paper/85">
-      <span className="le-what block" data-expanded={expanded ? "" : undefined}>
-        {text}
-        {tip ? (
-          <span className="le-tip-inline mt-2 gap-2 text-[13px] leading-snug text-paper/70">
-            <span className="text-btc" aria-hidden>
-              ◆
+    <>
+      <dt className="flex items-baseline justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">
+        <span>What it means</span>
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          className="le-what-more shrink-0 items-center gap-1 rounded font-mono text-[10px] uppercase tracking-[0.14em] text-accent-soft hover:text-paper"
+        >
+          {expanded ? "Less ▴" : "More ▾"}
+        </button>
+      </dt>
+      <dd className="mt-1 text-paper/85">
+        <span className="le-what block" data-expanded={expanded ? "" : undefined}>
+          {text}
+          {tip ? (
+            <span className="le-tip-inline mt-2 gap-2 text-[13px] leading-snug text-paper/70">
+              <span className="text-btc" aria-hidden>
+                ◆
+              </span>
+              <span>{tip}</span>
             </span>
-            <span>{tip}</span>
-          </span>
-        ) : null}
-      </span>
-      <button
-        type="button"
-        onClick={() => setExpanded((v) => !v)}
-        aria-expanded={expanded}
-        className="le-what-more mt-1 items-center gap-1 rounded font-mono text-[10px] uppercase tracking-[0.14em] text-accent-soft hover:text-paper"
-      >
-        {expanded ? "Less ▴" : "More ▾"}
-      </button>
-    </dd>
+          ) : null}
+        </span>
+      </dd>
+    </>
   );
 }
 
@@ -1439,10 +1511,13 @@ function FlagChip({ flag, className = "" }: { flag: Flag; className?: string }) 
 
 function PhoneSheet({
   state,
+  slim = false,
   onState,
   panel,
 }: {
   state: SheetState;
+  /** auto-minimised while the checklist is in use: same one-line bar, labelled so it's clear it can come back */
+  slim?: boolean;
   onState: (s: SheetState) => void;
   panel: PanelProps;
 }) {
@@ -1459,12 +1534,15 @@ function PhoneSheet({
         onClick={() => onState("peek")}
         aria-expanded={false}
         aria-controls="advisor-sheet"
-        className="relative flex w-full items-center justify-between gap-3 px-5 pb-3 pt-4 text-left"
+        aria-label={`${slim ? "Advisor minimised while you use your checklist. " : ""}Show advisor: ${h ? h.label : "tap a numbered line to begin"}`}
+        className="relative flex w-full items-center justify-between gap-3 px-5 pb-2.5 pt-3.5 text-left"
       >
         {handle}
-        <span className="min-w-0">
-          <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">{status}</span>
-          <span className="block truncate text-sm font-medium">{h ? h.label : "Tap a numbered line to begin"}</span>
+        <span className="flex min-w-0 items-baseline gap-2">
+          <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">
+            {h ? `${panel.step}/${hotspots.length}` : "Advisor"}
+          </span>
+          <span className="truncate text-sm font-medium">{h ? h.label : "Tap a numbered line to begin"}</span>
         </span>
         <span className="shrink-0 rounded-full border border-paper/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider">
           Show ▴
