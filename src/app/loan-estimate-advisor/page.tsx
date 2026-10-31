@@ -108,7 +108,7 @@ export default function LoanEstimateAdvisorPage() {
             <LoanEstimateAdvisor />
           </div>
 
-          <section className="mt-16 grid gap-6 border-t border-line pt-12 md:grid-cols-3">
+          <section className="mt-8 grid gap-6 border-t border-line pt-7 md:grid-cols-3 lg:mt-16 lg:pt-12">
             {[
               ["What a full version adds", "Upload a PDF or photo, extract fields automatically, and explain every line of the borrower’s real estimate."],
               ["Designed for trust", "Every explanation points back to the exact line on the form. No black boxes, no product pushing."],

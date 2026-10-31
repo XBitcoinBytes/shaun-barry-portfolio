@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import {
   borrower,
   cashToClose,
@@ -489,6 +489,17 @@ export function LoanEstimateAdvisor() {
     onJump: jumpUnexplored,
   };
 
+  // phone: reserve exactly the sheet's real height (+12px) at the end of the page so the fixed sheet never covers the
+  // last content, without adding space between the checklist and the section after it
+  useEffect(() => {
+    const root = document.documentElement;
+    if (mode === "explore" && sheetMounted) root.style.setProperty("--le-sheet-room", `${sheetH + 12}px`);
+    else root.style.removeProperty("--le-sheet-room");
+    return () => {
+      root.style.removeProperty("--le-sheet-room");
+    };
+  }, [mode, sheetMounted, sheetH]);
+
   return (
     <div>
       {/* ---------- Intro / start ---------- */}
@@ -618,10 +629,8 @@ export function LoanEstimateAdvisor() {
             </div>
           </div>
 
-          {/* room for the phone bottom sheet so it never covers the last content */}
-          {mode === "explore" ? (
-            <div aria-hidden className="lg:hidden" style={{ height: sheetH + 12 }} />
-          ) : null}
+          {/* room for the phone bottom sheet lives at the very end of the page (body padding, see effect), not here:
+              a spacer here opened a large gap between the checklist and the next section */}
 
           {/* ---------- phone / tablet bottom sheet ---------- */}
           {sheetMounted ? (
@@ -1460,6 +1469,7 @@ function AdvisorPanel({
  *  sits right under it instead of behind a long inner scroll. Elsewhere it renders in full and the toggle is hidden. */
 function WhatItMeans({ text, tip }: { text: string; tip?: string }) {
   const [expanded, setExpanded] = useState(false);
+  const id = useId();
   return (
     <>
       <dt className="flex items-baseline justify-between gap-3 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">
@@ -1467,14 +1477,24 @@ function WhatItMeans({ text, tip }: { text: string; tip?: string }) {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
+          onKeyDown={(e) => {
+            // native buttons already activate on Enter/Space; handle them explicitly so no page-level key handler can eat them
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              setExpanded((v) => !v);
+            }
+          }}
           aria-expanded={expanded}
-          className="le-what-more shrink-0 items-center gap-1 rounded font-mono text-[10px] uppercase tracking-[0.14em] text-accent-soft hover:text-paper"
+          aria-controls={id}
+          aria-label={expanded ? "Show less of What it means" : "Show more of What it means"}
+          className="le-what-more -my-1 shrink-0 cursor-pointer items-center gap-1 rounded px-1.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent-soft hover:text-paper focus-visible:bg-paper/10 focus-visible:text-paper focus-visible:outline-offset-0"
         >
           {expanded ? "Less ▴" : "More ▾"}
         </button>
       </dt>
       <dd className="mt-1 text-paper/85">
-        <span className="le-what block" data-expanded={expanded ? "" : undefined}>
+        <span id={id} className="le-what block" data-expanded={expanded ? "" : undefined}>
           {text}
           {tip ? (
             <span className="le-tip-inline mt-2 gap-2 text-[13px] leading-snug text-paper/70">
@@ -1557,7 +1577,7 @@ function PhoneSheet({
         <button
           type="button"
           onClick={() => onState(full ? "peek" : "full")}
-          aria-label={full ? "Show less" : "Expand explanation"}
+          aria-label={full ? "Collapse explanation" : "Expand explanation"}
           className="absolute inset-x-0 top-0 h-4"
         >
           {handle}
@@ -1569,13 +1589,15 @@ function PhoneSheet({
               {h ? h.label : "Tap a numbered line to begin"}
             </p>
           </div>
+          {/* header and footer use one vocabulary: Expand ▴ / Collapse ▾ (peek ↔ full), Hide ▾ (to the bar), Show ▴ (back) */}
           <button
             type="button"
-            onClick={() => onState("closed")}
-            aria-expanded
+            onClick={() => onState(full ? "peek" : "closed")}
+            aria-expanded={full ? true : undefined}
+            aria-label={full ? "Collapse explanation" : "Hide advisor"}
             className="shrink-0 rounded-full border border-paper/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors hover:border-paper/50"
           >
-            Hide ▾
+            {full ? "Collapse ▾" : "Hide ▾"}
           </button>
         </div>
         {h ? (
@@ -1597,7 +1619,7 @@ function PhoneSheet({
             {h
               ? firstSentence(h.what)
               : panel.complete
-                ? "Every line explored. Expand to copy or share your questions."
+                ? "Every line explored. Tap Expand ▴ to copy or share your questions."
                 : "Look for the orange numbers on the estimate. The advisor explains each line and adds a question to your list."}
           </p>
         </div>
@@ -1628,7 +1650,7 @@ function PhoneSheet({
           disabled={!h && !panel.complete}
           className="flex-1 rounded-full px-2 py-2 font-mono text-[10px] uppercase tracking-wider text-paper/70 transition-colors hover:text-paper disabled:opacity-0"
         >
-          {full ? "Less ▾" : "Expand ▴"}
+          {full ? "Collapse ▾" : "Expand ▴"}
         </button>
         <button
           type="button"
