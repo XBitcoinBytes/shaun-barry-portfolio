@@ -12,7 +12,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 const description =
-  "Shaun Barry — mortgage lending professional (Refi.com / Veterans United) building borrower-first AI for the mortgage industry. Based in the Clarkston / Waterford, Michigan area.";
+  "Shaun Barry — mortgage lending professional (Refi.com / Veterans United) building borrower-first AI for the mortgage industry. Based in the Clarkston, Michigan area.";
 
 export const metadata: Metadata = {
   title: "Shaun Barry — Mortgage × AI",

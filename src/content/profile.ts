@@ -6,7 +6,7 @@
 
 export const profile = {
   name: "Shaun Barry",
-  location: "Clarkston / Waterford, Michigan",
+  location: "Clarkston, Michigan",
   headline: "Mortgage loan originator with 25+ years in home lending, now building borrower-first AI for mortgage.",
   nmlsId: "30170",
   openTo: "Open to full-time, base-salary roles",
@@ -15,7 +15,7 @@ export const profile = {
   email: "keeptheclient@yahoo.com" as string | null,
   phone: "248 842 7104" as string | null,
   linkedin: "https://www.linkedin.com/in/barryshaun/" as string | null,
-  github: null as string | null, // full URL once verified
+  github: "https://github.com/XBitcoinBytes" as string | null,
   photo: null as string | null, // e.g. "/shaun.jpg" placed in /public
   resumePdf: "/Shaun-Barry-Resume.pdf" as string | null,
 };
@@ -104,7 +104,7 @@ export const credentials: Credential[] = [
   { label: "NMLS ID", value: profile.nmlsId },
   {
     label: "Licensed MLO (NMLS)",
-    value: "AL, CA, CO, ID, IL, MI, MN, MT, SC, SD, TN, WA — plus 12 previous licenses eligible for reinstatement",
+    value: "AK, AR, AZ, CA, CO, CT, DC, FL, GA, IA, ID, IL, IN, KS, KY, MA, MD, MI, MN, MO, MS, MT, NC, ND, NE, NH, NM, OH, OK, OR, PA, RI, SD, TN, TX, VA, VT, WA, WV",
   },
   {
     label: "Certifications",
