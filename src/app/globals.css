@@ -239,3 +239,9 @@ body {
   [data-advisor-body] { scrollbar-width: none; }
   [data-advisor-body]::-webkit-scrollbar { display: none; }
 }
+
+/* short desktop: the sticky right column scrolls (to reach the checklist) without showing a thin scrollbar */
+@media (min-width: 1024px) and (max-height: 720px) {
+  .le-adv-col { scrollbar-width: none; }
+  .le-adv-col::-webkit-scrollbar { display: none; }
+}

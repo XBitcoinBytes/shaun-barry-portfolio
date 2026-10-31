@@ -84,7 +84,6 @@ export function LoanEstimateAdvisor() {
   // phone: while the checklist is on screen the peek sheet drops to a slim one-line bar (until the reader reopens it)
   const [checklistInUse, setChecklistInUse] = useState(false);
   const [minDismissed, setMinDismissed] = useState(false);
-  const autoMinRef = useRef(false);
   // height of the sheet's content (without the safe-area padding) → --sheet-h for the toast
   const [sheetContentH, setSheetContentH] = useState(0);
   const [questionsOpen, setQuestionsOpen] = useState(false);
@@ -426,9 +425,7 @@ export function LoanEstimateAdvisor() {
     if (!sheetMounted || !el || typeof ResizeObserver === "undefined") return;
     const inner = sheetContentRef.current;
     const ro = new ResizeObserver(() => {
-      // keep the page spacer at the peek height while the sheet is auto-minimised, so the page doesn't shrink and
-      // jump under the reader's finger
-      if (!autoMinRef.current) setSheetH(el.offsetHeight);
+      setSheetH(el.offsetHeight); // the page spacer always matches the sheet's real height (peek, full or slim bar)
       setSheetContentH(inner ? inner.offsetHeight : el.offsetHeight);
     });
     ro.observe(el);
@@ -436,7 +433,7 @@ export function LoanEstimateAdvisor() {
     return () => ro.disconnect();
   }, [sheetMounted]);
 
-  // phone: is the checklist in use (its card occupies the upper ~60% of the screen)?
+  // phone: is the checklist in use (its card has reached the upper ~60% of the screen, or we're past it)?
   useEffect(() => {
     if (!sheetMounted) return;
     let raf = 0;
@@ -447,7 +444,9 @@ export function LoanEstimateAdvisor() {
         return;
       }
       const r = card.getBoundingClientRect();
-      const inUse = r.top < window.innerHeight * 0.6 && r.bottom > NAV_OFFSET + 40;
+      // in use once its card reaches the upper ~60% of the screen — and it stays that way below it (the end of the
+      // demo), so the space reserved under the checklist matches the slim bar instead of the full peek
+      const inUse = r.top < window.innerHeight * 0.6;
       setChecklistInUse(inUse);
       if (!inUse) setMinDismissed(false);
     };
@@ -465,9 +464,6 @@ export function LoanEstimateAdvisor() {
     };
   }, [sheetMounted]);
   const autoMin = checklistInUse && !minDismissed && sheet === "peek";
-  useEffect(() => {
-    autoMinRef.current = autoMin;
-  }, [autoMin]);
   const onSheetState = useCallback(
     (next: SheetState) => {
       if (autoMin) setMinDismissed(true);
@@ -624,7 +620,7 @@ export function LoanEstimateAdvisor() {
 
           {/* room for the phone bottom sheet so it never covers the last content */}
           {mode === "explore" ? (
-            <div aria-hidden className="lg:hidden" style={{ height: Math.max(sheetH, 64) + 16 }} />
+            <div aria-hidden className="lg:hidden" style={{ height: sheetH + 12 }} />
           ) : null}
 
           {/* ---------- phone / tablet bottom sheet ---------- */}
@@ -1534,19 +1530,22 @@ function PhoneSheet({
         onClick={() => onState("peek")}
         aria-expanded={false}
         aria-controls="advisor-sheet"
-        aria-label={`${slim ? "Advisor minimised while you use your checklist. " : ""}Show advisor: ${h ? h.label : "tap a numbered line to begin"}`}
-        className="relative flex w-full items-center justify-between gap-3 px-5 pb-2.5 pt-3.5 text-left"
+        className="relative flex w-full items-baseline gap-2 px-5 pb-3 pt-3.5 text-left text-sm"
       >
         {handle}
-        <span className="flex min-w-0 items-baseline gap-2">
-          <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">
-            {h ? `${panel.step}/${hotspots.length}` : "Advisor"}
-          </span>
-          <span className="truncate text-sm font-medium">{h ? h.label : "Tap a numbered line to begin"}</span>
+        {slim ? <span className="sr-only">Advisor minimised while you use your checklist: </span> : null}
+        {/* "3/17 · Loan amount · Show ▴" */}
+        <span className="shrink-0 font-mono text-[11px] tabular-nums text-paper/60">
+          {h ? `${panel.step}/${hotspots.length}` : "Advisor"}
         </span>
-        <span className="shrink-0 rounded-full border border-paper/20 px-3 py-1 font-mono text-[10px] uppercase tracking-wider">
-          Show ▴
+        <span aria-hidden className="shrink-0 text-paper/40">
+          ·
         </span>
+        <span className="min-w-0 truncate font-medium">{h ? h.label : "Tap a numbered line to begin"}</span>
+        <span aria-hidden className="shrink-0 text-paper/40">
+          ·
+        </span>
+        <span className="shrink-0 text-[13px] font-medium text-accent-soft">Show ▴</span>
       </button>
     );
   }
