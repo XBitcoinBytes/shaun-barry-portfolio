@@ -200,8 +200,8 @@ export default function Home() {
             <SectionHeader
               index="03"
               kicker="Projects"
-              title="Three bets on a better mortgage experience."
-              intro="An interactive demo, a concept in active design, and one live project. Each starts from a real pain point I’ve seen up close."
+              title="Four bets on a better mortgage experience."
+              intro="An interactive demo, an open AI-safety eval, a concept in active design, and one live project. Each starts from a real pain point I’ve seen up close."
             />
 
             <div className="mt-16 grid gap-6 lg:grid-cols-2">
@@ -253,6 +253,55 @@ export default function Home() {
                     </li>
                   ))}
                 </ol>
+              </article>
+
+              {/* Mortgage Borrower Advice Eval */}
+              <article className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:col-span-2 lg:grid lg:grid-cols-2 lg:gap-12">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                      <span className="size-1.5 rounded-full bg-accent-2" aria-hidden />
+                      Open eval · v1.0
+                    </span>
+                    <span className="font-mono text-[11px] text-muted">AI safety</span>
+                  </div>
+                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Mortgage Borrower Advice Eval</h3>
+                  <p className="mt-4 leading-relaxed text-ink-2">
+                    78 loan-officer-reviewed test cases that check whether an AI assistant gives borrowers safe, useful
+                    answers on Loan Estimates and TRID, closing wire fraud, application fraud, fair lending, and more,
+                    and whether it over-refuses legitimate questions.
+                  </p>
+                  <div className="mt-7 flex flex-wrap items-center gap-3">
+                    <Link
+                      href="/mortgage-advice-eval"
+                      className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                    >
+                      See the eval
+                      <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
+                    </Link>
+                    <a
+                      href="https://github.com/XBitcoinBytes/mortgage-borrower-advice-eval"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
+                    >
+                      GitHub <Arrow />
+                    </a>
+                  </div>
+                </div>
+                <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
+                  {[
+                    ["78", "items · 47 unsafe, 31 safe controls"],
+                    ["19", "risk categories"],
+                    ["5 / 7", "LO verdict vs. rubric agreement (gold set)"],
+                    ["76 / 78", "reference answers at full rubric marks"],
+                  ].map(([n, d]) => (
+                    <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
+                      <p className="font-serif text-3xl leading-none">{n}</p>
+                      <p className="mt-2 text-sm text-ink-2">{d}</p>
+                    </li>
+                  ))}
+                </ul>
               </article>
 
               {/* Lender AI Roadmap */}

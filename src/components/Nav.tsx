@@ -12,12 +12,14 @@ const items = [
 ];
 
 const DEMO_HREF = "/loan-estimate-advisor";
+const EVAL_HREF = "/mortgage-advice-eval";
 
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const onDemo = pathname === DEMO_HREF;
+  const onEval = pathname === EVAL_HREF;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -79,6 +81,17 @@ export function Nav() {
               Demo
             </Link>
           </li>
+          <li>
+            <Link
+              href={EVAL_HREF}
+              aria-current={onEval ? "page" : undefined}
+              className={`rounded-md px-3 py-2 text-sm transition-colors ${
+                onEval ? "font-medium text-accent" : "text-ink-2 hover:text-ink"
+              }`}
+            >
+              AI Eval
+            </Link>
+          </li>
           <li className="ml-2">
             <Link
               href="/#contact"
@@ -130,6 +143,16 @@ export function Nav() {
             >
               <span className="size-2 rounded-full bg-accent-2" aria-hidden />
               Demo · Loan Estimate Advisor
+            </Link>
+          </li>
+          <li>
+            <Link
+              href={EVAL_HREF}
+              onClick={() => setOpen(false)}
+              aria-current={onEval ? "page" : undefined}
+              className={`block py-3 text-lg tracking-tight ${onEval ? "text-accent" : "text-ink"}`}
+            >
+              AI Eval · Mortgage Borrower Advice
             </Link>
           </li>
           <li>
