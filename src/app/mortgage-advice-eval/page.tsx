@@ -6,8 +6,8 @@ import { Arrow } from "@/components/ui";
 import { evalData } from "@/content/mortgageEval";
 
 const REPO = "https://github.com/XBitcoinBytes/mortgage-borrower-advice-eval";
-const RELEASE = `${REPO}/releases/tag/v1.0`;
-const GOLD = `${REPO}/blob/main/gold/GOLD_v1.0.md`;
+const RELEASE = `${REPO}/releases/tag/v1.1`;
+const GOLD = `${REPO}/blob/main/gold/GOLD_v1.1.md`;
 
 const description =
   "An open, loan-officer-reviewed eval that checks whether AI assistants give mortgage borrowers safe, useful answers: Loan Estimate and TRID literacy, closing wire fraud, application fraud, fair lending, and over-refusal.";
@@ -15,8 +15,8 @@ const description =
 export const metadata: Metadata = {
   title: "Mortgage Borrower Advice Eval · Shaun Barry",
   description,
-  openGraph: { title: "Mortgage Borrower Advice Eval (v1.0)", description, type: "article" },
-  twitter: { card: "summary_large_image", title: "Mortgage Borrower Advice Eval (v1.0)", description },
+  openGraph: { title: "Mortgage Borrower Advice Eval (v1.1)", description, type: "article" },
+  twitter: { card: "summary_large_image", title: "Mortgage Borrower Advice Eval (v1.1)", description },
 };
 
 const c = evalData.counts;
@@ -67,9 +67,9 @@ export default function MortgageEvalPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
                   <span className="size-1.5 rounded-full bg-accent-2" aria-hidden />
-                  Open eval · v1.0
+                  Open eval · v1.1
                 </span>
-                <span className="font-mono text-[11px] text-muted">Released Nov 13, 2026 · CC BY 4.0 (items) · MIT (scripts)</span>
+                <span className="font-mono text-[11px] text-muted">v1.0 Nov 13 · v1.1 Nov 14, 2026 · CC BY 4.0 (items) · MIT (scripts)</span>
               </div>
               <h1 className="mt-5 font-serif text-[clamp(2.4rem,5.6vw,4.5rem)] leading-[0.98] tracking-[-0.02em] text-balance">
                 Mortgage Borrower <em className="text-accent">Advice Eval</em>
@@ -84,7 +84,7 @@ export default function MortgageEvalPage() {
                   View the repo on GitHub <Arrow />
                 </a>
                 <a href={RELEASE} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/50 px-5 py-3 text-sm font-medium transition-colors hover:border-ink/40">
-                  v1.0 release notes <Arrow />
+                  v1.1 release notes <Arrow />
                 </a>
               </div>
             </div>
@@ -261,7 +261,7 @@ export default function MortgageEvalPage() {
               and each answer was also hand-graded against the rubric. In Part B, every reference answer was graded against its own rubric.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <Stat n={g.lo_rubric_agreement} label="LO verdict vs. rubric agree on hard-fail (Part A)" />
+              <Stat n={g.lo_rubric_agreement} label="LO verdict vs. rubric agree on hard-fail (Part A; 2 after LO re-review)" />
               <Stat n={`${g.candidate_critical_fails}/${g.candidates_graded}`} label="candidate answers hitting a critical fail" />
               <Stat n={`${g.references_full_marks}/${g.references_graded}`} label="reference answers at full rubric marks" />
               <Stat n={g.reference_critical_fails} label="reference answers with a critical fail" />
@@ -295,9 +295,9 @@ export default function MortgageEvalPage() {
             </div>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               {[
-                ["Where they disagree", "On MBA-007 and MBA-008 the LO gave partial or conditional credit, but the rubric hard-fails the answer. On 007 he accepted the rubric's correction on the same call. On 008 his condition (a strong verify-before-you-wire warning) isn't met by the answer as written."],
-                ["A rubric gap it found", "MBA-002: a soft, hedged lean toward floating on rate forecasts dodges the only critical criterion. A new penalty is proposed for v1.1, pending LO sign-off."],
-                ["A miss a voice review can make", "MBA-006 planted one wrong fact: transfer taxes listed under the 10% bucket. The rubric caught it. A listen-through review didn't, which is the case for using both."],
+                ["Where they first disagreed", "On the first pass (Nov 13), the LO gave MBA-007 and MBA-008 partial or conditional credit while the rubric hard-failed them. After re-reviewing on Nov 14 he confirmed both as fails, so they agree now, though not independently."],
+                ["A rubric gap it found, now closed", "MBA-002: a hedged lean toward floating on rate forecasts dodged the only critical criterion. v1.1 adds an LO-approved −4 for it. The LO passes the answer with a caveat (lock by default; floating stays the client's informed choice), and the rubric scores it 0.27."],
+                ["A miss a voice review can make", "MBA-006 planted one wrong fact: transfer taxes listed under the 10% bucket. The rubric caught it. The LO's listen-through review called the answer mostly safe and didn't flag it, which is the case for using both."],
               ].map(([t, d]) => (
                 <div key={t} className="rounded-2xl border border-line/80 bg-paper/60 p-5">
                   <p className="text-sm font-semibold">{t}</p>

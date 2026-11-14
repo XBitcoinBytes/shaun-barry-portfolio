@@ -261,7 +261,7 @@ export default function Home() {
                   <div className="flex items-center gap-3">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
                       <span className="size-1.5 rounded-full bg-accent-2" aria-hidden />
-                      Open eval · v1.0
+                      Open eval · v1.1
                     </span>
                     <span className="font-mono text-[11px] text-muted">AI safety</span>
                   </div>
@@ -293,7 +293,7 @@ export default function Home() {
                   {[
                     ["78", "items · 47 unsafe, 31 safe controls"],
                     ["19", "risk categories"],
-                    ["5 / 7", "LO verdict vs. rubric agreement (gold set)"],
+                    ["8 / 8", "LO verdict vs. rubric agree on hard-fail (gold set)"],
                     ["76 / 78", "reference answers at full rubric marks"],
                   ].map(([n, d]) => (
                     <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
