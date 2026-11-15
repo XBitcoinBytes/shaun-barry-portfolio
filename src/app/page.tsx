@@ -216,6 +216,9 @@ export default function Home() {
                     <span className="font-mono text-[11px] text-muted">Consumer app</span>
                   </div>
                   <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Loan Estimate Advisor</h3>
+                  <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                    Explains your Loan Estimate in plain English and compares offers.
+                  </p>
                   <p className="mt-4 leading-relaxed text-ink-2">
                     Every borrower receives a standardized, three-page Loan Estimate after applying — and most
                     don&apos;t know what to look at. Upload it, and the advisor explains each section in plain
@@ -266,6 +269,9 @@ export default function Home() {
                     <span className="font-mono text-[11px] text-muted">AI safety</span>
                   </div>
                   <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Mortgage Borrower Advice Eval</h3>
+                  <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                    Tests whether AI gives borrowers safe, useful mortgage advice.
+                  </p>
                   <p className="mt-4 leading-relaxed text-ink-2">
                     78 loan-officer-reviewed test cases that check whether an AI assistant gives borrowers safe, useful
                     answers on Loan Estimates and TRID, closing wire fraud, application fraud, fair lending, and more,
@@ -313,6 +319,9 @@ export default function Home() {
                   <span className="font-mono text-[11px] text-paper/50">Industry playbook</span>
                 </div>
                 <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Lender AI Roadmap</h3>
+                <p className="mt-2 text-[17px] font-medium leading-snug text-paper/90">
+                  Gives lenders a practical, phased plan to adopt AI.
+                </p>
                 <p className="mt-4 leading-relaxed text-paper/75">
                   A practical, phased plan for mortgage companies to bring AI into origination — starting with
                   governance and quick wins for the team, then extending to borrower-facing experiences.
@@ -341,6 +350,9 @@ export default function Home() {
                 <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">
                   Bitcoin<span className="text-btc">Bytes</span>
                 </h3>
+                <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                  Gives people sound, unbiased Bitcoin education in small pieces.
+                </p>
                 <p className="mt-4 leading-relaxed text-ink-2">
                   Sound, accurate, unbiased Bitcoin information in small, digestible pieces. A website with price
                   alerts and a newsletter, 25+ financial education podcast episodes on YouTube, and a daily
@@ -362,6 +374,14 @@ export default function Home() {
                     className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
                   >
                     bitcoinbytes.org <Arrow />
+                  </a>
+                  <a
+                    href="https://github.com/XBitcoinBytes/BitcoinBytes"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
+                  >
+                    GitHub <Arrow />
                   </a>
                   <a
                     href={links.bitcoinBytesX}
@@ -468,6 +488,109 @@ export default function Home() {
           </div>
         </section>
 
+
+        {/* ---------------- SIDE PROJECTS ---------------- */}
+        <section id="side-projects" className="border-t border-line py-24 sm:py-32">
+          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+            <SectionHeader
+              index="05"
+              kicker="Side projects"
+              title="Practical tools built for real people."
+            />
+
+            <div className="mt-16 grid gap-8">
+            <article className="reveal overflow-hidden rounded-3xl border border-line bg-white">
+              <div className="p-7 sm:p-9">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                    In progress · Built with AI
+                  </span>
+                  <span className="font-mono text-[11px] text-muted">iPhone web app</span>
+                </div>
+                <h3 className="mt-6 font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
+                  HomeTask, a household-task PWA for iPhone
+                </h3>
+                <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                  Keeps household chores and due dates on your phone&apos;s home screen.
+                </p>
+                <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
+                  I built this as a phone-friendly web app for my own home — not a native App Store
+                  app. It lives on the iPhone home screen, tracks recurring chores and due dates on
+                  the device, and works without an account. I&apos;m still finishing it as a portfolio
+                  piece.
+                </p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <a
+                    href="https://github.com/XBitcoinBytes/HomeTask"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                  >
+                    GitHub <Arrow />
+                  </a>
+                </div>
+              </div>
+              <img
+                src="/projects/hometask.webp"
+                alt="Screenshot of HomeTask on an iPhone-sized screen, showing the welcome view and a choice of starting schedule."
+                className="mx-auto h-auto w-full max-w-sm border-t border-line bg-ink"
+                width={390}
+                height={844}
+              />
+            </article>
+
+            <article className="reveal overflow-hidden rounded-3xl border border-line bg-white">
+              <div className="p-7 sm:p-9">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                    Side project · Built with AI
+                  </span>
+                  <span className="font-mono text-[11px] text-muted">Travel guide</span>
+                </div>
+                <h3 className="mt-6 font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
+                  England Trip Companion, a reservation-aware travel guide built with AI
+                </h3>
+                <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                  Turns scattered trip bookings into one clear daily plan.
+                </p>
+                <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
+                  I built this with ChatGPT for an eight-person, twelve-day family trip to England. It turned
+                  scattered bookings into one clear daily plan, kept what was confirmed separate from what
+                  wasn&apos;t, and kept private details like codes and booking numbers off the site. It&apos;s a small
+                  project, but it&apos;s how I like to use AI: practical, honest about what isn&apos;t verified, and
+                  built for real people.
+                </p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <a
+                    href="https://england-trip-companion.netlify.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                  >
+                    Live site <Arrow />
+                  </a>
+                  <a
+                    href="https://github.com/XBitcoinBytes/england-trip-companion"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
+                  >
+                    GitHub <Arrow />
+                  </a>
+                </div>
+              </div>
+              <img
+                src="/projects/england-trip-companion.webp"
+                alt="Screenshot of the England Trip Companion, showing the trip overview and a day-by-day plan."
+                className="h-auto w-full border-t border-line"
+                width={1920}
+                height={2541}
+              />
+            </article>
+            </div>
+          </div>
+        </section>
+
         {/* ---------------- CONTACT ---------------- */}
         <section id="contact" className="border-t border-line py-24 sm:py-32">
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
@@ -476,7 +599,7 @@ export default function Home() {
                 aria-hidden
                 className="pointer-events-none absolute -right-24 -top-24 size-96 rounded-full bg-accent-2/30 blur-3xl"
               />
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-paper/55">05 — Contact</p>
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-paper/55">06 — Contact</p>
               <h2 className="mt-5 max-w-3xl font-serif text-[clamp(2.4rem,5.5vw,4.25rem)] leading-[1.02] tracking-tight text-balance">
                 Building AI for lending? <em className="text-accent-soft">Let&apos;s talk.</em>
               </h2>
