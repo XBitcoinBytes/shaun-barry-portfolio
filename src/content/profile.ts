@@ -36,8 +36,10 @@ export const experience: Role[] = [
     dates: "Now",
     current: true,
     summary:
-      "Designing borrower-first AI tools for mortgage: a Loan Estimate advisor for consumers and an AI adoption roadmap for lenders. Publishing BitcoinBytes on the side.",
+      "Designing borrower-first AI tools for mortgage: a loan-officer-reviewed borrower-advice eval, a Loan Estimate advisor for consumers, and an AI adoption roadmap for lenders. Publishing BitcoinBytes on the side.",
     highlights: [
+      "Designed and published the Mortgage Borrower Advice Eval (v1.1): 78 loan-officer-reviewed items testing whether AI assistants give borrowers safe, useful advice",
+      "A provisional Nov 15, 2026 Codex (gpt-6.1-sol) run scored 85.1% overall and 98.5% on safety (77 of 78 items, LLM-judged, not yet reviewed). A 525-item question bank is in progress toward 1,000",
       "Built a clickable Loan Estimate Advisor demo: plain-English explanations, lender questions, and offer comparison",
       "Drafting a phased, compliance-aware AI roadmap for mortgage lenders",
       "Created 25+ financial education podcast episodes on YouTube (@MyBitcoinBytes), using AI to simplify complex finance topics",
@@ -46,7 +48,7 @@ export const experience: Role[] = [
   {
     org: "Refi.com / Veterans United",
     title: "Mortgage Loan Originator",
-    dates: "Nov 2025 – 2026",
+    dates: "Nov 2025 – Nov 2026; role ended Nov 2026",
     summary:
       "Originated refinance and purchase loans, working directly in the process that takes a borrower from application to closing.",
     highlights: [

@@ -275,7 +275,10 @@ export default function Home() {
                   <p className="mt-4 leading-relaxed text-ink-2">
                     78 loan-officer-reviewed test cases that check whether an AI assistant gives borrowers safe, useful
                     answers on Loan Estimates and TRID, closing wire fraud, application fraud, fair lending, and more,
-                    and whether it over-refuses legitimate questions.
+                    and whether it over-refuses legitimate questions. A provisional first model run (Codex gpt-6.1-sol,
+                    Nov 15, 2026) scored 85.1% overall and 98.5% on safety (77 of 78 items, LLM-judged, not yet
+                    reviewed). A 525-item question bank is in progress toward 1,000; those scores are from the 78-item
+                    eval, not the bank.
                   </p>
                   <div className="mt-7 flex flex-wrap items-center gap-3">
                     <Link
