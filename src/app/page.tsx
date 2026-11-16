@@ -506,6 +506,54 @@ export default function Home() {
               <div className="p-7 sm:p-9">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                    Live · Essentially finished
+                  </span>
+                  <span className="font-mono text-[11px] text-muted">Virtual office</span>
+                </div>
+                <h3 className="mt-6 font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
+                  Bot Tracker
+                </h3>
+                <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                  A live animated office view of my AI agent team at their desks, with messages passing between them.
+                </p>
+                <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
+                  Ara, my chief of staff, sits at the head desk. Helper bots walk the floor, hand off work, and show
+                  their activity in a sidebar. It&apos;s a scripted replay of a busy stretch of real work — job leads,
+                  research, inbox triage, drafts — not a live feed of private messages. The product is essentially
+                  finished; a few more bots may be added later.
+                </p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <a
+                    href="https://bot-tracker-bitcoin-bytes-travel.vercel.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                  >
+                    Live site <Arrow />
+                  </a>
+                  <a
+                    href="https://github.com/XBitcoinBytes/bot-tracker"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
+                  >
+                    GitHub <Arrow />
+                  </a>
+                </div>
+              </div>
+              <img
+                src="/projects/bot-tracker.webp"
+                alt="Screenshot of Bot Tracker, a top-down virtual office with Shaun Barry's AI bots at their desks and a sidebar of activity and messages."
+                className="h-auto w-full border-t border-line"
+                width={1440}
+                height={900}
+              />
+            </article>
+
+            <article className="reveal overflow-hidden rounded-3xl border border-line bg-white">
+              <div className="p-7 sm:p-9">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
                     In progress · Built with AI
                   </span>
                   <span className="font-mono text-[11px] text-muted">iPhone web app</span>
