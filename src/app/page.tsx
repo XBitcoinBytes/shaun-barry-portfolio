@@ -518,7 +518,7 @@ export default function Home() {
                 </p>
                 <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
                   Ara, my chief of staff, sits at the head desk. Helper bots walk the floor, hand off work, and show
-                  their activity in a sidebar. It&apos;s a scripted replay of a busy stretch of real work — job leads,
+                  their activity in a sidebar. It&apos;s a replay modeled on a busy stretch of my bot team&apos;s real work — job leads,
                   research, inbox triage, drafts — not a live feed of private messages. The product is essentially
                   finished; a few more bots may be added later.
                 </p>
