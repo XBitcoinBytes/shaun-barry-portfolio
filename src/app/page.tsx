@@ -200,8 +200,8 @@ export default function Home() {
             <SectionHeader
               index="03"
               kicker="Projects"
-              title="Four bets on a better mortgage experience."
-              intro="An interactive demo, an open AI-safety eval, a concept in active design, and one live project. Each starts from a real pain point I’ve seen up close."
+              title="Six bets on a better mortgage experience."
+              intro="An interactive demo, an open AI-safety eval and its 1,000-question private benchmark, a mortgage compliance glossary, a concept in active design, and one live project. Each starts from a real pain point I’ve seen up close."
             />
 
             <div className="mt-16 grid gap-6 lg:grid-cols-2">
@@ -277,8 +277,8 @@ export default function Home() {
                     answers on Loan Estimates and TRID, closing wire fraud, application fraud, fair lending, and more,
                     and whether it over-refuses legitimate questions. A provisional first model run (Codex gpt-6.1-sol,
                     Nov 15, 2026) scored 85.1% overall and 98.5% on safety (77 of 78 items, LLM-judged, not yet
-                    reviewed). A 525-item question bank is in progress toward 1,000; those scores are from the 78-item
-                    eval, not the bank.
+                    reviewed). A larger 1,000-question private bank has since been benchmarked on Codex and Grok; see
+                    Mortgage AI Eval below. The scores above are from the 78-item eval, not the bank.
                   </p>
                   <div className="mt-7 flex flex-wrap items-center gap-3">
                     <Link
@@ -311,6 +311,114 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
+              </article>
+
+              {/* Mortgage AI Eval */}
+              <article id="mortgage-ai-eval" className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:col-span-2 lg:grid lg:grid-cols-2 lg:gap-12">
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-btc/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-2">
+                      <span className="size-1.5 rounded-full bg-btc" aria-hidden />
+                      Provisional results
+                    </span>
+                    <span className="font-mono text-[11px] text-muted">AI evaluation · Private bank</span>
+                  </div>
+                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Mortgage AI Eval</h3>
+                  <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                    A 1,000-question benchmark of how safely AI answers borrower mortgage questions.
+                  </p>
+                  <p className="mt-4 leading-relaxed text-ink-2">
+                    The question bank extends my open eval to 1,000 questions across Loan Estimate and Closing
+                    Disclosure literacy, fees, escrow, down payments, wire and application fraud, fair lending, and
+                    more. 859 questions have gold answers checked against opened primary sources; 141 await review by
+                    a licensed loan officer. In a first head-to-head, Codex passed 79.7% of the scored questions and
+                    Grok 4.7 passed 67.9%.
+                  </p>
+                  <p className="mt-4 text-sm text-muted">
+                    Provisional: Codex also served as the judge, so the comparison is not independent, and 7 Grok
+                    answers are still waiting to be graded. The question bank stays private. The repository is
+                    available on request.
+                  </p>
+                  <div className="mt-7 flex flex-wrap items-center gap-3">
+                    <Link
+                      href="/mortgage-ai-eval"
+                      className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                    >
+                      See results and method
+                      <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
+                    </Link>
+                    <span className="font-mono text-[11px] text-muted">Repository: available on request</span>
+                  </div>
+                </div>
+                <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
+                  {[
+                    ["1,000", "questions · 859 verified, 141 awaiting licensed-LO review"],
+                    ["79.7%", "Codex pass rate (95% CI 76.9–82.3)"],
+                    ["67.9%", "Grok 4.7 pass rate (95% CI 64.7–71.0)"],
+                    ["70.8% vs 60.8%", "safe handling of unsafe questions, Codex vs Grok"],
+                    ["0 vs 1", "harmful answers, Codex vs Grok"],
+                    ["32 vs 128", "material errors, Codex vs Grok"],
+                  ].map(([n, d]) => (
+                    <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
+                      <p className="font-serif text-2xl leading-none sm:text-3xl">{n}</p>
+                      <p className="mt-2 text-sm text-ink-2">{d}</p>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+
+              {/* Mortgage Compliance Glossary */}
+              <article id="mortgage-compliance-glossary" className="reveal flex flex-col overflow-hidden rounded-3xl border border-line bg-white lg:col-span-2">
+                <div className="p-7 sm:p-9">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                      Launching soon
+                    </span>
+                    <span className="font-mono text-[11px] text-muted">Reference tool · English + Spanish</span>
+                  </div>
+                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Mortgage Compliance Glossary</h3>
+                  <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                    393 mortgage terms, explained in plain English first, then the regulation.
+                  </p>
+                  <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
+                    A desk reference for originators, processors, and borrowers. Each entry starts with a plain-English
+                    definition, then shows where the term appears on the Loan Estimate or Closing Disclosure with example
+                    figures, and cites the regulation behind it. A Borrower / Professional toggle switches between a
+                    short explanation and the full compliance view, and every page has an English and a Spanish version.
+                  </p>
+                  <p className="mt-4 text-sm text-muted">
+                    Not live yet. The screenshots below are from a local build, and the Spanish text is still awaiting
+                    native-speaker review.
+                  </p>
+                </div>
+                <div className="grid gap-px border-t border-line bg-line md:grid-cols-2">
+                  <figure className="bg-white">
+                    <img
+                      src="/projects/glossary-term-en.webp"
+                      alt="Screenshot of the Mortgage Compliance Glossary entry for Loan Estimate in English, with the Borrower and Professional toggle, a plain-English definition, and an example of where the term appears on the form."
+                      className="h-auto w-full"
+                      width={1440}
+                      height={830}
+                      loading="lazy"
+                    />
+                    <figcaption className="px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
+                      English entry: Loan Estimate, professional view
+                    </figcaption>
+                  </figure>
+                  <figure className="bg-white">
+                    <img
+                      src="/projects/glossary-term-es.webp"
+                      alt="Screenshot of the same glossary entry in Spanish, titled Estimación del préstamo, with the same form example and related terms."
+                      className="h-auto w-full"
+                      width={1440}
+                      height={830}
+                      loading="lazy"
+                    />
+                    <figcaption className="px-5 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
+                      Spanish entry: Estimación del préstamo
+                    </figcaption>
+                  </figure>
+                </div>
               </article>
 
               {/* Lender AI Roadmap */}

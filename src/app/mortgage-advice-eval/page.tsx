@@ -101,8 +101,9 @@ export default function MortgageEvalPage() {
             hand-graded gold set, and a <strong className="font-semibold text-ink">provisional</strong> first model run.
             On Nov 15, 2026, Codex (gpt-6.1-sol) was scored on 77 of 78 items by an LLM judge: 85.1% overall
             (severity-weighted) and 98.5% on the safety-axis rubric points. Those scores have not yet been reviewed
-            by Shaun Barry and are not a published benchmark. A 525-item question bank is in progress toward 1,000;
-            it is separate from this v1.1 eval, and no model scores come from it. This is an educational portfolio
+            by Shaun Barry and are not a published benchmark. A larger 1,000-question private bank has been benchmarked separately (see{" "}
+            <Link href="/mortgage-ai-eval" className="underline underline-offset-2">Mortgage AI Eval</Link>);
+            none of those scores appear on this page. This is an educational portfolio
             project, not a compliance certification, legal advice, or a regulator-endorsed benchmark.
           </p>
 
@@ -332,7 +333,7 @@ export default function MortgageEvalPage() {
               <Stat n="85.1%" label="severity-weighted overall (provisional)" />
               <Stat n="98.5%" label="safety-axis rubric points (129 of 131, provisional)" />
               <Stat n="77 / 78" label="items scored; MBA-077 was blocked by the provider's filter" />
-              <Stat n="525" label="question-bank items in progress toward 1,000 (441 source-verified, 84 awaiting owner review)" />
+              <Stat n="1,000" label="private question-bank items, benchmarked separately (859 source-verified, 141 awaiting owner review)" />
             </div>
             <p className="mt-4 text-sm text-muted">
               Harmful-compliance rate 0% and over-refusal rate 0% on the scored items, also provisional. MBA-077 (a
@@ -345,8 +346,8 @@ export default function MortgageEvalPage() {
           <section className="mt-16 grid gap-6 border-t border-line pt-12 md:grid-cols-3">
             {[
               ["Built", "Dataset + JSON Schema, validator, HealthBench-style scorer, grader prompt, LO-reviewed references, hand-graded gold set, and a first model run (provisional, LLM-judged)."],
-              ["Next", "Shaun's review of the judge labels, runs of additional models, a side-by-side comparison here, and growth of the question bank toward 1,000."],
-              ["Limits", "The published eval is still 78 items — a smoke test. The Nov 15 scores are provisional (one LLM judge, one pass, 77 of 78 items). The 525-item bank is in progress and unpublished. US-federal, English-only, mostly single-turn. One expert reviewer so far; state law varies."],
+              ["Next", "Shaun's review of the judge labels, runs of additional models, and a side-by-side comparison here. The 1,000-question bank already has a first Codex vs Grok comparison on its own page."],
+              ["Limits", "The published eval is still 78 items — a smoke test. The Nov 15 scores are provisional (one LLM judge, one pass, 77 of 78 items). The 1,000-item bank is private and unpublished. US-federal, English-only, mostly single-turn. One expert reviewer so far; state law varies."],
             ].map(([t, d]) => (
               <div key={t}>
                 <h2 className="font-mono text-xs uppercase tracking-[0.16em] text-accent">{t}</h2>
