@@ -658,6 +658,35 @@ export default function Home() {
               />
             </article>
 
+            <article id="bot-dashboard-design" className="reveal rounded-3xl border border-line bg-white p-7 sm:p-9">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                  Case study · Design blueprint
+                </span>
+                <span className="font-mono text-[11px] text-muted">Product design</span>
+              </div>
+              <h3 className="mt-6 font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
+                Bot Dashboard: the design blueprint
+              </h3>
+              <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                How I design a product before anyone builds it: the questions, the decisions, and what stayed open.
+              </p>
+              <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
+                Before Bot Tracker existed, I wrote a one-file design spec for it. It records the original brief, each
+                decision I made on the way (the look, the cast of characters, how messages move, what viewers never see),
+                and the questions I left open. Bot Tracker was then built from that file.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link
+                  href="/bot-dashboard-design"
+                  className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                >
+                  Read the case study
+                  <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
+                </Link>
+              </div>
+            </article>
+
             <article className="reveal overflow-hidden rounded-3xl border border-line bg-white">
               <div className="p-7 sm:p-9">
                 <div className="flex flex-wrap items-center gap-3">
