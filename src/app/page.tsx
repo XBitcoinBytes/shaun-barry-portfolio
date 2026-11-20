@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { RevealObserver } from "@/components/RevealObserver";
 import { Arrow, SectionHeader, ToConfirm } from "@/components/ui";
-import { credentials, experience, links, profile, skills } from "@/content/profile";
+import { certificationGroups, certificationsLinkedIn, credentials, experience, links, profile, skills } from "@/content/profile";
 
 const principles = [
   {
@@ -594,6 +594,47 @@ export default function Home() {
                     )}
                   </div>
                 </div>
+              </div>
+            </div>
+            <div id="certifications" className="reveal mt-6 rounded-3xl border border-line bg-paper p-7">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+                <h3 className="font-mono text-xs uppercase tracking-[0.16em] text-accent">Certifications</h3>
+                <a
+                  href={certificationsLinkedIn}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-accent underline-offset-4 hover:underline"
+                >
+                  View credentials on LinkedIn ↗
+                </a>
+              </div>
+              <div className="mt-6 grid gap-8 lg:grid-cols-2">
+                {certificationGroups.map((g) => (
+                  <details key={g.title} open className="group">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-line pb-3 [&::-webkit-details-marker]:hidden">
+                      <span className="text-[15px] font-semibold">
+                        {g.title} <span className="font-normal text-muted">({g.items.length})</span>
+                      </span>
+                      <span aria-hidden className="font-mono text-xs text-muted transition-transform group-open:rotate-180">
+                        ▾
+                      </span>
+                    </summary>
+                    <ul>
+                      {g.items.map((c, i) => (
+                        <li
+                          key={`${c.name}-${c.issuer}-${i}`}
+                          className="flex flex-col gap-0.5 border-b border-line/70 py-3 last:border-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-[15px] font-medium leading-snug">{c.name}</p>
+                            <p className="text-xs text-muted">{c.issuer}</p>
+                          </div>
+                          <p className="shrink-0 font-mono text-xs text-ink-2">{c.date}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ))}
               </div>
             </div>
           </div>

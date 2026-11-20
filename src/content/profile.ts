@@ -102,6 +102,56 @@ export const experience: Role[] = [
   },
 ];
 
+export type Certification = { name: string; issuer: string; date: string };
+export type CertificationGroup = { title: string; items: Certification[] };
+
+export const certificationsLinkedIn = "https://www.linkedin.com/in/barryshaun/details/certifications/";
+
+/**
+ * Add a new certification as ONE line at the top of the right group (newest first).
+ * date format: "Mon YYYY". Credential IDs are intentionally not shown on the site.
+ */
+export const certificationGroups: CertificationGroup[] = [
+  {
+    title: "AI certifications",
+    items: [
+      { name: "Generative AI Fundamentals", issuer: "Pragmatic AI Labs", date: "Aug 2025" },
+      { name: "End to End LLM with Azure", issuer: "Pragmatic AI Labs · edX", date: "Aug 2025" },
+      { name: "Small Language Models", issuer: "Pragmatic AI Labs · edX", date: "Aug 2025" },
+      { name: "Using GenAI to Automate Software Development Tasks", issuer: "Pragmatic AI Labs · edX", date: "Jul 2025" },
+      { name: "Introduction to Generative AI", issuer: "Pragmatic AI Labs · edX", date: "Jul 2025" },
+      { name: "Generative AI and LLMs on AWS", issuer: "Pragmatic AI Labs · edX", date: "Jul 2025" },
+      { name: "Beginning Llamafile", issuer: "Pragmatic AI Labs · edX", date: "Jun 2025" },
+      { name: "Agile with AI", issuer: "Pragmatic AI Labs · edX", date: "Jun 2025" },
+      { name: "Applied Local Large Language Models", issuer: "Pragmatic AI Labs · edX", date: "Jun 2025" },
+      { name: "Introduction to LLM Vulnerabilities", issuer: "edX", date: "Jun 2025" },
+      { name: "Introduction to Data Science", issuer: "IBM · edX", date: "Jun 2025" },
+      { name: "Models and Platforms for Generative AI", issuer: "IBM · edX", date: "May 2025" },
+      { name: "Impact, Ethics, and Issues with Generative AI", issuer: "IBM · edX", date: "May 2025" },
+      { name: "Foundations of AI", issuer: "IBM", date: "May 2025" },
+      { name: "Introduction to Generative AI", issuer: "IBM · edX", date: "May 2025" },
+      { name: "Prompt Design in Vertex AI Skill Badge", issuer: "Google", date: "Apr 2025" },
+      { name: "Introduction to Prompt Engineering", issuer: "IBM · edX", date: "Apr 2025" },
+      { name: "AI for Everyone: Master the Basics", issuer: "IBM · edX", date: "Apr 2025" },
+    ],
+  },
+  {
+    title: "Bitcoin & economics",
+    items: [
+      { name: "ECON120 Monetary History", issuer: "Saylor University", date: "Apr 2025" },
+      { name: "ECON104 Principles of Austrian Economics II", issuer: "Saylor University", date: "Apr 2025" },
+      { name: "ECON105 Hard Questions on Hard Money", issuer: "Saylor University", date: "Mar 2025" },
+      { name: "ECON103 Principles of Austrian Economics I", issuer: "Saylor University", date: "Mar 2025" },
+      { name: "PRDV151 Bitcoin for Everybody", issuer: "Saylor University", date: "Feb 2025 · also Dec 2022" },
+      { name: "ECON135 What is Money?", issuer: "Saylor University", date: "Feb 2025" },
+      { name: "CS198.1x Bitcoin and Cryptocurrencies", issuer: "UC Berkeley · edX", date: "Jan 2023" },
+      { name: "Certified Bitcoin Professional (CBP)", issuer: "CryptoCurrency Certification Consortium (C4)", date: "Dec 2022" },
+    ],
+  },
+];
+
+export const certificationCount = certificationGroups.reduce((n, g) => n + g.items.length, 0);
+
 export type Credential = { label: string; value: string | null; href?: string };
 
 export const credentials: Credential[] = [
@@ -110,12 +160,7 @@ export const credentials: Credential[] = [
     label: "Licensed MLO (NMLS)",
     value: "AK, AR, AZ, CA, CO, CT, DC, FL, GA, IA, ID, IL, IN, KS, KY, MA, MD, MI, MN, MO, MS, MT, NC, ND, NE, NH, NM, OH, OK, OR, PA, RI, SD, TN, TX, VA, VT, WA, WV",
   },
-  {
-    label: "Certifications",
-    value:
-      "18 Generative AI & Prompt Engineering certifications (IBM, Google, Pragmatic AI) · Certified Bitcoin Professional (CBP) – C4 · Bitcoin & Cryptocurrencies – UC Berkeley, 2022",
-    href: "https://www.linkedin.com/in/barryshaun/details/certifications/",
-  },
+  { label: "Certifications", value: `${certificationCount} certifications — full list below` },
   { label: "Education", value: "Cincinnati State — coursework in Marketing" },
 ];
 
