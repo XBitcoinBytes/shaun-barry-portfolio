@@ -21,7 +21,7 @@ export const profile = {
   // Top-of-page résumé link (hero + nav). Keep false until the corrected
   // primary résumé has no FLAG / PLACEHOLDER / [CONFIRM] tags or a
   // "do not submit" banner. The contact-section download stays as-is.
-  publishResumeLink: false,
+  publishResumeLink: true,
 };
 
 export type Role = {

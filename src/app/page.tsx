@@ -3,7 +3,8 @@ import { Nav } from "@/components/Nav";
 import { RevealObserver } from "@/components/RevealObserver";
 import { Arrow, DemoVideo, SectionHeader, ToConfirm } from "@/components/ui";
 import { DemoVideoLang } from "@/components/DemoVideoLang";
-import { certificationGroups, certificationsLinkedIn, credentials, experience, links, profile, skills } from "@/content/profile";
+import { CertList } from "@/components/CertList";
+import { certificationGroups, certificationsLinkedIn, credentials, experience, profile, skills } from "@/content/profile";
 
 const principles = [
   {
@@ -22,12 +23,6 @@ const principles = [
     t: "Humans in the loop",
     d: "AI drafts, flags, and summarizes. Licensed professionals advise and decide.",
   },
-];
-
-const roadmap = [
-  { p: "A", t: "New to AI: 7 steps", d: "Readiness check, low-risk first use cases, data and compliance prep, vendor vetting, supervised pilot, measurement, rollout." },
-  { p: "B", t: "Already using AI: 6 steps", d: "Maturity score, value-and-risk expansion, tiered model risk, LOS/POS/servicing integration, one scorecard, operating model." },
-  { p: "✓", t: "Built in", d: "Readiness and maturity self-checks, an ROI worksheet, and 2026 GSE AI governance and model-risk updates, each linked to its primary source." },
 ];
 
 export default function Home() {
@@ -77,7 +72,35 @@ export default function Home() {
               >
                 AI product builder · mortgage technology · governance and QA
               </p>
-              <div className="reveal mt-9 flex flex-wrap items-center gap-3" style={{ ["--d" as string]: "240ms" }}>
+              <div className="reveal mt-6 flex flex-wrap items-center gap-2.5" style={{ ["--d" as string]: "220ms" }}>
+                {profile.email ? (
+                  <a
+                    href={`mailto:${profile.email}`}
+                    className="group inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-ink"
+                  >
+                    Email me <Arrow />
+                  </a>
+                ) : null}
+                {profile.publishResumeLink && profile.resumePdf ? (
+                  <a
+                    href={profile.resumePdf}
+                    className="group inline-flex items-center gap-2 rounded-full border border-ink/20 bg-white px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/50"
+                  >
+                    Download résumé (PDF) <Arrow />
+                  </a>
+                ) : null}
+                {profile.linkedin ? (
+                  <a
+                    href={profile.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-2 rounded-full border border-ink/20 bg-white px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/50"
+                  >
+                    LinkedIn <Arrow />
+                  </a>
+                ) : null}
+              </div>
+              <div className="reveal mt-6 flex flex-wrap items-center gap-3" style={{ ["--d" as string]: "240ms" }}>
                 <a
                   href="#projects"
                   className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
@@ -97,24 +120,6 @@ export default function Home() {
                 >
                   Get in touch
                 </a>
-                {profile.linkedin ? (
-                  <a
-                    href={profile.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/50 px-5 py-3 text-sm font-medium transition-colors hover:border-ink/40"
-                  >
-                    LinkedIn <Arrow />
-                  </a>
-                ) : null}
-                {profile.publishResumeLink && profile.resumePdf ? (
-                  <a
-                    href={profile.resumePdf}
-                    className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/50 px-5 py-3 text-sm font-medium transition-colors hover:border-ink/40"
-                  >
-                    Download résumé <Arrow />
-                  </a>
-                ) : null}
               </div>
               <dl
                 className="reveal mt-12 grid max-w-xl grid-cols-3 gap-6 border-t border-line pt-6"
@@ -225,67 +230,13 @@ export default function Home() {
             <SectionHeader
               index="03"
               kicker="Projects"
-              title="Six bets on a better mortgage experience."
-              intro="An interactive demo, an open AI-safety eval and its 1,000-question private benchmark, a mortgage compliance glossary, a concept in active design, and one live project. Each starts from a real pain point I’ve seen up close."
+              title="Tools for a clearer mortgage."
+              intro="Three featured builds first: a TRID compliance checker, an AI-safety eval with its 1,000-question benchmark, and a bilingual compliance glossary. More builds follow below. Each starts from a real pain point I’ve seen up close."
             />
 
-            <div className="mt-16 grid gap-6 lg:grid-cols-2">
-              {/* Loan Estimate Advisor */}
-              <article className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:col-span-2 lg:grid lg:grid-cols-2 lg:gap-12">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                      <span className="pulse-dot size-1.5 rounded-full bg-accent-2" aria-hidden />
-                      Interactive demo
-                    </span>
-                    <span className="font-mono text-[11px] text-muted">Consumer app</span>
-                  </div>
-                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Loan Estimate Advisor</h3>
-                  <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                    Explains your Loan Estimate in plain English and compares offers.
-                  </p>
-                  <p className="mt-4 leading-relaxed text-ink-2">
-                    Every borrower receives a standardized, three-page Loan Estimate after applying — and most
-                    don&apos;t know what to look at. Upload it, and the advisor explains each section in plain
-                    English, flags what to ask your lender, and helps you compare offers side by side.
-                  </p>
-                  <p className="mt-4 text-sm text-muted">
-                    Educational guidance, not a lending decision — designed to make borrowers better-informed
-                    customers.
-                  </p>
-                  <div className="mt-7 flex flex-wrap items-center gap-3">
-                    <Link
-                      href="/loan-estimate-advisor"
-                      className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
-                    >
-                      Try the demo
-                      <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
-                    </Link>
-                    <span className="font-mono text-[11px] text-muted">Clickable sample estimate · ~2 min</span>
-                  </div>
-                </div>
-                <ol className="mt-8 grid gap-3 lg:mt-0">
-                  {[
-                    ["Upload", "PDF or photo of the Loan Estimate."],
-                    ["Extract", "Read key fields: rate, lock status, loan costs, cash to close."],
-                    ["Explain", "Plain-English notes tied to the exact line on the form."],
-                    ["Compare", "Line up multiple estimates and highlight real differences."],
-                    ["Ask", "A short list of smart questions to bring back to the lender."],
-                  ].map(([t, d], i) => (
-                    <li key={t} className="flex gap-4 rounded-2xl border border-line/80 bg-paper/60 p-4">
-                      <span className="font-mono text-xs text-accent">{String(i + 1).padStart(2, "0")}</span>
-                      <div>
-                        <p className="text-sm font-semibold">{t}</p>
-                        <p className="text-sm text-ink-2">{d}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-                <DemoVideo slug="loan-estimate-advisor" seconds={33} title="Loan Estimate Advisor" className="mt-8 lg:col-span-2" />
-              </article>
-
+            <div className="mt-16 grid gap-6">
               {/* ClearEstimate */}
-              <article id="clearestimate" className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:col-span-2 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
+              <article id="clearestimate" className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
@@ -305,119 +256,112 @@ export default function Home() {
                   <p className="mt-4 text-sm text-muted">
                     Not public yet. The demo uses synthetic sample documents only.
                   </p>
+                  <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the fee-extraction, TRID scan and tolerance rules, directed AI coding tools to build them, and tested the results against synthetic Loan Estimates and Closing Disclosures.</p>
                 </div>
                 <DemoVideo slug="clearestimate" seconds={31} title="ClearEstimate" className="mt-8 lg:mt-0" />
               </article>
 
-              {/* Mortgage Borrower Advice Eval */}
-              <article className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:col-span-2 lg:grid lg:grid-cols-2 lg:gap-12">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                      <span className="size-1.5 rounded-full bg-accent-2" aria-hidden />
-                      Open eval · v1.1
-                    </span>
-                    <span className="font-mono text-[11px] text-muted">AI safety</span>
+              {/* Mortgage Borrower Advice Eval + 1,000-question benchmark */}
+              <article className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9">
+                <div className="lg:grid lg:grid-cols-2 lg:gap-12">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                        <span className="size-1.5 rounded-full bg-accent-2" aria-hidden />
+                        Open eval · v1.1
+                      </span>
+                      <span className="font-mono text-[11px] text-muted">AI safety · 1,000-question benchmark</span>
+                    </div>
+                    <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Mortgage Borrower Advice Eval</h3>
+                    <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                      Tests whether AI gives borrowers safe, useful mortgage advice.
+                    </p>
+                    <p className="mt-4 leading-relaxed text-ink-2">
+                      78 loan-officer-reviewed test cases that check whether an AI assistant gives borrowers safe, useful
+                      answers on Loan Estimates and TRID, closing wire fraud, application fraud, fair lending, and more,
+                      and whether it over-refuses legitimate questions.
+                    </p>
+                    <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the rubric, the 19 risk categories and the safe/unsafe test pairs, reviewed the 78 open-eval reference answers as a licensed loan officer, and supervise the benchmark runs, with AI tools drafting questions and grading answers.</p>
+                    <div className="mt-7 flex flex-wrap items-center gap-3">
+                      <Link
+                        href="/mortgage-advice-eval"
+                        className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                      >
+                        See the eval
+                        <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
+                      </Link>
+                      <a
+                        href="https://github.com/XBitcoinBytes/mortgage-borrower-advice-eval"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
+                      >
+                        GitHub <Arrow />
+                      </a>
+                    </div>
                   </div>
-                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Mortgage Borrower Advice Eval</h3>
-                  <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                    Tests whether AI gives borrowers safe, useful mortgage advice.
-                  </p>
-                  <p className="mt-4 leading-relaxed text-ink-2">
-                    78 loan-officer-reviewed test cases that check whether an AI assistant gives borrowers safe, useful
-                    answers on Loan Estimates and TRID, closing wire fraud, application fraud, fair lending, and more,
-                    and whether it over-refuses legitimate questions. It grew into a 1,000-question private benchmark: on its
-                    814 held-out questions, Codex passed 80.3% (see Mortgage AI Eval below).
-                  </p>
-                  <div className="mt-7 flex flex-wrap items-center gap-3">
-                    <Link
-                      href="/mortgage-advice-eval"
-                      className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
-                    >
-                      See the eval
-                      <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
-                    </Link>
-                    <a
-                      href="https://github.com/XBitcoinBytes/mortgage-borrower-advice-eval"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
-                    >
-                      GitHub <Arrow />
-                    </a>
-                  </div>
+                  <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
+                    {[
+                      ["78", "items · 47 unsafe, 31 safe controls"],
+                      ["19", "risk categories"],
+                      ["8 / 8", "LO verdict vs. rubric agree on hard-fail (gold set)"],
+                      ["76 / 78", "reference answers at full rubric marks"],
+                    ].map(([n, d]) => (
+                      <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
+                        <p className="font-serif text-3xl leading-none">{n}</p>
+                        <p className="mt-2 text-sm text-ink-2">{d}</p>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
-                  {[
-                    ["78", "items · 47 unsafe, 31 safe controls"],
-                    ["19", "risk categories"],
-                    ["8 / 8", "LO verdict vs. rubric agree on hard-fail (gold set)"],
-                    ["76 / 78", "reference answers at full rubric marks"],
-                  ].map(([n, d]) => (
-                    <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
-                      <p className="font-serif text-3xl leading-none">{n}</p>
-                      <p className="mt-2 text-sm text-ink-2">{d}</p>
-                    </li>
-                  ))}
-                </ul>
-                <DemoVideo slug="mortgage-eval" seconds={33} title="Mortgage Borrower Advice Eval" className="mt-8 lg:col-span-2" />
-              </article>
 
-              {/* Mortgage AI Eval */}
-              <article id="mortgage-ai-eval" className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:col-span-2 lg:grid lg:grid-cols-2 lg:gap-12">
-                <div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-btc/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-2">
+                <div id="mortgage-ai-eval" className="mt-10 border-t border-line pt-8 lg:grid lg:grid-cols-2 lg:gap-12">
+                  <div>
+                    <p className="inline-flex items-center gap-1.5 rounded-full bg-btc/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-2">
                       <span className="size-1.5 rounded-full bg-btc" aria-hidden />
-                      Provisional results
-                    </span>
-                    <span className="font-mono text-[11px] text-muted">AI evaluation · Private bank</span>
+                      1,000-question benchmark · Preliminary
+                    </p>
+                    <p className="mt-4 leading-relaxed text-ink-2">
+                      The open eval grew into a private 1,000-question bank across Loan Estimate and Closing Disclosure
+                      literacy, fees, escrow, down payments, wire and application fraud, fair lending, and more. It was
+                      built, tested, and supervised by a licensed loan officer with over 25 years of mortgage experience,
+                      with gold answers grounded in public primary sources where available. On 814 held-out questions
+                      that have never been published, Codex passed 80.3% and Grok 4.7 passed 67.8%.
+                    </p>
+                    <p className="mt-4 text-sm text-muted">
+                      Preliminary: Codex (gpt-6.1-sol) also served as the judge, so the comparison is not independent.
+                      The question bank stays private. The repository is available on request.
+                    </p>
+                    <div className="mt-6 flex flex-wrap items-center gap-3">
+                      <Link
+                        href="/mortgage-ai-eval"
+                        className="group/cta inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
+                      >
+                        See results and method
+                        <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
+                      </Link>
+                    </div>
                   </div>
-                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Mortgage AI Eval</h3>
-                  <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                    A 1,000-question benchmark of how safely AI answers borrower mortgage questions.
-                  </p>
-                  <p className="mt-4 leading-relaxed text-ink-2">
-                    The question bank extends my open eval to 1,000 questions across Loan Estimate and Closing
-                    Disclosure literacy, fees, escrow, down payments, wire and application fraud, fair lending, and
-                    more. It was built, tested, and supervised by a licensed loan officer with over 25 years of
-                    mortgage experience, with gold answers grounded in public primary sources where available. On 814 held-out questions that have never been published, Codex passed
-                    80.3% and Grok 4.7 passed 67.8%.
-                  </p>
-                  <p className="mt-4 text-sm text-muted">
-                    Preliminary: Codex (gpt-6.1-sol) also served as the judge, so the comparison is not independent. The question bank stays private. The repository is
-                    available on request.
-                  </p>
-                  <div className="mt-7 flex flex-wrap items-center gap-3">
-                    <Link
-                      href="/mortgage-ai-eval"
-                      className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
-                    >
-                      See results and method
-                      <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
-                    </Link>
-                    <span className="font-mono text-[11px] text-muted">Repository: available on request</span>
-                  </div>
+                  <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
+                    {[
+                      ["80.3%", "Codex pass rate on 814 held-out questions (95% CI 77.5–82.9)"],
+                      ["67.8%", "Grok 4.7 pass rate, same 814 questions (95% CI 64.5–70.9)"],
+                      ["71.8% vs 59.9%", "safe handling of unsafe questions, Codex vs Grok"],
+                      ["0 vs 1", "harmful answers, Codex vs Grok"],
+                      ["31 vs 126", "material errors, Codex vs Grok"],
+                    ].map(([n, d]) => (
+                      <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
+                        <p className="font-serif text-2xl leading-none sm:text-3xl">{n}</p>
+                        <p className="mt-2 text-sm text-ink-2">{d}</p>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
-                  {[
-                    ["1,000", "questions · built, tested, and supervised by a licensed loan officer"],
-                    ["80.3%", "Codex pass rate on 814 held-out questions (95% CI 77.5–82.9)"],
-                    ["67.8%", "Grok 4.7 pass rate, same 814 questions (95% CI 64.5–70.9)"],
-                    ["71.8% vs 59.9%", "safe handling of unsafe questions, Codex vs Grok"],
-                    ["0 vs 1", "harmful answers, Codex vs Grok"],
-                    ["31 vs 126", "material errors, Codex vs Grok"],
-                  ].map(([n, d]) => (
-                    <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
-                      <p className="font-serif text-2xl leading-none sm:text-3xl">{n}</p>
-                      <p className="mt-2 text-sm text-ink-2">{d}</p>
-                    </li>
-                  ))}
-                </ul>
+                <DemoVideo slug="mortgage-eval" seconds={33} title="Mortgage Borrower Advice Eval" className="mt-8" />
               </article>
 
               {/* Mortgage Compliance Glossary */}
-              <article id="mortgage-compliance-glossary" className="reveal flex flex-col overflow-hidden rounded-3xl border border-line bg-white lg:col-span-2">
+              <article id="mortgage-compliance-glossary" className="reveal flex flex-col overflow-hidden rounded-3xl border border-line bg-white">
                 <div className="p-7 sm:p-9">
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
@@ -439,6 +383,7 @@ export default function Home() {
                     Not live yet. The screenshots below are from a local build, and the Spanish text is still awaiting
                     native-speaker review.
                   </p>
+                  <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the plain-English-first entry format and the Borrower / Professional views, directed AI tools to draft and build the entries, and checked terms against public regulatory sources.</p>
                   <DemoVideoLang
                     slugs={{ en: "mortgage-compliance-glossary-en", es: "mortgage-compliance-glossary-es" }}
                     seconds={{ en: 28, es: 28 }}
@@ -476,129 +421,99 @@ export default function Home() {
                 </div>
               </article>
 
-              {/* Lender AI Roadmap */}
-              <article className="reveal flex flex-col rounded-3xl border border-line bg-ink p-7 text-paper sm:p-9">
-                <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-paper/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent-soft">
-                    Interactive guide · Draft
-                  </span>
-                  <span className="font-mono text-[11px] text-paper/50">Industry playbook</span>
-                </div>
-                <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Lender AI Roadmap</h3>
-                <p className="mt-2 text-[17px] font-medium leading-snug text-paper/90">
-                  Gives lenders a step-by-step, compliance-aware plan to adopt AI.
-                </p>
-                <p className="mt-4 leading-relaxed text-paper/75">
-                  Two click-through paths: one for lenders just starting, one for lenders scaling AI they already
-                  use. Each step says what to do, who owns it, when it&apos;s done, and the rule behind it: ECOA and
-                  Regulation B, UDAAP, TRID, GLBA, model risk, vendor oversight and the new Fannie Mae and Freddie Mac AI
-                  requirements.
-                </p>
-                <ol className="mt-8 space-y-px overflow-hidden rounded-2xl border border-paper/10">
-                  {roadmap.map((r) => (
-                    <li key={r.p} className="flex gap-4 bg-paper/[0.04] p-4">
-                      <span className="font-mono text-xs text-accent-soft">{r.p}</span>
-                      <div>
-                        <p className="text-sm font-semibold">{r.t}</p>
-                        <p className="text-sm text-paper/65">{r.d}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-                <div className="mt-auto pt-8">
-                  <Link
-                    href="/lender-ai-roadmap"
-                    className="group/cta inline-flex items-center gap-2 rounded-full bg-paper px-5 py-3 text-sm font-medium text-ink transition-colors hover:bg-accent-soft"
-                  >
-                    Open the interactive roadmap
-                    <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
-                  </Link>
-                </div>
-              </article>
-
-              {/* BitcoinBytes */}
-              <article className="reveal flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9" style={{ ["--d" as string]: "90ms" }}>
-                <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-btc/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-[#8a4f00]">
-                    Live · Side project
-                  </span>
-                  <span className="font-mono text-[11px] text-muted">Education & media</span>
-                </div>
-                <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">
-                  Bitcoin<span className="text-btc">Bytes</span>
-                </h3>
-                <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                  Gives people sound, unbiased Bitcoin education in small pieces.
-                </p>
-                <p className="mt-4 leading-relaxed text-ink-2">
-                  Sound, accurate, unbiased Bitcoin information in small, digestible pieces. A website with price
-                  alerts and a newsletter, 25+ financial education podcast episodes on YouTube, and a daily
-                  companion account on X. Offline, I promote financial education through the Clarkston Bitcoin Meetup Group.
-                </p>
-                <div className="mt-6 rounded-2xl border border-line bg-paper/60 p-5">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Editorial standard</p>
-                  <ul className="mt-3 space-y-2 text-sm text-ink-2">
-                    <li>— Explain how it works before what it costs</li>
-                    <li>— Context over hype; facts over predictions</li>
-                    <li>— Security basics first: self-custody, scams, privacy</li>
-                  </ul>
-                </div>
-                <div className="mt-auto flex flex-wrap gap-3 pt-8">
-                  <a
-                    href={links.bitcoinBytesSite}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
-                  >
-                    bitcoinbytes.org <Arrow />
-                  </a>
-                  <a
-                    href="https://github.com/XBitcoinBytes/BitcoinBytes"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
-                  >
-                    GitHub <Arrow />
-                  </a>
-                  <a
-                    href={links.bitcoinBytesX}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
-                  >
-                    @xbitcoinbytes on X <Arrow />
-                  </a>
-                  <a
-                    href={links.youtube}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
-                  >
-                    YouTube · @MyBitcoinBytes <Arrow />
-                  </a>
-                </div>
-              </article>
             </div>
 
-            <div className="reveal mt-6 flex flex-col items-start justify-between gap-4 rounded-3xl border border-dashed border-ink/20 p-7 sm:flex-row sm:items-center">
-              <div>
-                <p className="font-semibold tracking-tight">Code & prototypes</p>
-                <p className="mt-1 text-sm text-ink-2">
-                  Public repositories for these projects will be linked here as they ship.
-                </p>
-              </div>
-              {profile.github ? (
-                <a
-                  href={profile.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper"
-                >
-                  GitHub <Arrow />
+            <div id="side-projects" className="mt-16 scroll-mt-24">
+              <p className="font-mono text-xs uppercase tracking-[0.16em] text-muted">More builds</p>
+              <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <li className="reveal flex min-w-0 flex-col rounded-2xl border border-line bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent-soft font-mono text-[11px] font-semibold text-accent">LE</span>
+                  <h3 className="text-lg font-semibold leading-tight tracking-tight">Loan Estimate Advisor</h3>
+                </div>
+                <p className="mt-3 text-sm leading-snug text-ink-2">Explains a Loan Estimate in plain English, flags what to ask, and compares offers.</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted"><span className="mr-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">My role</span>I designed the walkthrough and lender questions from my origination work, directed AI coding tools to build it, and tested it on a fictional sample Loan Estimate.</p>
+                <div className="mt-auto pt-4">
+                  <Link href="/loan-estimate-advisor" className="group inline-flex items-center gap-1.5 text-sm font-medium text-accent underline-offset-4 hover:underline">Try the demo <span aria-hidden>→</span></Link>
+                  <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] text-muted"><a href="/videos/loan-estimate-advisor-explainer.mp4" className="underline-offset-4 hover:text-ink hover:underline">33-sec demo video</a></p>
+                </div>
+              </li>
+              <li className="reveal flex min-w-0 flex-col rounded-2xl border border-line bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent-soft font-mono text-[11px] font-semibold text-accent">AR</span>
+                  <h3 className="text-lg font-semibold leading-tight tracking-tight">Lender AI Roadmap</h3>
+                </div>
+                <p className="mt-3 text-sm leading-snug text-ink-2">A click-through, compliance-aware plan for lenders starting with AI or scaling it.</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted"><span className="mr-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">My role</span>I designed both paths and each step&apos;s owner and rule, directed AI tools to build the interactive guide, and checked the cited rules against their primary sources.</p>
+                <div className="mt-auto pt-4">
+                  <Link href="/lender-ai-roadmap" className="group inline-flex items-center gap-1.5 text-sm font-medium text-accent underline-offset-4 hover:underline">Open the roadmap <span aria-hidden>→</span></Link>
+                </div>
+              </li>
+              <li className="reveal flex min-w-0 flex-col rounded-2xl border border-line bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent-soft font-mono text-[11px] font-semibold text-accent">₿</span>
+                  <h3 className="text-lg font-semibold leading-tight tracking-tight">BitcoinBytes</h3>
+                </div>
+                <p className="mt-3 text-sm leading-snug text-ink-2">Sound, unbiased Bitcoin education in small pieces: site, newsletter, YouTube and X.</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted"><span className="mr-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">My role</span>I set the editorial standard and topics, directed AI tools to build the site and draft content, and approve what gets published.</p>
+                <div className="mt-auto pt-4">
+                  <a href="https://bitcoinbytes.org" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-1.5 text-sm font-medium text-accent underline-offset-4 hover:underline">bitcoinbytes.org <Arrow className="size-3.5" /></a>
+                  <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] text-muted"><a href="https://github.com/XBitcoinBytes/BitcoinBytes" target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:text-ink hover:underline">GitHub</a><a href="https://x.com/xbitcoinbytes" target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:text-ink hover:underline">X</a><a href="https://www.youtube.com/@MyBitcoinBytes" target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:text-ink hover:underline">YouTube</a></p>
+                </div>
+              </li>
+              <li className="reveal flex min-w-0 flex-col rounded-2xl border border-line bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent-soft font-mono text-[11px] font-semibold text-accent">BT</span>
+                  <h3 className="text-lg font-semibold leading-tight tracking-tight">Bot Tracker</h3>
+                </div>
+                <p className="mt-3 text-sm leading-snug text-ink-2">A live animated office view of my AI agent team at work, replayed from a busy stretch.</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted"><span className="mr-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">My role</span>I wrote the design spec, directed AI coding tools to build it from that spec, and approved it before launch.</p>
+                <div className="mt-auto pt-4">
+                  <a href="https://bot-tracker-bitcoin-bytes-travel.vercel.app" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-1.5 text-sm font-medium text-accent underline-offset-4 hover:underline">Live site <Arrow className="size-3.5" /></a>
+                  <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] text-muted"><a href="https://github.com/XBitcoinBytes/bot-tracker" target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:text-ink hover:underline">GitHub</a><a href="/videos/bot-tracker-explainer.mp4" className="underline-offset-4 hover:text-ink hover:underline">22-sec demo video</a></p>
+                </div>
+              </li>
+              <li id="bot-dashboard-design" className="reveal flex min-w-0 flex-col rounded-2xl border border-line bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent-soft font-mono text-[11px] font-semibold text-accent">BD</span>
+                  <h3 className="text-lg font-semibold leading-tight tracking-tight">Bot Dashboard design blueprint</h3>
+                </div>
+                <p className="mt-3 text-sm leading-snug text-ink-2">Case study: how I spec a product before anyone builds it.</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted"><span className="mr-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">My role</span>I wrote the brief, made each design decision, and recorded the questions left open.</p>
+                <div className="mt-auto pt-4">
+                  <Link href="/bot-dashboard-design" className="group inline-flex items-center gap-1.5 text-sm font-medium text-accent underline-offset-4 hover:underline">Read the case study <span aria-hidden>→</span></Link>
+                </div>
+              </li>
+              <li className="reveal flex min-w-0 flex-col rounded-2xl border border-line bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent-soft font-mono text-[11px] font-semibold text-accent">HT</span>
+                  <h3 className="text-lg font-semibold leading-tight tracking-tight">HomeTask</h3>
+                </div>
+                <p className="mt-3 text-sm leading-snug text-ink-2">An iPhone home-screen web app for recurring household chores and due dates. In progress.</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted"><span className="mr-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">My role</span>I designed the chore catalog and schedules, directed AI tools to build it, and am testing it for my own home.</p>
+                <div className="mt-auto pt-4">
+                  <a href="https://github.com/XBitcoinBytes/HomeTask" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-1.5 text-sm font-medium text-accent underline-offset-4 hover:underline">GitHub <Arrow className="size-3.5" /></a>
+                </div>
+              </li>
+              <li className="reveal flex min-w-0 flex-col rounded-2xl border border-line bg-white p-5">
+                <div className="flex items-center gap-3">
+                  <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent-soft font-mono text-[11px] font-semibold text-accent">ET</span>
+                  <h3 className="text-lg font-semibold leading-tight tracking-tight">England Trip Companion</h3>
+                </div>
+                <p className="mt-3 text-sm leading-snug text-ink-2">Turned scattered bookings for an eight-person family trip into one daily plan.</p>
+                <p className="mt-2 text-xs leading-relaxed text-muted"><span className="mr-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">My role</span>I planned the guide&apos;s structure and what stayed private, directed ChatGPT to build it, and checked it against our bookings.</p>
+                <div className="mt-auto pt-4">
+                  <a href="https://england-trip-companion.netlify.app/" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-1.5 text-sm font-medium text-accent underline-offset-4 hover:underline">Live site <Arrow className="size-3.5" /></a>
+                </div>
+              </li>
+              </ul>
+              <p className="mt-6 text-sm text-ink-2">
+                All public code is on{" "}
+                <a href="https://github.com/XBitcoinBytes" target="_blank" rel="noopener noreferrer" className="font-medium text-accent underline-offset-4 hover:underline">
+                  GitHub
                 </a>
-              ) : (
-                <ToConfirm>GitHub link to add</ToConfirm>
-              )}
+                .
+              </p>
             </div>
           </div>
         </section>
@@ -674,167 +589,11 @@ export default function Home() {
                   View credentials on LinkedIn ↗
                 </a>
               </div>
-              <div className="mt-6 grid gap-8 lg:grid-cols-2">
-                {certificationGroups.map((g) => (
-                  <details key={g.title} open className="group">
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 border-b border-line pb-3 [&::-webkit-details-marker]:hidden">
-                      <span className="text-[15px] font-semibold">
-                        {g.title} <span className="font-normal text-muted">({g.items.length})</span>
-                      </span>
-                      <span aria-hidden className="font-mono text-xs text-muted transition-transform group-open:rotate-180">
-                        ▾
-                      </span>
-                    </summary>
-                    <ul>
-                      {g.items.map((c, i) => (
-                        <li
-                          key={`${c.name}-${c.issuer}-${i}`}
-                          className="flex flex-col gap-0.5 border-b border-line/70 py-3 last:border-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
-                        >
-                          <div className="min-w-0">
-                            <p className="text-[15px] font-medium leading-snug">{c.name}</p>
-                            <p className="text-xs text-muted">{c.issuer}</p>
-                          </div>
-                          <p className="shrink-0 font-mono text-xs text-ink-2">{c.date}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                ))}
-              </div>
+              <CertList groups={certificationGroups} />
             </div>
           </div>
         </section>
 
-
-        {/* ---------------- SIDE PROJECTS ---------------- */}
-        <section id="side-projects" className="border-t border-line py-24 sm:py-32">
-          <div className="mx-auto max-w-6xl px-5 sm:px-8">
-            <SectionHeader
-              index="05"
-              kicker="Side projects"
-              title="Practical tools built for real people."
-            />
-
-            <div className="mt-16 grid gap-8">
-            <article className="reveal overflow-hidden rounded-3xl border border-line bg-white">
-              <div className="p-7 sm:p-9">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                    Live · Essentially finished
-                  </span>
-                  <span className="font-mono text-[11px] text-muted">Virtual office</span>
-                </div>
-                <h3 className="mt-6 font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
-                  Bot Tracker
-                </h3>
-                <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                  A live animated office view of my AI agent team at their desks, with messages passing between them.
-                </p>
-                <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
-                  Ara, my chief of staff, sits at the head desk. Helper bots walk the floor, hand off work, and show
-                  their activity in a sidebar. It&apos;s a replay modeled on a busy stretch of my bot team&apos;s real work — job leads,
-                  research, inbox triage, drafts — not a live feed of private messages. The product is essentially
-                  finished; a few more bots may be added later.
-                </p>
-                <div className="mt-7 flex flex-wrap gap-3">
-                  <a
-                    href="https://bot-tracker-bitcoin-bytes-travel.vercel.app"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
-                  >
-                    Live site <Arrow />
-                  </a>
-                  <a
-                    href="https://github.com/XBitcoinBytes/bot-tracker"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
-                  >
-                    GitHub <Arrow />
-                  </a>
-                </div>
-                <DemoVideo slug="bot-tracker" seconds={22} title="Bot Tracker" className="mt-7" />
-              </div>
-              <img
-                src="/projects/bot-tracker.webp"
-                alt="Screenshot of Bot Tracker, a top-down virtual office with Shaun Barry's AI bots at their desks and a sidebar of activity and messages."
-                className="h-auto w-full border-t border-line"
-                width={1440}
-                height={900}
-              />
-            </article>
-
-            <article id="bot-dashboard-design" className="reveal rounded-3xl border border-line bg-white p-7 sm:p-9">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                  Case study · Design blueprint
-                </span>
-                <span className="font-mono text-[11px] text-muted">Product design</span>
-              </div>
-              <h3 className="mt-6 font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
-                Bot Dashboard: the design blueprint
-              </h3>
-              <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                How I design a product before anyone builds it: the questions, the decisions, and what stayed open.
-              </p>
-              <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
-                Before Bot Tracker existed, I wrote a one-file design spec for it. It records the original brief, each
-                decision I made on the way (the look, the cast of characters, how messages move, what viewers never see),
-                and the questions I left open. Bot Tracker was then built from that file.
-              </p>
-              <div className="mt-7 flex flex-wrap gap-3">
-                <Link
-                  href="/bot-dashboard-design"
-                  className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
-                >
-                  Read the case study
-                  <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
-                </Link>
-              </div>
-            </article>
-
-            <article className="reveal rounded-3xl border border-line bg-white p-7 sm:p-9">
-              <p className="font-mono text-xs uppercase tracking-[0.16em] text-accent">Other builds</p>
-              <ul className="mt-5 grid gap-4 sm:grid-cols-2">
-                <li className="flex flex-col gap-3 rounded-2xl border border-line/80 bg-paper/60 p-5">
-                  <div>
-                    <p className="font-semibold tracking-tight">HomeTask</p>
-                    <p className="mt-1 text-sm leading-relaxed text-ink-2">
-                      An iPhone home-screen web app that tracks recurring household chores and due dates. In progress.
-                    </p>
-                  </div>
-                  <a
-                    href="https://github.com/XBitcoinBytes/HomeTask"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group mt-auto inline-flex w-fit items-center gap-2 text-sm font-medium text-accent underline-offset-4 hover:underline"
-                  >
-                    GitHub <Arrow />
-                  </a>
-                </li>
-                <li className="flex flex-col gap-3 rounded-2xl border border-line/80 bg-paper/60 p-5">
-                  <div>
-                    <p className="font-semibold tracking-tight">England Trip Companion</p>
-                    <p className="mt-1 text-sm leading-relaxed text-ink-2">
-                      A travel guide built with AI that turned scattered bookings for an eight-person family trip into one daily plan.
-                    </p>
-                  </div>
-                  <a
-                    href="https://england-trip-companion.netlify.app/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group mt-auto inline-flex w-fit items-center gap-2 text-sm font-medium text-accent underline-offset-4 hover:underline"
-                  >
-                    Live site <Arrow />
-                  </a>
-                </li>
-              </ul>
-            </article>
-            </div>
-          </div>
-        </section>
 
         {/* ---------------- CONTACT ---------------- */}
         <section id="contact" className="border-t border-line py-24 sm:py-32">
@@ -849,7 +608,7 @@ export default function Home() {
                 Building AI for lending? <em className="text-accent-soft">Let&apos;s talk.</em>
               </h2>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/70">
-                I&apos;m looking for a full-time role where deep mortgage experience and hands-on AI building both matter.
+                My focus is helping lenders safely bring AI into borrower communications and document workflows. I&apos;m looking for a full-time role where deep mortgage experience and hands-on AI building both matter.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-3">
                 {profile.email ? (
