@@ -274,7 +274,7 @@ export default function Home() {
                     </li>
                   ))}
                 </ol>
-                <DemoVideo slug="loan-estimate-advisor" seconds={34} title="Loan Estimate Advisor" className="mt-8 lg:col-span-2" />
+                <DemoVideo slug="loan-estimate-advisor" seconds={33} title="Loan Estimate Advisor" className="mt-8 lg:col-span-2" />
               </article>
 
               {/* ClearEstimate */}
@@ -299,7 +299,7 @@ export default function Home() {
                     Not public yet. The demo uses synthetic sample documents only.
                   </p>
                 </div>
-                <DemoVideo slug="clearestimate" seconds={32} title="ClearEstimate" className="mt-8 lg:mt-0" />
+                <DemoVideo slug="clearestimate" seconds={31} title="ClearEstimate" className="mt-8 lg:mt-0" />
               </article>
 
               {/* Mortgage Borrower Advice Eval */}
@@ -355,7 +355,7 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <DemoVideo slug="mortgage-eval" seconds={34} title="Mortgage Borrower Advice Eval" className="mt-8 lg:col-span-2" />
+                <DemoVideo slug="mortgage-eval" seconds={33} title="Mortgage Borrower Advice Eval" className="mt-8 lg:col-span-2" />
               </article>
 
               {/* Mortgage AI Eval */}
