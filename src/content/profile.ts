@@ -18,6 +18,10 @@ export const profile = {
   github: "https://github.com/XBitcoinBytes" as string | null,
   photo: null as string | null, // e.g. "/shaun.jpg" placed in /public
   resumePdf: "/Shaun-Barry-Resume.pdf" as string | null,
+  // Top-of-page résumé link (hero + nav). Keep false until the corrected
+  // primary résumé has no FLAG / PLACEHOLDER / [CONFIRM] tags or a
+  // "do not submit" banner. The contact-section download stays as-is.
+  publishResumeLink: false,
 };
 
 export type Role = {

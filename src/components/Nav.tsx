@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { profile } from "@/content/profile";
 
 const items = [
   { href: "/#about", label: "About" },
@@ -93,6 +94,28 @@ export function Nav() {
               AI Eval
             </Link>
           </li>
+          {profile.linkedin ? (
+            <li>
+              <a
+                href={profile.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-md px-3 py-2 text-sm text-ink-2 transition-colors hover:text-ink"
+              >
+                LinkedIn
+              </a>
+            </li>
+          ) : null}
+          {profile.publishResumeLink && profile.resumePdf ? (
+            <li>
+              <a
+                href={profile.resumePdf}
+                className="rounded-md px-3 py-2 text-sm text-ink-2 transition-colors hover:text-ink"
+              >
+                Résumé
+              </a>
+            </li>
+          ) : null}
           <li className="ml-2">
             <Link
               href="/#contact"
@@ -156,6 +179,30 @@ export function Nav() {
               AI Eval · Mortgage Borrower Advice
             </Link>
           </li>
+          {profile.linkedin ? (
+            <li>
+              <a
+                href={profile.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="block py-3 text-lg tracking-tight text-ink"
+              >
+                LinkedIn
+              </a>
+            </li>
+          ) : null}
+          {profile.publishResumeLink && profile.resumePdf ? (
+            <li>
+              <a
+                href={profile.resumePdf}
+                onClick={() => setOpen(false)}
+                className="block py-3 text-lg tracking-tight text-ink"
+              >
+                Résumé
+              </a>
+            </li>
+          ) : null}
           <li>
             <Link href="/#contact" onClick={() => setOpen(false)} className="block py-3 text-lg tracking-tight text-ink">
               Get in touch

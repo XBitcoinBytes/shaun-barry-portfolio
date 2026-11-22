@@ -90,6 +90,24 @@ export default function Home() {
                 >
                   Get in touch
                 </a>
+                {profile.linkedin ? (
+                  <a
+                    href={profile.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/50 px-5 py-3 text-sm font-medium transition-colors hover:border-ink/40"
+                  >
+                    LinkedIn <Arrow />
+                  </a>
+                ) : null}
+                {profile.publishResumeLink && profile.resumePdf ? (
+                  <a
+                    href={profile.resumePdf}
+                    className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/50 px-5 py-3 text-sm font-medium transition-colors hover:border-ink/40"
+                  >
+                    Download résumé <Arrow />
+                  </a>
+                ) : null}
               </div>
               <dl
                 className="reveal mt-12 grid max-w-xl grid-cols-3 gap-6 border-t border-line pt-6"
