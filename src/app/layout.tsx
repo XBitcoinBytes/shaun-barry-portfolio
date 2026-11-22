@@ -15,14 +15,14 @@ const description =
   "Shaun Barry — mortgage lending professional (Refi.com / Veterans United) building borrower-first AI for the mortgage industry. Based in the Clarkston, Michigan area.";
 
 export const metadata: Metadata = {
-  title: "Shaun Barry — Mortgage × AI",
+  title: "Shaun Barry — Mortgage and AI Technology",
   description,
   openGraph: {
-    title: "Shaun Barry — Mortgage × AI",
+    title: "Shaun Barry — Mortgage and AI Technology",
     description,
     type: "profile",
   },
-  twitter: { card: "summary_large_image", title: "Shaun Barry — Mortgage × AI", description },
+  twitter: { card: "summary_large_image", title: "Shaun Barry — Mortgage and AI Technology", description },
 };
 
 export const viewport: Viewport = {

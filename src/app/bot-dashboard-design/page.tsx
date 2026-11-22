@@ -162,7 +162,7 @@ export default function BotDashboardDesignPage() {
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-8">
           <p>© 2026 Shaun Barry</p>
-          <p className="font-mono text-xs">Mortgage × AI · Michigan</p>
+          <p className="font-mono text-xs">Mortgage and AI Technology · Michigan</p>
         </div>
       </footer>
     </>
