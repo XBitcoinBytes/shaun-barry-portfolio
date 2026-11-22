@@ -25,10 +25,9 @@ const principles = [
 ];
 
 const roadmap = [
-  { p: "01", t: "Foundations", d: "Data inventory, governance, vendor review, and guardrails for privacy and fair lending." },
-  { p: "02", t: "Assist the team", d: "Document intake, condition summaries, and drafting help for loan officers and processors." },
-  { p: "03", t: "Serve the borrower", d: "Plain-English explanations of disclosures, status updates, and next-step guidance." },
-  { p: "04", t: "Measure & scale", d: "Track cycle time, borrower satisfaction, and accuracy — expand only what proves out." },
+  { p: "A", t: "New to AI: 7 steps", d: "Readiness check, low-risk first use cases, data and compliance prep, vendor vetting, supervised pilot, measurement, rollout." },
+  { p: "B", t: "Already using AI: 6 steps", d: "Maturity score, value-and-risk expansion, tiered model risk, LOS/POS/servicing integration, one scorecard, operating model." },
+  { p: "✓", t: "Built in", d: "Readiness and maturity self-checks, an ROI worksheet, and 2026 GSE AI governance and model-risk updates, each linked to its primary source." },
 ];
 
 export default function Home() {
@@ -478,17 +477,19 @@ export default function Home() {
               <article className="reveal flex flex-col rounded-3xl border border-line bg-ink p-7 text-paper sm:p-9">
                 <div className="flex items-center gap-3">
                   <span className="rounded-full bg-paper/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent-soft">
-                    Concept · In design
+                    Interactive guide · Draft
                   </span>
                   <span className="font-mono text-[11px] text-paper/50">Industry playbook</span>
                 </div>
                 <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Lender AI Roadmap</h3>
                 <p className="mt-2 text-[17px] font-medium leading-snug text-paper/90">
-                  Gives lenders a practical, phased plan to adopt AI.
+                  Gives lenders a step-by-step, compliance-aware plan to adopt AI.
                 </p>
                 <p className="mt-4 leading-relaxed text-paper/75">
-                  A practical, phased plan for mortgage companies to bring AI into origination — starting with
-                  governance and quick wins for the team, then extending to borrower-facing experiences.
+                  Two click-through paths: one for lenders just starting, one for lenders scaling AI they already
+                  use. Each step says what to do, who owns it, when it&apos;s done, and the rule behind it: ECOA and
+                  Regulation B, UDAAP, TRID, GLBA, model risk, vendor oversight and the new Fannie Mae and Freddie Mac AI
+                  requirements.
                 </p>
                 <ol className="mt-8 space-y-px overflow-hidden rounded-2xl border border-paper/10">
                   {roadmap.map((r) => (
@@ -501,6 +502,15 @@ export default function Home() {
                     </li>
                   ))}
                 </ol>
+                <div className="mt-auto pt-8">
+                  <Link
+                    href="/lender-ai-roadmap"
+                    className="group/cta inline-flex items-center gap-2 rounded-full bg-paper px-5 py-3 text-sm font-medium text-ink transition-colors hover:bg-accent-soft"
+                  >
+                    Open the interactive roadmap
+                    <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
+                  </Link>
+                </div>
               </article>
 
               {/* BitcoinBytes */}
