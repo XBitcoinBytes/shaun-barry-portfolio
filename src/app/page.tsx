@@ -119,7 +119,7 @@ export default function Home() {
                 </div>
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Focus</dt>
-                  <dd className="mt-1 text-sm font-medium">AI × Mortgage</dd>
+                  <dd className="mt-1 text-sm font-medium">AI and Mortgage Technology</dd>
                 </div>
                 <div>
                   <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">Based</dt>
