@@ -361,7 +361,7 @@ export default function Home() {
                 <div className="p-7 sm:p-9">
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                      Launching soon
+                      Live
                     </span>
                     <span className="font-mono text-[11px] text-muted">Reference tool · English + Spanish</span>
                   </div>
@@ -376,10 +376,19 @@ export default function Home() {
                     short explanation and the full compliance view, and every page has an English and a Spanish version.
                   </p>
                   <p className="mt-4 text-sm text-muted">
-                    Not live yet. The screenshots below are from a local build, and the Spanish text is still awaiting
-                    native-speaker review.
+                    The Spanish text is still awaiting native-speaker review.
                   </p>
                   <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the plain-English-first entry format and the Borrower / Professional views, directed AI tools to draft and build the entries, and checked terms against public regulatory sources.</p>
+                  <div className="mt-6 flex flex-wrap items-center gap-3">
+                    <a
+                      href="https://mortgage-glossary.vercel.app"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    >
+                      Open the glossary <Arrow />
+                    </a>
+                  </div>
                   <DemoVideoLang
                     slugs={{ en: "mortgage-compliance-glossary-en", es: "mortgage-compliance-glossary-es" }}
                     seconds={{ en: 28, es: 28 }}
