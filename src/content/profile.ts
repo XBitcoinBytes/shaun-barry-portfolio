@@ -35,7 +35,7 @@ export type Role = {
 
 export const experience: Role[] = [
   {
-    org: "Independent — AI × Mortgage",
+    org: "Independent — AI and Mortgage Technology",
     title: "Builder & researcher",
     dates: "Now",
     current: true,
