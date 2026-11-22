@@ -83,7 +83,6 @@ export const experience: Role[] = [
       "Originated and closed 1,400+ residential mortgage loans totaling $400M+, managing a 70+ client pipeline in Salesforce, Botsplash, and LendingTree",
       "Funded $80M+ in 2020, ranking in the top 5% of U.S. mortgage originators",
       "Maintained a 95%+ client satisfaction rating with repeat and referral business",
-      "Maintained mortgage licenses in 24 states",
     ],
   },
   {
