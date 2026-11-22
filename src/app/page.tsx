@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { RevealObserver } from "@/components/RevealObserver";
 import { Arrow, DemoVideo, SectionHeader, ToConfirm } from "@/components/ui";
+import { DemoVideoLang } from "@/components/DemoVideoLang";
 import { certificationGroups, certificationsLinkedIn, credentials, experience, links, profile, skills } from "@/content/profile";
 
 const principles = [
@@ -435,7 +436,12 @@ export default function Home() {
                     Not live yet. The screenshots below are from a local build, and the Spanish text is still awaiting
                     native-speaker review.
                   </p>
-                  <DemoVideo slug="mortgage-compliance-glossary" seconds={27} title="Mortgage Compliance Glossary" className="mt-7" />
+                  <DemoVideoLang
+                    slugs={{ en: "mortgage-compliance-glossary-en", es: "mortgage-compliance-glossary" }}
+                    seconds={{ en: 28, es: 27 }}
+                    title="Mortgage Compliance Glossary"
+                    className="mt-7"
+                  />
                 </div>
                 <div className="grid gap-px border-t border-line bg-line md:grid-cols-2">
                   <figure className="bg-white">
