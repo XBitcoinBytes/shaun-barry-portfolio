@@ -437,9 +437,9 @@ export default function Home() {
                     native-speaker review.
                   </p>
                   <DemoVideoLang
-                    slugs={{ en: "mortgage-compliance-glossary-en", es: "mortgage-compliance-glossary" }}
-                    seconds={{ en: 28, es: 27 }}
-                    title="Mortgage Compliance Glossary"
+                    slugs={{ en: "mortgage-compliance-glossary-en", es: "mortgage-compliance-glossary-es" }}
+                    seconds={{ en: 28, es: 28 }}
+                    title={{ en: "Mortgage Compliance Glossary", es: "Glosario de cumplimiento hipotecario" }}
                     className="mt-7"
                   />
                 </div>
