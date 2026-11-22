@@ -66,25 +66,40 @@ export const experience: Role[] = [
   {
     org: "Perry Johnson Mortgage",
     title: "Executive Mortgage Loan Originator · Remote",
-    dates: "Apr 2024 – Apr 2025",
+    dates: "Mar 2024 – Mar 2025",
     summary: "FHA, VA, Conventional, and Jumbo origination with AI-assisted workflows.",
     highlights: [
-      "Streamlined origination and underwriting with AI tools, reducing processing times by 25%",
+      "Streamlined origination and underwriting with AI tools for FHA, VA, Conventional, and Jumbo loans",
       "Ran data-driven risk assessments while achieving a 95% client satisfaction rate",
     ],
   },
   {
     org: "AmeriSave Mortgage Corp",
     title: "Senior Mortgage Loan Originator – Chat Team · Remote",
-    dates: "Mar 2010 – Mar 2024",
+    dates: "May 2014 – Mar 2024",
     summary:
       "High-volume digital originator — most production came through online and chat channels.",
     highlights: [
       "Originated and closed 1,400+ residential mortgage loans totaling $400M+, managing a 70+ client pipeline in Salesforce, Botsplash, and LendingTree",
       "Funded $80M+ in 2020, ranking in the top 5% of U.S. mortgage originators",
       "Maintained a 95%+ client satisfaction rating with repeat and referral business",
-      "Held active mortgage licenses in 24 states",
+      "Maintained mortgage licenses in 24 states",
     ],
+  },
+  {
+    org: "Guaranteed Rate",
+    title: "Senior Mortgage Originator",
+    dates: "Mar 2014 – May 2014",
+    summary: "Brief origination role between AmeriSave stints.",
+    highlights: [],
+  },
+  {
+    org: "AmeriSave Mortgage Corp",
+    title: "Senior Mortgage Loan Originator – Chat Team · Remote",
+    dates: "Apr 2010 – Dec 2013",
+    summary:
+      "High-volume digital originator — most production came through online and chat channels.",
+    highlights: [],
   },
   {
     org: "Quicken Loans",
@@ -161,8 +176,8 @@ export type Credential = { label: string; value: string | null; href?: string };
 export const credentials: Credential[] = [
   { label: "NMLS ID", value: profile.nmlsId },
   {
-    label: "Licensed MLO (NMLS)",
-    value: "AK, AR, AZ, CA, CO, CT, DC, FL, GA, IA, ID, IL, IN, KS, KY, MA, MD, MI, MN, MO, MS, MT, NC, ND, NE, NH, NM, OH, OK, OR, PA, RI, SD, TN, TX, VA, VT, WA, WV",
+    label: "Licenses",
+    value: "Currently licensed in 36 states plus DC (NMLS #30170): AK, AZ, AR, CA, CO, CT, DC, FL, GA, ID, IL, IN, IA, KS, KY, MD, MA, MI, MN, MS, MO, MT, NM, NC, ND, OH, OK, OR, PA, RI, SD, TN, TX, VT, VA, WA, WV",
   },
   { label: "Certifications", value: `${certificationCount} certifications — full list below` },
   { label: "Education", value: "Cincinnati State — coursework in Marketing" },
