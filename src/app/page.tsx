@@ -608,7 +608,7 @@ export default function Home() {
                 Building AI for lending? <em className="text-accent-soft">Let&apos;s talk.</em>
               </h2>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/70">
-                My focus is helping lenders safely bring AI into borrower communications and document workflows. I&apos;m looking for a full-time role where deep mortgage experience and hands-on AI building both matter.
+                I help lenders safely bring AI into borrower communications and document workflows. I&apos;m looking for a full-time role where deep mortgage experience and hands-on AI building both matter.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-3">
                 {profile.email ? (
