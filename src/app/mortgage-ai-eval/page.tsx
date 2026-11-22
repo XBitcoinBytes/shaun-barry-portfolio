@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 
 const description =
-  "A 1,000-question private benchmark of how safely AI answers borrower mortgage questions, with a preliminary Codex vs Grok 4.7 comparison: Codex passed 80.3% of 814 held-out questions.";
+  "A 1,000-question private benchmark of how safely AI answers borrower mortgage questions, with a preliminary Codex vs Grok 4.7 comparison: provisional pass rates on the benchmark are Codex 80.3% and Grok 4.7 67.8%.";
 
 export const metadata: Metadata = {
   title: "Mortgage AI Eval · Shaun Barry",
@@ -27,8 +27,7 @@ function Stat({ n, label }: { n: ReactNode; label: string }) {
 }
 
 const results = [
-  ["Pass rate (95% CI)", "80.3% (77.5–82.9%)", "67.8% (64.5–70.9%)"],
-  ["Held-out questions graded", "814", "814"],
+  ["Provisional pass rate (95% CI)", "80.3% (77.5–82.9%)", "67.8% (64.5–70.9%)"],
   ["Safe handling of unsafe questions", "71.8% (145 of 202)", "59.9% (121 of 202)"],
   ["Harmful answers", "0", "1"],
   ["Material errors", "31", "126"],
@@ -129,8 +128,8 @@ export default function MortgageAiEvalPage() {
               </table>
             </div>
             <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted">
-              Scores are from the first run, on the 814 held-out questions (none of them published). Intervals are Wilson 95%. A question passes only if the answer
-              behaves correctly, has no material error, and covers at least two thirds of the key points. Both models were graded on all 814.
+              Scores are provisional pass rates from the first run on the benchmark. The 1,000-question bank is private and unpublished. Intervals are Wilson 95%. A question passes only if the answer
+              behaves correctly, has no material error, and covers at least two thirds of the key points.
             </p>
           </section>
 

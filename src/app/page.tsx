@@ -316,13 +316,13 @@ export default function Home() {
                       The open eval grew into a private 1,000-question bank across Loan Estimate and Closing Disclosure
                       literacy, fees, escrow, down payments, wire and application fraud, fair lending, and more. It was
                       built, tested, and supervised by a licensed loan officer with over 25 years of mortgage experience,
-                      with gold answers grounded in public primary sources where available. On 814 held-out questions
-                      that have never been published, Codex passed 80.3% and Grok 4.7 passed 67.8%.
+                      with gold answers grounded in public primary sources where available. Provisional pass rates on the
+                      benchmark: Codex 80.3% and Grok 4.7 67.8%.
                     </p>
                     <div className="mt-5 rounded-2xl border border-line bg-paper/60 p-4 text-sm leading-relaxed text-ink-2">
                       <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Method and limits</p>
                       <ul className="mt-2 list-disc space-y-1 pl-4">
-                        <li>Scored on 814 held-out questions that have never been published, with 95% confidence intervals.</li>
+                        <li>Provisional pass rates on the benchmark, with 95% confidence intervals. The 1,000-question bank is private and unpublished.</li>
                         <li>Every answer was graded by an LLM judge, gpt-6.1-sol. Codex also runs on gpt-6.1-sol, so the comparison is not independent, and the results are preliminary.</li>
                         <li>Scores reflect the LLM judge&apos;s grades, not a human review of each answer.</li>
                         <li>The question bank stays private; the repository is available on request.</li>
@@ -340,8 +340,8 @@ export default function Home() {
                   </div>
                   <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
                     {[
-                      ["80.3%", "Codex pass rate on 814 held-out questions (95% CI 77.5–82.9)"],
-                      ["67.8%", "Grok 4.7 pass rate, same 814 questions (95% CI 64.5–70.9)"],
+                      ["80.3%", "Codex provisional pass rate on the benchmark (95% CI 77.5–82.9)"],
+                      ["67.8%", "Grok 4.7 provisional pass rate on the benchmark (95% CI 64.5–70.9)"],
                       ["71.8% vs 59.9%", "safe handling of unsafe questions, Codex vs Grok"],
                       ["0 vs 1", "harmful answers, Codex vs Grok"],
                       ["31 vs 126", "material errors, Codex vs Grok"],

@@ -43,8 +43,8 @@ export const experience: Role[] = [
       "Designing borrower-first AI tools for mortgage: a loan-officer-reviewed borrower-advice eval, a Loan Estimate advisor for consumers, and an AI adoption roadmap for lenders. Publishing BitcoinBytes on the side.",
     highlights: [
       "Designed and published the Mortgage Borrower Advice Eval (v1.1): 78 loan-officer-reviewed items testing whether AI assistants give borrowers safe, useful advice",
-      "Built a 1,000-question private mortgage AI benchmark (gold answers grounded in public primary sources where available) and compared Codex and Grok 4.7: 80.3% vs 67.8% pass rate on 814 held-out questions (preliminary, single judge)",
-      "Built a 393-term, bilingual (English and Spanish) Mortgage Compliance Glossary with Loan Estimate and Closing Disclosure examples and regulation citations (launching soon)",
+      "Built a 1,000-question private mortgage AI benchmark (gold answers grounded in public primary sources where available) and compared Codex and Grok 4.7: provisional pass rates of 80.3% vs 67.8% on the benchmark (preliminary, single judge)",
+      "Built a 393-term, bilingual (English and Spanish) Mortgage Compliance Glossary with Loan Estimate and Closing Disclosure examples and regulation citations (live at https://mortgage-glossary.vercel.app)",
       "Built a clickable Loan Estimate Advisor demo: plain-English explanations, lender questions, and offer comparison",
       "Drafting a phased, compliance-aware AI roadmap for mortgage lenders",
       "Created 25+ financial education podcast episodes on YouTube (@MyBitcoinBytes), using AI to simplify complex finance topics",

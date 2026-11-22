@@ -99,7 +99,7 @@ export default function MortgageEvalPage() {
           <p role="note" className="mt-8 rounded-2xl border border-btc/40 bg-btc/[0.08] px-5 py-4 text-sm leading-relaxed text-ink-2">
             <strong className="font-semibold text-ink">What&apos;s here, honestly:</strong> the eval&apos;s design, its coverage,
             and a hand-graded gold set. The headline result comes from the larger 1,000-question private benchmark built
-            from this eval: Codex passed 80.3% of its 814 held-out questions (preliminary, single LLM judge; see{" "}
+            from this eval: provisional pass rates on the benchmark are Codex 80.3% and Grok 4.7 67.8% (preliminary, single LLM judge; see{" "}
             <Link href="/mortgage-ai-eval" className="underline underline-offset-2">Mortgage AI Eval</Link>). This is an educational portfolio
             project, not a compliance certification, legal advice, or a regulator-endorsed benchmark.
           </p>
@@ -321,16 +321,16 @@ export default function MortgageEvalPage() {
             <Kicker>06 · Headline result</Kicker>
             <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-ink-2">
               This eval grew into a 1,000-question private benchmark, built, tested, and supervised by a licensed loan
-              officer. On its 814 held-out questions (never published), Codex (<span className="font-mono text-[13px]">gpt-6.1-sol</span>)
+              officer. Provisional pass rates on the benchmark: Codex (<span className="font-mono text-[13px]">gpt-6.1-sol</span>)
               passed <strong className="font-semibold text-ink">80.3%</strong> and Grok 4.7 passed 67.8%. These figures are{" "}
               <strong className="font-semibold text-ink">preliminary</strong>: one LLM judge, one answer per question. They
-              are scores of those models on the held-out questions, not on the 78 public items. Full results and caveats
+              are scores of those models on the benchmark, not on the 78 public items. Full results and caveats
               are on{" "}
               <Link href="/mortgage-ai-eval" className="underline underline-offset-2">Mortgage AI Eval</Link>.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <Stat n="80.3%" label="Codex pass rate on 814 held-out questions (95% CI 77.5–82.9, preliminary)" />
-              <Stat n="67.8%" label="Grok 4.7 pass rate, same 814 questions (95% CI 64.5–70.9, preliminary)" />
+              <Stat n="80.3%" label="Codex provisional pass rate on the benchmark (95% CI 77.5–82.9, preliminary)" />
+              <Stat n="67.8%" label="Grok 4.7 provisional pass rate on the benchmark (95% CI 64.5–70.9, preliminary)" />
               <Stat n="1,000" label="private question-bank items (built, tested, and supervised by a licensed loan officer)" />
             </div>
           </section>
@@ -340,7 +340,7 @@ export default function MortgageEvalPage() {
             {[
               ["Built", "Dataset + JSON Schema, validator, HealthBench-style scorer, grader prompt, LO-reviewed references, hand-graded gold set, and a first model run (provisional, LLM-judged)."],
               ["Next", "Shaun's review of the judge labels, runs of additional models, and a side-by-side comparison here. The 1,000-question bank already has a first Codex vs Grok comparison on its own page."],
-              ["Limits", "The published eval is still 78 items — a smoke test. The headline scores are preliminary (one LLM judge, one answer per question) and come from the 814 held-out questions. The 1,000-item bank is private and unpublished. US-federal, English-only, mostly single-turn. One expert reviewer so far; state law varies."],
+              ["Limits", "The published eval is still 78 items — a smoke test. The headline scores are preliminary (one LLM judge, one answer per question) and are provisional pass rates on the benchmark. The 1,000-question bank is private and unpublished. US-federal, English-only, mostly single-turn. One expert reviewer so far; state law varies."],
             ].map(([t, d]) => (
               <div key={t}>
                 <h2 className="font-mono text-xs uppercase tracking-[0.16em] text-accent">{t}</h2>
