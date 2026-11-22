@@ -103,13 +103,13 @@ export default function LenderAiRoadmapPage() {
           <section id="use-cases" aria-labelledby="uc-h" className="mt-14 scroll-mt-28">
             <Kicker id="uc-h">Use cases ranked by value and risk</Kicker>
             <p className="mt-3 max-w-3xl text-ink-2">Ratings are my judgment for a typical lender, not measured results. Tier 3 is where to start; Tier 1 needs full model risk and fair lending controls.</p>
-            <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-white" tabIndex={0} role="region" aria-label="Build, buy or partner table (scrolls sideways)">
+            <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-white" tabIndex={0} role="region" aria-label="Use cases table (scrolls sideways)">
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead className="border-b border-line bg-paper/60"><tr><th className="p-3">Use case</th><th className="p-3">Tier</th><th className="p-3">Value</th><th className="p-3">Risk</th><th className="p-3">Minimum controls</th><th className="p-3">Rules</th></tr></thead>
                 <tbody>
                   {[...useCases].sort((a, b) => b.tier - a.tier).map((u) => (
                     <tr key={u.name} className="border-b border-line align-top last:border-0">
-                      <td className="p-3"><span className="font-medium">{u.name}</span><span className="block text-xs text-muted">{u.example}</span></td>
+                      <td className="p-3"><span className="font-medium">{u.name}</span><span className="block text-xs text-muted">{u.example}</span>{u.proof ? <a href={u.proof.href} className="mt-1 block text-xs font-medium text-accent underline-offset-4 hover:underline">{u.proof.label} →</a> : null}</td>
                       <td className="p-3 font-mono">{u.tier}</td><td className="p-3">{u.value}</td><td className="p-3">{u.risk}</td>
                       <td className="p-3">{u.controls}</td><td className="p-3"><Cites ids={u.rules} /></td>
                     </tr>
@@ -137,7 +137,7 @@ export default function LenderAiRoadmapPage() {
 
           <section aria-labelledby="bb-h" className="mt-14">
             <Kicker id="bb-h">Build, buy or configure</Kicker>
-            <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-white" tabIndex={0} role="region" aria-label="Compliance guardrails table (scrolls sideways)">
+            <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-white" tabIndex={0} role="region" aria-label="Build, buy or configure table (scrolls sideways)">
               <table className="w-full min-w-[640px] text-left text-sm">
                 <thead className="border-b border-line bg-paper/60"><tr><th className="p-3">Option</th><th className="p-3">When it fits</th><th className="p-3">What you take on</th><th className="p-3">Typical pick</th></tr></thead>
                 <tbody>{buildBuy.map((b) => (<tr key={b.opt} className="border-b border-line last:border-0"><td className="p-3 font-medium">{b.opt}</td><td className="p-3">{b.when}</td><td className="p-3">{b.watch}</td><td className="p-3 text-ink-2">{b.pick}</td></tr>))}</tbody>
