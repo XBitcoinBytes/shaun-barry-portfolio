@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { RevealObserver } from "@/components/RevealObserver";
-import { Arrow, SectionHeader, ToConfirm } from "@/components/ui";
+import { Arrow, DemoVideo, SectionHeader, ToConfirm } from "@/components/ui";
 import { certificationGroups, certificationsLinkedIn, credentials, experience, links, profile, skills } from "@/content/profile";
 
 const principles = [
@@ -274,6 +274,32 @@ export default function Home() {
                     </li>
                   ))}
                 </ol>
+                <DemoVideo slug="loan-estimate-advisor" title="Loan Estimate Advisor" className="mt-8 lg:col-span-2" />
+              </article>
+
+              {/* ClearEstimate */}
+              <article id="clearestimate" className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:col-span-2 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                      In development
+                    </span>
+                    <span className="font-mono text-[11px] text-muted">Compliance tool · Synthetic data</span>
+                  </div>
+                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">ClearEstimate</h3>
+                  <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                    Reads a Loan Estimate or Closing Disclosure the way a lender does.
+                  </p>
+                  <p className="mt-4 leading-relaxed text-ink-2">
+                    Upload the PDF and ClearEstimate extracts every fee, explains it in plain English, runs a TRID
+                    compliance scan with the regulation cited on each finding, and tests fee tolerances against the
+                    earlier Loan Estimate, so a cure shows up before closing instead of in an audit.
+                  </p>
+                  <p className="mt-4 text-sm text-muted">
+                    Not public yet. The demo uses synthetic sample documents only.
+                  </p>
+                </div>
+                <DemoVideo slug="clearestimate" title="ClearEstimate" className="mt-8 lg:mt-0" />
               </article>
 
               {/* Mortgage Borrower Advice Eval */}
@@ -329,6 +355,7 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
+                <DemoVideo slug="mortgage-eval" title="Mortgage Borrower Advice Eval" className="mt-8 lg:col-span-2" />
               </article>
 
               {/* Mortgage AI Eval */}
@@ -408,6 +435,7 @@ export default function Home() {
                     Not live yet. The screenshots below are from a local build, and the Spanish text is still awaiting
                     native-speaker review.
                   </p>
+                  <DemoVideo slug="mortgage-compliance-glossary" title="Mortgage Compliance Glossary" className="mt-7" />
                 </div>
                 <div className="grid gap-px border-t border-line bg-line md:grid-cols-2">
                   <figure className="bg-white">
@@ -707,6 +735,7 @@ export default function Home() {
                     GitHub <Arrow />
                   </a>
                 </div>
+                <DemoVideo slug="bot-tracker" title="Bot Tracker" className="mt-7" />
               </div>
               <img
                 src="/projects/bot-tracker.webp"

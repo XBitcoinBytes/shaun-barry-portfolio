@@ -58,3 +58,33 @@ export function Arrow({ className = "" }: { className?: string }) {
     </svg>
   );
 }
+
+export function DemoVideo({
+  slug,
+  title,
+  className = "",
+}: {
+  slug: string;
+  title: string;
+  className?: string;
+}) {
+  return (
+    <figure className={`max-w-2xl ${className}`}>
+      <video
+        className="aspect-video h-auto w-full rounded-2xl border border-line bg-ink"
+        src={`/videos/${slug}-explainer.mp4`}
+        poster={`/videos/${slug}-poster.webp`}
+        width={1280}
+        height={720}
+        controls
+        muted
+        playsInline
+        preload="none"
+        aria-label={`${title}: 15-second demo video with captions`}
+      />
+      <figcaption className="mt-2 font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
+        Watch the 15-second demo · captions, no sound
+      </figcaption>
+    </figure>
+  );
+}
