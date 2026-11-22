@@ -71,6 +71,12 @@ export default function Home() {
                 of how safely AI answers borrower questions, and a bilingual mortgage compliance glossary. I&apos;m
                 currently licensed in 36 states plus DC (NMLS #30170) and based in the {profile.location} area.
               </p>
+              <p
+                className="reveal mt-4 max-w-xl font-mono text-[11px] uppercase leading-relaxed tracking-[0.14em] text-muted"
+                style={{ ["--d" as string]: "200ms" }}
+              >
+                AI product builder · mortgage technology · governance and QA
+              </p>
               <div className="reveal mt-9 flex flex-wrap items-center gap-3" style={{ ["--d" as string]: "240ms" }}>
                 <a
                   href="#projects"
