@@ -62,10 +62,12 @@ export function Arrow({ className = "" }: { className?: string }) {
 export function DemoVideo({
   slug,
   title,
+  seconds,
   className = "",
 }: {
   slug: string;
   title: string;
+  seconds: number;
   className?: string;
 }) {
   return (
@@ -77,13 +79,12 @@ export function DemoVideo({
         width={1280}
         height={720}
         controls
-        muted
         playsInline
         preload="none"
-        aria-label={`${title}: 15-second demo video with captions`}
+        aria-label={`${title}: ${seconds}-second narrated demo video with captions`}
       />
       <figcaption className="mt-2 font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
-        Watch the 15-second demo · captions, no sound
+        Watch the {seconds}-second demo · narrated, with captions
       </figcaption>
     </figure>
   );

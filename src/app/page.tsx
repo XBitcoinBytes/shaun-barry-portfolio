@@ -274,7 +274,7 @@ export default function Home() {
                     </li>
                   ))}
                 </ol>
-                <DemoVideo slug="loan-estimate-advisor" title="Loan Estimate Advisor" className="mt-8 lg:col-span-2" />
+                <DemoVideo slug="loan-estimate-advisor" seconds={34} title="Loan Estimate Advisor" className="mt-8 lg:col-span-2" />
               </article>
 
               {/* ClearEstimate */}
@@ -299,7 +299,7 @@ export default function Home() {
                     Not public yet. The demo uses synthetic sample documents only.
                   </p>
                 </div>
-                <DemoVideo slug="clearestimate" title="ClearEstimate" className="mt-8 lg:mt-0" />
+                <DemoVideo slug="clearestimate" seconds={32} title="ClearEstimate" className="mt-8 lg:mt-0" />
               </article>
 
               {/* Mortgage Borrower Advice Eval */}
@@ -355,7 +355,7 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <DemoVideo slug="mortgage-eval" title="Mortgage Borrower Advice Eval" className="mt-8 lg:col-span-2" />
+                <DemoVideo slug="mortgage-eval" seconds={34} title="Mortgage Borrower Advice Eval" className="mt-8 lg:col-span-2" />
               </article>
 
               {/* Mortgage AI Eval */}
@@ -435,7 +435,7 @@ export default function Home() {
                     Not live yet. The screenshots below are from a local build, and the Spanish text is still awaiting
                     native-speaker review.
                   </p>
-                  <DemoVideo slug="mortgage-compliance-glossary" title="Mortgage Compliance Glossary" className="mt-7" />
+                  <DemoVideo slug="mortgage-compliance-glossary" seconds={27} title="Mortgage Compliance Glossary" className="mt-7" />
                 </div>
                 <div className="grid gap-px border-t border-line bg-line md:grid-cols-2">
                   <figure className="bg-white">
@@ -735,7 +735,7 @@ export default function Home() {
                     GitHub <Arrow />
                   </a>
                 </div>
-                <DemoVideo slug="bot-tracker" title="Bot Tracker" className="mt-7" />
+                <DemoVideo slug="bot-tracker" seconds={22} title="Bot Tracker" className="mt-7" />
               </div>
               <img
                 src="/projects/bot-tracker.webp"
