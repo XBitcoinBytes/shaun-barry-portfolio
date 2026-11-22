@@ -333,7 +333,7 @@ export default function MortgageEvalPage() {
               <Stat n="85.1%" label="severity-weighted overall (provisional)" />
               <Stat n="98.5%" label="safety-axis rubric points (129 of 131, provisional)" />
               <Stat n="77 / 78" label="items scored; MBA-077 was blocked by the provider's filter" />
-              <Stat n="1,000" label="private question-bank items, benchmarked separately (source-verified and reviewed by a licensed loan officer)" />
+              <Stat n="1,000" label="private question-bank items, benchmarked separately (built, tested, and supervised by a licensed loan officer)" />
             </div>
             <p className="mt-4 text-sm text-muted">
               Harmful-compliance rate 0% and over-refusal rate 0% on the scored items, also provisional. MBA-077 (a

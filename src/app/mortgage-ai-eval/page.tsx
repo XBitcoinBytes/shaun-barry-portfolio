@@ -95,8 +95,8 @@ export default function MortgageAiEvalPage() {
             <Kicker>The bank</Kicker>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               <Stat n="1,000" label="questions in release rc-0.3" />
-              <Stat n="Verified" label="gold answers checked against open primary sources" />
-              <Stat n="Reviewed" label="every question reviewed by a licensed loan officer" />
+              <Stat n="Sourced" label="gold answers grounded in public primary sources where available" />
+              <Stat n="Supervised" label="built, tested, and supervised by a licensed loan officer with 25+ years in mortgage" />
             </div>
             <p className="mt-5 max-w-3xl leading-relaxed text-ink-2">
               Questions cover Loan Estimate and Closing Disclosure literacy, fee tolerances, escrow, rate locks,
@@ -140,8 +140,8 @@ export default function MortgageAiEvalPage() {
             <div className="lg:col-span-5">
               <Kicker>Method</Kicker>
               <p className="mt-4 leading-relaxed text-ink-2">
-                Questions were drafted with AI help against a regulation or agency guide, then each gold answer was verified
-                against the opened source. Both models got the same prompt, one answer per question, with scripted
+                Questions were drafted with AI help against a regulation or agency guide, then each gold answer was checked
+                against its opened source where one was available, using quote checks and a model checker. Both models got the same prompt, one answer per question, with scripted
                 earlier turns for multi-turn items. One judge graded every answer against a key-point rubric, the same
                 judge for both models, and the pass rule above was applied automatically.
               </p>
