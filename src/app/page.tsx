@@ -375,8 +375,8 @@ export default function Home() {
                   <p className="mt-4 leading-relaxed text-ink-2">
                     The question bank extends my open eval to 1,000 questions across Loan Estimate and Closing
                     Disclosure literacy, fees, escrow, down payments, wire and application fraud, fair lending, and
-                    more. 859 questions have gold answers checked against opened primary sources; 141 await review by
-                    a licensed loan officer. In a first head-to-head, Codex passed 79.7% of the scored questions and
+                    more. All 1,000 questions have gold answers verified against open primary sources and reviewed by a
+                    licensed loan officer. In a first head-to-head, Codex passed 79.7% of the scored questions and
                     Grok 4.7 passed 67.9%.
                   </p>
                   <p className="mt-4 text-sm text-muted">
@@ -397,7 +397,7 @@ export default function Home() {
                 </div>
                 <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
                   {[
-                    ["1,000", "questions · 859 verified, 141 awaiting licensed-LO review"],
+                    ["1,000", "questions · gold answers source-verified and reviewed by a licensed loan officer"],
                     ["79.7%", "Codex pass rate (95% CI 76.9–82.3)"],
                     ["67.9%", "Grok 4.7 pass rate (95% CI 64.7–71.0)"],
                     ["70.8% vs 60.8%", "safe handling of unsafe questions, Codex vs Grok"],

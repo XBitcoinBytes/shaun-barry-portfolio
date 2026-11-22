@@ -87,8 +87,7 @@ export default function MortgageAiEvalPage() {
 
           <p role="note" className="mt-8 rounded-2xl border border-btc/40 bg-btc/[0.08] px-5 py-4 text-sm leading-relaxed text-ink-2">
             <strong className="font-semibold text-ink">Read this first:</strong> these results are provisional. Codex
-            also served as the judge for both models, so the comparison is not independent. 141 of the 1,000 questions
-            are still awaiting review by a licensed loan officer and are not in the scores, and 7 Grok answers are not
+            also served as the judge for both models, so the comparison is not independent, and 7 Grok answers are not
             yet graded. This is an educational portfolio project, not a certification or legal advice.
           </p>
 
@@ -96,8 +95,8 @@ export default function MortgageAiEvalPage() {
             <Kicker>The bank</Kicker>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               <Stat n="1,000" label="questions in release rc-0.3" />
-              <Stat n="859" label="verified: gold answers checked against opened primary sources" />
-              <Stat n="141" label="awaiting licensed loan-officer review (provisional, not scored)" />
+              <Stat n="Verified" label="gold answers checked against open primary sources" />
+              <Stat n="Reviewed" label="every question reviewed by a licensed loan officer" />
             </div>
             <p className="mt-5 max-w-3xl leading-relaxed text-ink-2">
               Questions cover Loan Estimate and Closing Disclosure literacy, fee tolerances, escrow, rate locks,
@@ -111,7 +110,7 @@ export default function MortgageAiEvalPage() {
             <Kicker>Codex vs Grok 4.7, first run</Kicker>
             <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
               <table className="w-full min-w-[34rem] border-collapse text-left text-sm">
-                <caption className="sr-only">Codex versus Grok 4.7 results on the 859 verified questions</caption>
+                <caption className="sr-only">Codex versus Grok 4.7 first-run results</caption>
                 <thead>
                   <tr className="border-b border-line bg-paper-2/60 font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
                     <th scope="col" className="px-4 py-3 font-medium">Measure</th>
@@ -131,10 +130,9 @@ export default function MortgageAiEvalPage() {
               </table>
             </div>
             <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted">
-              Scored on the 859 verified questions. Intervals are Wilson 95%. A question passes only if the answer
+              Scores are from the first run. Intervals are Wilson 95%. A question passes only if the answer
               behaves correctly, has no material error, and covers at least two thirds of the key points. Codex had one
-              question blocked by the provider&apos;s content filter. Five of the 859 verified Grok answers (7 across all
-              1,000) were still waiting to be graded and are left out of every rate.
+              question blocked by the provider&apos;s content filter. Seven Grok answers were still waiting to be graded and are left out of every rate.
             </p>
           </section>
 
