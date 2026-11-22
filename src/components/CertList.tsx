@@ -5,6 +5,8 @@ import type { Certification, CertificationGroup } from "@/content/profile";
 
 /** Shown by default, in this order. Matched by name + issuer; data stays in profile.ts. */
 const FEATURED: { name: string; issuer: string }[] = [
+  { name: "Foundations in Generative AI", issuer: "IBM SkillsBuild" },
+  { name: "Building effective human-agent teams (beta)", issuer: "Claude Academy (Anthropic)" },
   { name: "Impact, Ethics, and Issues with Generative AI", issuer: "IBM · edX" },
   { name: "Introduction to LLM Vulnerabilities", issuer: "edX" },
   { name: "Prompt Design in Vertex AI Skill Badge", issuer: "Google" },
@@ -17,7 +19,15 @@ function Row({ c }: { c: Certification }) {
   return (
     <li className="flex flex-col gap-0.5 border-b border-line/70 py-3 last:border-0 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
       <div className="min-w-0">
-        <p className="text-[15px] font-medium leading-snug">{c.name}</p>
+        <p className="text-[15px] font-medium leading-snug">
+          {c.href ? (
+            <a href={c.href} target="_blank" rel="noopener noreferrer" className="text-accent underline-offset-4 hover:underline">
+              {c.name}
+            </a>
+          ) : (
+            c.name
+          )}
+        </p>
         <p className="text-xs text-muted">{c.issuer}</p>
       </div>
       <p className="shrink-0 font-mono text-xs text-ink-2">{c.date}</p>

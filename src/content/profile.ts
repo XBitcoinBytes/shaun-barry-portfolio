@@ -119,7 +119,7 @@ export const experience: Role[] = [
   },
 ];
 
-export type Certification = { name: string; issuer: string; date: string };
+export type Certification = { name: string; issuer: string; date: string; href?: string };
 export type CertificationGroup = { title: string; items: Certification[] };
 
 export const certificationsLinkedIn = "https://www.linkedin.com/in/barryshaun/details/certifications/";
@@ -132,6 +132,8 @@ export const certificationGroups: CertificationGroup[] = [
   {
     title: "AI certifications",
     items: [
+      { name: "Foundations in Generative AI", issuer: "IBM SkillsBuild", date: "Nov 2026" },
+      { name: "Building effective human-agent teams (beta)", issuer: "Claude Academy (Anthropic)", date: "Nov 2026", href: "https://academy.claude.com/verify/c0b18a120591ca2f9293ab033b9e3bb0" },
       { name: "Generative AI Fundamentals", issuer: "Pragmatic AI Labs", date: "Aug 2025" },
       { name: "End to End LLM with Azure", issuer: "Pragmatic AI Labs · edX", date: "Aug 2025" },
       { name: "Small Language Models", issuer: "Pragmatic AI Labs · edX", date: "Aug 2025" },
