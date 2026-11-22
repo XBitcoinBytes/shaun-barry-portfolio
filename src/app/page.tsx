@@ -60,16 +60,17 @@ export default function Home() {
                 className="reveal mt-6 font-serif text-[clamp(2.75rem,7vw,5.25rem)] leading-[0.98] tracking-[-0.02em] text-balance"
                 style={{ ["--d" as string]: "80ms" }}
               >
-                Making the mortgage <em className="text-accent">clearer</em> for every borrower — with AI that earns trust.
+                Shaun Barry
               </h1>
               <p
                 className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-2 text-pretty"
                 style={{ ["--d" as string]: "160ms" }}
               >
-                I&apos;m Shaun Barry, a mortgage loan originator with 25+ years in home lending — Quicken Loans,
-                AmeriSave, and Veterans United among them — based in the{" "}
-                {profile.location} area. I&apos;m focused on where lending experience meets applied AI: tools
-                that help consumers understand their loan, and practical roadmaps that help lenders adopt AI responsibly.
+                I use AI tools to build tools that solve real problems, starting with the ones I saw in 25+ years of
+                home lending, including 1,400+ loans and $400M+ closed at AmeriSave alone. So far that&apos;s a Loan
+                Estimate Advisor, ClearEstimate (a TRID compliance checker in development), a 1,000-question benchmark
+                of how safely AI answers borrower questions, and a bilingual mortgage compliance glossary. I&apos;m
+                currently licensed in 36 states plus DC (NMLS #30170) and based in the {profile.location} area.
               </p>
               <div className="reveal mt-9 flex flex-wrap items-center gap-3" style={{ ["--d" as string]: "240ms" }}>
                 <a
@@ -139,7 +140,7 @@ export default function Home() {
               kicker="About"
               title={
                 <>
-                  I know how a loan actually gets made. <span className="text-muted">Now I want to make it make sense.</span>
+                  I know how a loan actually gets made.
                 </>
               }
               intro={
@@ -781,93 +782,42 @@ export default function Home() {
               </div>
             </article>
 
-            <article className="reveal overflow-hidden rounded-3xl border border-line bg-white">
-              <div className="p-7 sm:p-9">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                    In progress · Built with AI
-                  </span>
-                  <span className="font-mono text-[11px] text-muted">iPhone web app</span>
-                </div>
-                <h3 className="mt-6 font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
-                  HomeTask, a household-task PWA for iPhone
-                </h3>
-                <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                  Keeps household chores and due dates on your phone&apos;s home screen.
-                </p>
-                <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
-                  I built this as a phone-friendly web app for my own home — not a native App Store
-                  app. It lives on the iPhone home screen, tracks recurring chores and due dates on
-                  the device, and works without an account. I&apos;m still finishing it as a portfolio
-                  piece.
-                </p>
-                <div className="mt-7 flex flex-wrap gap-3">
+            <article className="reveal rounded-3xl border border-line bg-white p-7 sm:p-9">
+              <p className="font-mono text-xs uppercase tracking-[0.16em] text-accent">Other builds</p>
+              <ul className="mt-5 grid gap-4 sm:grid-cols-2">
+                <li className="flex flex-col gap-3 rounded-2xl border border-line/80 bg-paper/60 p-5">
+                  <div>
+                    <p className="font-semibold tracking-tight">HomeTask</p>
+                    <p className="mt-1 text-sm leading-relaxed text-ink-2">
+                      An iPhone home-screen web app that tracks recurring household chores and due dates. In progress.
+                    </p>
+                  </div>
                   <a
                     href="https://github.com/XBitcoinBytes/HomeTask"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                    className="group mt-auto inline-flex w-fit items-center gap-2 text-sm font-medium text-accent underline-offset-4 hover:underline"
                   >
                     GitHub <Arrow />
                   </a>
-                </div>
-              </div>
-              <img
-                src="/projects/hometask.webp"
-                alt="Screenshot of HomeTask on an iPhone-sized screen, showing the welcome view and a choice of starting schedule."
-                className="mx-auto h-auto w-full max-w-sm border-t border-line bg-ink"
-                width={390}
-                height={844}
-              />
-            </article>
-
-            <article className="reveal overflow-hidden rounded-3xl border border-line bg-white">
-              <div className="p-7 sm:p-9">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                    Side project · Built with AI
-                  </span>
-                  <span className="font-mono text-[11px] text-muted">Travel guide</span>
-                </div>
-                <h3 className="mt-6 font-serif text-3xl leading-tight tracking-tight sm:text-4xl">
-                  England Trip Companion, a reservation-aware travel guide built with AI
-                </h3>
-                <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                  Turns scattered trip bookings into one clear daily plan.
-                </p>
-                <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
-                  I built this with ChatGPT for an eight-person, twelve-day family trip to England. It turned
-                  scattered bookings into one clear daily plan, kept what was confirmed separate from what
-                  wasn&apos;t, and kept private details like codes and booking numbers off the site. It&apos;s a small
-                  project, but it&apos;s how I like to use AI: practical, honest about what isn&apos;t verified, and
-                  built for real people.
-                </p>
-                <div className="mt-7 flex flex-wrap gap-3">
+                </li>
+                <li className="flex flex-col gap-3 rounded-2xl border border-line/80 bg-paper/60 p-5">
+                  <div>
+                    <p className="font-semibold tracking-tight">England Trip Companion</p>
+                    <p className="mt-1 text-sm leading-relaxed text-ink-2">
+                      A travel guide built with AI that turned scattered bookings for an eight-person family trip into one daily plan.
+                    </p>
+                  </div>
                   <a
                     href="https://england-trip-companion.netlify.app/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                    className="group mt-auto inline-flex w-fit items-center gap-2 text-sm font-medium text-accent underline-offset-4 hover:underline"
                   >
                     Live site <Arrow />
                   </a>
-                  <a
-                    href="https://github.com/XBitcoinBytes/england-trip-companion"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
-                  >
-                    GitHub <Arrow />
-                  </a>
-                </div>
-              </div>
-              <img
-                src="/projects/england-trip-companion.webp"
-                alt="Screenshot of the England Trip Companion, showing the trip overview and a day-by-day plan."
-                className="h-auto w-full border-t border-line"
-                width={1920}
-                height={2541}
-              />
+                </li>
+              </ul>
             </article>
             </div>
           </div>
@@ -886,8 +836,7 @@ export default function Home() {
                 Building AI for lending? <em className="text-accent-soft">Let&apos;s talk.</em>
               </h2>
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-paper/70">
-                I&apos;m looking for a full-time role where mortgage experience and an AI mindset
-                both matter — product, operations, enablement, or borrower experience.
+                I&apos;m looking for a full-time role where deep mortgage experience and hands-on AI building both matter.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-3">
                 {profile.email ? (
