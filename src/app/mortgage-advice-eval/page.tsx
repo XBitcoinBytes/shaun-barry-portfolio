@@ -97,13 +97,10 @@ export default function MortgageEvalPage() {
           </div>
 
           <p role="note" className="mt-8 rounded-2xl border border-btc/40 bg-btc/[0.08] px-5 py-4 text-sm leading-relaxed text-ink-2">
-            <strong className="font-semibold text-ink">What&apos;s here, honestly:</strong> the eval&apos;s design, its coverage, a
-            hand-graded gold set, and a <strong className="font-semibold text-ink">provisional</strong> first model run.
-            On Nov 15, 2026, Codex (gpt-6.1-sol) was scored on 77 of 78 items by an LLM judge: 85.1% overall
-            (severity-weighted) and 98.5% on the safety-axis rubric points. Those scores have not yet been reviewed
-            by Shaun Barry and are not a published benchmark. A larger 1,000-question private bank has been benchmarked separately (see{" "}
-            <Link href="/mortgage-ai-eval" className="underline underline-offset-2">Mortgage AI Eval</Link>);
-            none of those scores appear on this page. This is an educational portfolio
+            <strong className="font-semibold text-ink">What&apos;s here, honestly:</strong> the eval&apos;s design, its coverage,
+            and a hand-graded gold set. The headline result comes from the larger 1,000-question private benchmark built
+            from this eval: Codex passed 80.3% of its 814 held-out questions (preliminary, single LLM judge; see{" "}
+            <Link href="/mortgage-ai-eval" className="underline underline-offset-2">Mortgage AI Eval</Link>). This is an educational portfolio
             project, not a compliance certification, legal advice, or a regulator-endorsed benchmark.
           </p>
 
@@ -319,27 +316,23 @@ export default function MortgageEvalPage() {
             </p>
           </section>
 
-          {/* Provisional first model run */}
+          {/* Headline result */}
           <section className="mt-16 border-t border-line pt-12">
-            <Kicker>06 · Provisional first model run</Kicker>
+            <Kicker>06 · Headline result</Kicker>
             <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-ink-2">
-              On Nov 15, 2026, Codex (<span className="font-mono text-[13px]">gpt-6.1-sol</span>) was run on the published
-              v1.1 eval. An LLM judge graded each response against the item&apos;s rubric. These figures are{" "}
-              <strong className="font-semibold text-ink">provisional</strong>: one judge, one pass, and they have not
-              yet been reviewed by Shaun Barry. They are scores of that model on the 78-item eval, not scores of the
-              eval itself, and they do not come from the larger question bank.
+              This eval grew into a 1,000-question private benchmark, built, tested, and supervised by a licensed loan
+              officer. On its 814 held-out questions (never published), Codex (<span className="font-mono text-[13px]">gpt-6.1-sol</span>)
+              passed <strong className="font-semibold text-ink">80.3%</strong> and Grok 4.7 passed 67.8%. These figures are{" "}
+              <strong className="font-semibold text-ink">preliminary</strong>: one LLM judge, one answer per question. They
+              are scores of those models on the held-out questions, not on the 78 public items. Full results and caveats
+              are on{" "}
+              <Link href="/mortgage-ai-eval" className="underline underline-offset-2">Mortgage AI Eval</Link>.
             </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <Stat n="85.1%" label="severity-weighted overall (provisional)" />
-              <Stat n="98.5%" label="safety-axis rubric points (129 of 131, provisional)" />
-              <Stat n="77 / 78" label="items scored; MBA-077 was blocked by the provider's filter" />
-              <Stat n="1,000" label="private question-bank items, benchmarked separately (built, tested, and supervised by a licensed loan officer)" />
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <Stat n="80.3%" label="Codex pass rate on 814 held-out questions (95% CI 77.5–82.9, preliminary)" />
+              <Stat n="67.8%" label="Grok 4.7 pass rate, same 814 questions (95% CI 64.5–70.9, preliminary)" />
+              <Stat n="1,000" label="private question-bank items (built, tested, and supervised by a licensed loan officer)" />
             </div>
-            <p className="mt-4 text-sm text-muted">
-              Harmful-compliance rate 0% and over-refusal rate 0% on the scored items, also provisional. MBA-077 (a
-              prompt-injection item asking for another borrower&apos;s SSN) returned no model text, so it is reported
-              separately and is not in the 85.1% or 98.5% figures.
-            </p>
           </section>
 
           {/* Status & next */}
@@ -347,7 +340,7 @@ export default function MortgageEvalPage() {
             {[
               ["Built", "Dataset + JSON Schema, validator, HealthBench-style scorer, grader prompt, LO-reviewed references, hand-graded gold set, and a first model run (provisional, LLM-judged)."],
               ["Next", "Shaun's review of the judge labels, runs of additional models, and a side-by-side comparison here. The 1,000-question bank already has a first Codex vs Grok comparison on its own page."],
-              ["Limits", "The published eval is still 78 items — a smoke test. The Nov 15 scores are provisional (one LLM judge, one pass, 77 of 78 items). The 1,000-item bank is private and unpublished. US-federal, English-only, mostly single-turn. One expert reviewer so far; state law varies."],
+              ["Limits", "The published eval is still 78 items — a smoke test. The headline scores are preliminary (one LLM judge, one answer per question) and come from the 814 held-out questions. The 1,000-item bank is private and unpublished. US-federal, English-only, mostly single-turn. One expert reviewer so far; state law varies."],
             ].map(([t, d]) => (
               <div key={t}>
                 <h2 className="font-mono text-xs uppercase tracking-[0.16em] text-accent">{t}</h2>

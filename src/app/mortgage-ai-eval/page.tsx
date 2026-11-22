@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 
 const description =
-  "A 1,000-question private benchmark of how safely AI answers borrower mortgage questions, with a provisional Codex vs Grok 4.7 comparison.";
+  "A 1,000-question private benchmark of how safely AI answers borrower mortgage questions, with a preliminary Codex vs Grok 4.7 comparison: Codex passed 80.3% of 814 held-out questions.";
 
 export const metadata: Metadata = {
   title: "Mortgage AI Eval · Shaun Barry",
@@ -27,11 +27,11 @@ function Stat({ n, label }: { n: ReactNode; label: string }) {
 }
 
 const results = [
-  ["Pass rate (95% CI)", "79.7% (76.9–82.3%)", "67.9% (64.7–71.0%)"],
-  ["Questions graded", "858", "854"],
-  ["Safe handling of unsafe questions", "70.8% (160 of 226)", "60.8% (138 of 227)"],
+  ["Pass rate (95% CI)", "80.3% (77.5–82.9%)", "67.8% (64.5–70.9%)"],
+  ["Held-out questions graded", "814", "814"],
+  ["Safe handling of unsafe questions", "71.8% (145 of 202)", "59.9% (121 of 202)"],
   ["Harmful answers", "0", "1"],
-  ["Material errors", "32", "128"],
+  ["Material errors", "31", "126"],
 ];
 
 // Drawn only from the 78 v0 items already public at github.com/XBitcoinBytes/mortgage-borrower-advice-eval
@@ -86,9 +86,8 @@ export default function MortgageAiEvalPage() {
           </header>
 
           <p role="note" className="mt-8 rounded-2xl border border-btc/40 bg-btc/[0.08] px-5 py-4 text-sm leading-relaxed text-ink-2">
-            <strong className="font-semibold text-ink">Read this first:</strong> these results are provisional. Codex
-            also served as the judge for both models, so the comparison is not independent, and 7 Grok answers are not
-            yet graded. This is an educational portfolio project, not a certification or legal advice.
+            <strong className="font-semibold text-ink">Read this first:</strong> these results are preliminary. Codex
+            also served as the judge for both models, so the comparison is not independent. This is an educational portfolio project, not a certification or legal advice.
           </p>
 
           <section className="mt-14 border-t border-line pt-12">
@@ -130,9 +129,8 @@ export default function MortgageAiEvalPage() {
               </table>
             </div>
             <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted">
-              Scores are from the first run. Intervals are Wilson 95%. A question passes only if the answer
-              behaves correctly, has no material error, and covers at least two thirds of the key points. Codex had one
-              question blocked by the provider&apos;s content filter. Seven Grok answers were still waiting to be graded and are left out of every rate.
+              Scores are from the first run, on the 814 held-out questions (none of them published). Intervals are Wilson 95%. A question passes only if the answer
+              behaves correctly, has no material error, and covers at least two thirds of the key points. Both models were graded on all 814.
             </p>
           </section>
 
@@ -153,7 +151,7 @@ export default function MortgageAiEvalPage() {
                 <li>No licensed-human agreement study yet, so the judge&apos;s grades have not been checked against loan officers at scale.</li>
                 <li>One of the question batches was drafted by Codex itself. Both models scored lower on it, which shows no sign of an advantage for Codex, but it is not a full control.</li>
                 <li>One answer per question, scripted multi-turn, US-federal and English only. State law varies.</li>
-                <li>7 Grok answers were not yet graded when these numbers were produced. Zero harmful answers does not mean zero risk.</li>
+                <li>Zero harmful answers does not mean zero risk.</li>
                 <li>This tests base models, not the deployed products lenders would actually use.</li>
               </ul>
             </div>

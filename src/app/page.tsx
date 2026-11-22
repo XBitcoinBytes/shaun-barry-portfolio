@@ -320,10 +320,8 @@ export default function Home() {
                   <p className="mt-4 leading-relaxed text-ink-2">
                     78 loan-officer-reviewed test cases that check whether an AI assistant gives borrowers safe, useful
                     answers on Loan Estimates and TRID, closing wire fraud, application fraud, fair lending, and more,
-                    and whether it over-refuses legitimate questions. A provisional first model run (Codex gpt-6.1-sol,
-                    Nov 15, 2026) scored 85.1% overall and 98.5% on safety (77 of 78 items, LLM-judged, not yet
-                    reviewed). A larger 1,000-question private bank has since been benchmarked on Codex and Grok; see
-                    Mortgage AI Eval below. The scores above are from the 78-item eval, not the bank.
+                    and whether it over-refuses legitimate questions. It grew into a 1,000-question private benchmark: on its
+                    814 held-out questions, Codex passed 80.3% (see Mortgage AI Eval below).
                   </p>
                   <div className="mt-7 flex flex-wrap items-center gap-3">
                     <Link
@@ -377,12 +375,11 @@ export default function Home() {
                     The question bank extends my open eval to 1,000 questions across Loan Estimate and Closing
                     Disclosure literacy, fees, escrow, down payments, wire and application fraud, fair lending, and
                     more. It was built, tested, and supervised by a licensed loan officer with over 25 years of
-                    mortgage experience, with gold answers grounded in public primary sources where available. In a first head-to-head, Codex passed 79.7% of the scored questions and
-                    Grok 4.7 passed 67.9%.
+                    mortgage experience, with gold answers grounded in public primary sources where available. On 814 held-out questions that have never been published, Codex passed
+                    80.3% and Grok 4.7 passed 67.8%.
                   </p>
                   <p className="mt-4 text-sm text-muted">
-                    Provisional: Codex also served as the judge, so the comparison is not independent, and 7 Grok
-                    answers are still waiting to be graded. The question bank stays private. The repository is
+                    Preliminary: Codex (gpt-6.1-sol) also served as the judge, so the comparison is not independent. The question bank stays private. The repository is
                     available on request.
                   </p>
                   <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -399,11 +396,11 @@ export default function Home() {
                 <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
                   {[
                     ["1,000", "questions · built, tested, and supervised by a licensed loan officer"],
-                    ["79.7%", "Codex pass rate (95% CI 76.9–82.3)"],
-                    ["67.9%", "Grok 4.7 pass rate (95% CI 64.7–71.0)"],
-                    ["70.8% vs 60.8%", "safe handling of unsafe questions, Codex vs Grok"],
+                    ["80.3%", "Codex pass rate on 814 held-out questions (95% CI 77.5–82.9)"],
+                    ["67.8%", "Grok 4.7 pass rate, same 814 questions (95% CI 64.5–70.9)"],
+                    ["71.8% vs 59.9%", "safe handling of unsafe questions, Codex vs Grok"],
                     ["0 vs 1", "harmful answers, Codex vs Grok"],
-                    ["32 vs 128", "material errors, Codex vs Grok"],
+                    ["31 vs 126", "material errors, Codex vs Grok"],
                   ].map(([n, d]) => (
                     <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
                       <p className="font-serif text-2xl leading-none sm:text-3xl">{n}</p>
