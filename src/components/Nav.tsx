@@ -10,7 +10,7 @@ const items = [
   { href: "/#experience", label: "Experience" },
   { href: "/#projects", label: "Projects" },
   { href: "/#skills", label: "Skills" },
-  { href: "/#side-projects", label: "Side projects" },
+  { href: "/#side-projects", label: "More builds" },
 ];
 
 const DEMO_HREF = "/loan-estimate-advisor";

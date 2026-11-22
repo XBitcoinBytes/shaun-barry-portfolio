@@ -71,7 +71,7 @@ export default function BotDashboardDesignPage() {
         <div className="mx-auto max-w-6xl px-5 pb-24 sm:px-8 sm:pb-32">
           <nav aria-label="Breadcrumb" className="font-mono text-xs uppercase tracking-[0.16em] text-muted">
             <Link href="/#side-projects" className="transition-colors hover:text-ink">
-              ← Side projects
+              ← More builds
             </Link>
             <span className="mx-2">/</span>
             <span className="text-ink-2">Bot dashboard design</span>
@@ -153,7 +153,7 @@ export default function BotDashboardDesignPage() {
                 href="/#side-projects"
                 className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
               >
-                Back to side projects
+                Back to more builds
               </Link>
             </div>
           </section>

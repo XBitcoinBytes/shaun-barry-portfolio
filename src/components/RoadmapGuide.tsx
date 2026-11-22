@@ -68,6 +68,11 @@ function UseCaseTable({ mode }: { mode: PathId }) {
               <span className={`rounded-full px-2 py-0.5 ${u.risk === "Low" ? pill.Low : u.risk === "Medium" ? pill.RiskMedium : pill.RiskHigh}`}>Risk: {u.risk}</span>
             </p>
             <p className="mt-2 text-sm"><span className="font-semibold">Controls:</span> {u.controls}</p>
+            {u.proof ? (
+              <p className="mt-2 text-sm">
+                <a href={u.proof.href} className="font-medium text-accent underline-offset-4 hover:underline">{u.proof.label} →</a>
+              </p>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -201,7 +206,7 @@ function Widget({ kind, mode }: { kind: NonNullable<Path["steps"][number]["widge
       );
     case "decisionRights":
       return (
-        <div className="mt-4 overflow-x-auto rounded-2xl border border-line bg-white">
+        <div className="mt-4 overflow-x-auto rounded-2xl border border-line bg-white" tabIndex={0} role="region" aria-label="Who decides: human-in-the-loop rules (scrolls sideways)">
           <table className="w-full min-w-[520px] text-left text-sm">
             <caption className="px-4 pt-3 text-left font-mono text-[11px] uppercase tracking-[0.14em] text-muted">Who decides: human-in-the-loop rules</caption>
             <thead><tr className="border-b border-line"><th className="p-3">Task</th><th className="p-3">AI may</th><th className="p-3">Human</th></tr></thead>

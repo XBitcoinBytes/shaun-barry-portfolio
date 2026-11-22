@@ -1,12 +1,13 @@
 // Lender AI Roadmap: content for the interactive guide (DRAFT, local prototype).
 // Rules: no invented stats or quotes. Every legal statement points to a primary source in `sources`.
 // Value/risk ratings and time ranges are the author's judgment and are labeled that way on the page.
-// Regulatory status checked Nov 22, 2026.
+// Regulatory status checked Nov 22, 2026 (loop 2: Reg B 2026 amendment, Fannie Supplement Section 4).
 
 export type SourceId =
   | "ecoa"
   | "regb9"
   | "regbAppC"
+  | "regbAmend2026"
   | "cfpbWithdrawn"
   | "udaap"
   | "cfpbChatbots"
@@ -35,6 +36,10 @@ export const sources: Record<SourceId, { label: string; url: string; note?: stri
   regbAppC: {
     label: "Regulation B, Appendix C (sample notices) and Supplement I",
     url: "https://www.ecfr.gov/current/title-12/chapter-X/part-1002",
+  },
+  regbAmend2026: {
+    label: "CFPB final rule amending Regulation B: effects test, discouragement, special purpose credit programs (Federal Register, Apr 22, 2026; effective Jul 21, 2026)",
+    url: "https://www.federalregister.gov/documents/2026/04/22/2026-07804/equal-credit-opportunity-act-regulation-b",
   },
   cfpbWithdrawn: {
     label: "CFPB: Withdrawn guidance (Circulars 2022-03 and 2023-03 withdrawn May 12, 2025)",
@@ -83,8 +88,8 @@ export const sources: Record<SourceId, { label: string; url: string; note?: stri
     url: "https://guide.freddiemac.com/ci/okcsFattach/get/1010639_7",
   },
   fannie: {
-    label: "Fannie Mae Lender Letter LL-2026-04 (AI/ML governance, effective Aug 6, 2026; now in the Information Security and Business Resiliency Supplement)",
-    url: "https://singlefamily.fanniemae.com/news-events/lender-letter-ll-2026-04-governance-framework-use-artificial-intelligence-and-machine-learning",
+    label: "Fannie Mae Information Security and Business Resiliency Supplement, Section 4 \"Super Intelligence\" (Fannie's new term for AI) governance; full implementation required by Jan 18, 2027 (Bulletin 26-01; carries forward LL-2026-04)",
+    url: "https://www.fanniemae.com/about-us/corp-responsibility/governance/information-security-and-business-resiliency-supplement",
   },
   nistRmf: { label: "NIST AI Risk Management Framework 1.0 (NIST AI 100-1, 2023)", url: "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf" },
   nistGenai: { label: "NIST Generative AI Profile (NIST AI 600-1, 2024)", url: "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf" },
@@ -263,8 +268,8 @@ export const paths: Path[] = [
         owner: "Product or operations lead, with compliance and fair lending",
         doneWhen: ["A ranked backlog with a control set for each item", "Fair lending review done for any decision-adjacent item"],
         watchOut:
-          "Adverse-action reasons must reflect the factors actually used. The CFPB withdrew its AI circulars in May 2025, but Regulation B's text didn't change.",
-        sources: ["regb9", "regbAppC", "cfpbWithdrawn", "fha"],
+          "Adverse-action reasons must reflect the factors actually used. Regulation B's adverse-action rules (§1002.9) didn't change, even though the CFPB withdrew its AI circulars in May 2025 and amended other parts of Regulation B in 2026.",
+        sources: ["regb9", "regbAppC", "regbAmend2026", "cfpbWithdrawn", "fha"],
         widget: "usecases",
       },
       {
@@ -321,7 +326,7 @@ export const paths: Path[] = [
         doThis: [
           "Stand up an AI council (operations, compliance, IT/security, legal, a front-line loan officer) with a monthly intake and review.",
           "Use one intake form: problem, data, risk tier, owner, baseline, success and stop rules.",
-          "Keep training role-specific and recurring, including AI-specific threats such as deepfakes and prompt injection (now part of Freddie Mac's security training expectations).",
+          "Keep training role-specific and recurring, including AI-specific threats such as deepfakes and prompt injection. Fannie Mae's Supplement (Section 4) lists prompt injection, model inversion and data leakage among the AI security risks to assess by Jan 18, 2027.",
           "Track state AI laws where you lend. Colorado's ADMT law takes effect Jan 1, 2027.",
         ],
         owner: "Exec sponsor, chairing the AI council",
@@ -334,7 +339,7 @@ export const paths: Path[] = [
 ];
 
 // Value and risk are the author's judgment for a typical mid-size lender, not measured results.
-export type UseCase = { name: string; example: string; value: "High" | "Medium" | "Lower"; risk: "Low" | "Medium" | "High"; tier: 1 | 2 | 3; controls: string; rules: SourceId[] };
+export type UseCase = { name: string; example: string; value: "High" | "Medium" | "Lower"; risk: "Low" | "Medium" | "High"; tier: 1 | 2 | 3; controls: string; rules: SourceId[]; proof?: { label: string; href: string } };
 
 export const useCases: UseCase[] = [
   { name: "Document sorting and data extraction", example: "Classify paystubs, W-2s and bank statements; pre-fill fields for a processor to confirm", value: "High", risk: "Low", tier: 3, controls: "Human confirms every extracted field; QC sample monthly", rules: ["safeguards"] },
@@ -342,9 +347,9 @@ export const useCases: UseCase[] = [
   { name: "Internal policy and guideline Q&A", example: "Answers from your policies and investor guides, with citations", value: "Medium", risk: "Low", tier: 3, controls: "Answers must cite the source section; unanswerable questions route to a person", rules: ["nistGenai"] },
   { name: "Call notes and CRM summaries", example: "Draft notes after a loan officer's call", value: "Medium", risk: "Low", tier: 3, controls: "Recording consent per state law; LO edits before saving", rules: ["glba", "regp"] },
   { name: "Marketing copy drafting", example: "First drafts of emails and ads", value: "Medium", risk: "Medium", tier: 2, controls: "Compliance approves every piece; trigger-term checks", rules: ["regzAds", "udaap"] },
-  { name: "Borrower status updates and FAQ assistant", example: "Answers 'where's my loan?' and explains next steps", value: "High", risk: "Medium", tier: 2, controls: "Grounded answers only, one-tap human handoff, logged conversations", rules: ["udaap", "cfpbChatbots"] },
-  { name: "Plain-English disclosure explainer", example: "Explains Loan Estimate and Closing Disclosure sections", value: "High", risk: "Medium", tier: 2, controls: "Explains, never changes, figures; points to the disclosure line", rules: ["trid", "udaap"] },
-  { name: "TRID tolerance pre-check", example: "Flags fee changes between LE and CD for QC review", value: "High", risk: "Medium", tier: 2, controls: "Flags only; compliance decides cures", rules: ["trid"] },
+  { name: "Borrower status updates and FAQ assistant", example: "Answers 'where's my loan?' and explains next steps", value: "High", risk: "Medium", tier: 2, controls: "Grounded answers only, one-tap human handoff, logged conversations", rules: ["udaap", "cfpbChatbots"], proof: { label: "How I test borrower-facing AI before launch: Borrower Advice Eval", href: "/mortgage-advice-eval" } },
+  { name: "Plain-English disclosure explainer", example: "Explains Loan Estimate and Closing Disclosure sections", value: "High", risk: "Medium", tier: 2, controls: "Explains, never changes, figures; points to the disclosure line", rules: ["trid", "udaap"], proof: { label: "A working example I built: Loan Estimate Advisor", href: "/loan-estimate-advisor" } },
+  { name: "TRID tolerance pre-check", example: "Flags fee changes between LE and CD for QC review", value: "High", risk: "Medium", tier: 2, controls: "Flags only; compliance decides cures", rules: ["trid"], proof: { label: "A prototype I built (in development): ClearEstimate", href: "/#clearestimate" } },
   { name: "Fraud and anomaly flags", example: "Flags altered documents or mismatched data", value: "High", risk: "Medium", tier: 2, controls: "A person decides; test flags for disparities across groups", rules: ["ecoa", "fha"] },
   { name: "Income calculation support", example: "Drafts self-employed income worksheets", value: "High", risk: "High", tier: 1, controls: "Underwriter owns the number; validate against investor guidelines", rules: ["ecoa", "regb9"] },
   { name: "Credit decisioning or pricing models", example: "Approve, decline or price", value: "High", risk: "High", tier: 1, controls: "Independent validation, fair lending testing, explainable adverse-action reasons", rules: ["ecoa", "regb9", "regbAppC", "fha", "mrm2026"] },
@@ -356,9 +361,9 @@ export const guardrails: { area: string; rule: string; meaning: string; control:
     area: "Fair lending and adverse action",
     rule: "ECOA / Regulation B; Fair Housing Act",
     meaning:
-      "A declined or counter-offered applicant must get the specific principal reasons, and reasons must reflect the factors actually used, however complex the model. Checking the closest box on the sample form isn't enough if it isn't the real reason.",
-    control: "Reason-code traceability before any model influences credit; disparity testing; a person accountable for each decision.",
-    src: ["ecoa", "regb9", "regbAppC", "cfpbWithdrawn", "fha"],
+      "A declined or counter-offered applicant must get the specific principal reasons, and reasons must reflect the factors actually used, however complex the model. Checking the closest box on the sample form isn't enough if it isn't the real reason. A 2026 amendment (effective Jul 21, 2026) removed the \"effects test\" from Regulation B; the adverse-action rules didn't change.",
+    control: "Reason-code traceability before any model influences credit; disparity testing; a person accountable for each decision. Keep disparity testing after the 2026 amendment: Freddie Mac 1302.8 expects AI to be monitored for bias, the Fair Housing Act and state laws still apply, and criteria used as proxies for a protected trait still violate ECOA.",
+    src: ["ecoa", "regb9", "regbAppC", "regbAmend2026", "cfpbWithdrawn", "fha"],
   },
   {
     area: "Unfair, deceptive or abusive practices",
@@ -398,9 +403,9 @@ export const guardrails: { area: string; rule: string; meaning: string; control:
   },
   {
     area: "Investor (GSE) requirements",
-    rule: "Freddie Mac Guide 1302.8; Fannie Mae LL-2026-04",
+    rule: "Freddie Mac Guide 1302.8; Fannie Mae Supplement Section 4 (by Jan 18, 2027)",
     meaning:
-      "Sellers/servicers using AI in origination or servicing need a governance framework: policies, owners, risk tolerance, monitoring, audits, vendor oversight, and disclosure on request.",
+      "Sellers/servicers using AI in origination or servicing need a governance framework: policies, owners, risk tolerance, monitoring, audits, vendor oversight, and disclosure on request. Fannie Mae's Section 4 adds specifics due Jan 18, 2027: a use-case inventory, data governance, model testing and validation, post-deployment monitoring and retirement, change management, security risk assessment, segregation of duties and third-party AI oversight.",
     control: "One governance program mapped to both GSEs, kept current, with evidence ready to share.",
     src: ["freddie", "fannie"],
   },

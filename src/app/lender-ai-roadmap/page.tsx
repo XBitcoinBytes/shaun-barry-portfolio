@@ -71,6 +71,10 @@ export default function LenderAiRoadmapPage() {
               A step-by-step plan for mortgage lenders to adopt AI without creating fair lending, disclosure or privacy problems.
               Pick your starting point, then work through each step: what to do, who owns it, when it&apos;s done, and the rule behind it.
             </p>
+            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2">
+              <span className="font-semibold text-ink">Why I built this:</span> after 25+ years originating loans, I build and test AI tools for
+              mortgage work, and this is the plan I&apos;d want a lender to follow first. I&apos;m Shaun Barry, currently licensed in 36 states plus DC (NMLS #30170).
+            </p>
             <ul className="mt-5 flex flex-wrap gap-2 text-sm">
               <li><a href="#guide" className="rounded-full bg-ink px-4 py-2 font-semibold text-paper hover:bg-accent">Start the guide</a></li>
               <li><a href="#use-cases" className="rounded-full border border-line px-4 py-2 hover:border-accent">Use cases by value and risk</a></li>
@@ -81,9 +85,9 @@ export default function LenderAiRoadmapPage() {
 
           <section aria-label="What changed in 2026" className="mt-10 grid gap-3 sm:grid-cols-3">
             {[
-              ["GSE AI governance is now required", "Freddie Mac (effective Mar 3, 2026) and Fannie Mae (effective Aug 6, 2026) require a governance framework for AI used in origination or servicing, including vendor AI."],
+              ["GSE AI governance: next deadline Jan 18, 2027", "Freddie Mac has required an AI governance framework since Mar 3, 2026. Fannie Mae's updated Supplement adds Section 4 controls (it calls AI \"Super Intelligence\"), required by Jan 18, 2027: a use-case inventory, testing, monitoring, change management, security risks such as prompt injection, and third-party AI."],
               ["SR 11-7 was replaced", "April 2026 interagency model risk guidance is risk-based and puts generative and agentic AI out of scope."],
-              ["The CFPB withdrew its AI circulars", "Circulars 2022-03 and 2023-03 were withdrawn May 12, 2025. Regulation B's adverse-action text is unchanged."],
+              ["Regulation B changed; adverse action didn't", "An Apr 22, 2026 amendment (effective Jul 21) removed the effects test. The §1002.9 adverse-action rules are unchanged, and the CFPB's AI circulars stay withdrawn (May 12, 2025)."],
             ].map(([t, d]) => (
               <div key={t} className="rounded-2xl border border-line bg-white/70 p-5">
                 <p className="font-semibold">{t}</p>
@@ -99,7 +103,7 @@ export default function LenderAiRoadmapPage() {
           <section id="use-cases" aria-labelledby="uc-h" className="mt-14 scroll-mt-28">
             <Kicker id="uc-h">Use cases ranked by value and risk</Kicker>
             <p className="mt-3 max-w-3xl text-ink-2">Ratings are my judgment for a typical lender, not measured results. Tier 3 is where to start; Tier 1 needs full model risk and fair lending controls.</p>
-            <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-white">
+            <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-white" tabIndex={0} role="region" aria-label="Build, buy or partner table (scrolls sideways)">
               <table className="w-full min-w-[760px] text-left text-sm">
                 <thead className="border-b border-line bg-paper/60"><tr><th className="p-3">Use case</th><th className="p-3">Tier</th><th className="p-3">Value</th><th className="p-3">Risk</th><th className="p-3">Minimum controls</th><th className="p-3">Rules</th></tr></thead>
                 <tbody>
@@ -133,7 +137,7 @@ export default function LenderAiRoadmapPage() {
 
           <section aria-labelledby="bb-h" className="mt-14">
             <Kicker id="bb-h">Build, buy or configure</Kicker>
-            <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-white">
+            <div className="mt-5 overflow-x-auto rounded-2xl border border-line bg-white" tabIndex={0} role="region" aria-label="Compliance guardrails table (scrolls sideways)">
               <table className="w-full min-w-[640px] text-left text-sm">
                 <thead className="border-b border-line bg-paper/60"><tr><th className="p-3">Option</th><th className="p-3">When it fits</th><th className="p-3">What you take on</th><th className="p-3">Typical pick</th></tr></thead>
                 <tbody>{buildBuy.map((b) => (<tr key={b.opt} className="border-b border-line last:border-0"><td className="p-3 font-medium">{b.opt}</td><td className="p-3">{b.when}</td><td className="p-3">{b.watch}</td><td className="p-3 text-ink-2">{b.pick}</td></tr>))}</tbody>

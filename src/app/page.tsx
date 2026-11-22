@@ -57,14 +57,13 @@ export default function Home() {
                 Shaun Barry
               </h1>
               <p
-                className="reveal mt-6 max-w-xl text-lg leading-relaxed text-ink-2 text-pretty"
+                className="reveal mt-6 max-w-2xl text-lg leading-relaxed text-ink-2 text-pretty"
                 style={{ ["--d" as string]: "160ms" }}
               >
-                I use AI tools to build tools that solve real problems, starting with the ones I saw in 25+ years of
-                home lending, including 1,400+ loans and $400M+ closed at AmeriSave alone. So far that&apos;s a Loan
-                Estimate Advisor, ClearEstimate (a TRID compliance checker in development), a 1,000-question benchmark
-                of how safely AI answers borrower questions, and a bilingual mortgage compliance glossary. I&apos;m
-                currently licensed in 36 states plus DC (NMLS #30170) and based in the {profile.location} area.
+                I use AI tools to build tools for real mortgage problems, drawing on 25+ years in home lending
+                (1,400+ loans and $400M+ closed at AmeriSave alone). My builds include ClearEstimate, a 1,000-question
+                AI-safety benchmark and a bilingual compliance glossary. I&apos;m currently licensed in 36 states plus DC
+                (NMLS #30170).
               </p>
               <p
                 className="reveal mt-4 max-w-xl font-mono text-[11px] uppercase leading-relaxed tracking-[0.14em] text-muted"
@@ -99,27 +98,19 @@ export default function Home() {
                     LinkedIn <Arrow />
                   </a>
                 ) : null}
-              </div>
-              <div className="reveal mt-6 flex flex-wrap items-center gap-3" style={{ ["--d" as string]: "240ms" }}>
                 <a
                   href="#projects"
-                  className="group inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent"
+                  className="group inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-accent"
                 >
                   See the work <Arrow />
                 </a>
                 <Link
                   href="/loan-estimate-advisor"
-                  className="inline-flex items-center gap-2 rounded-full border border-ink/15 bg-white/50 px-5 py-3 text-sm font-medium transition-colors hover:border-ink/40"
+                  className="inline-flex items-center gap-2 rounded-full border border-ink/20 bg-white px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/50"
                 >
                   <span className="size-1.5 rounded-full bg-accent-2" aria-hidden />
                   Try the Loan Estimate demo
                 </Link>
-                <a
-                  href="#contact"
-                  className="inline-flex items-center px-2 py-3 text-sm font-medium text-ink-2 underline-offset-4 transition-colors hover:text-ink hover:underline"
-                >
-                  Get in touch
-                </a>
               </div>
               <dl
                 className="reveal mt-12 grid max-w-xl grid-cols-3 gap-6 border-t border-line pt-6"
@@ -328,10 +319,15 @@ export default function Home() {
                       with gold answers grounded in public primary sources where available. On 814 held-out questions
                       that have never been published, Codex passed 80.3% and Grok 4.7 passed 67.8%.
                     </p>
-                    <p className="mt-4 text-sm text-muted">
-                      Preliminary: Codex (gpt-6.1-sol) also served as the judge, so the comparison is not independent.
-                      The question bank stays private. The repository is available on request.
-                    </p>
+                    <div className="mt-5 rounded-2xl border border-line bg-paper/60 p-4 text-sm leading-relaxed text-ink-2">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Method and limits</p>
+                      <ul className="mt-2 list-disc space-y-1 pl-4">
+                        <li>Scored on 814 held-out questions that have never been published, with 95% confidence intervals.</li>
+                        <li>Every answer was graded by an LLM judge, gpt-6.1-sol. Codex also runs on gpt-6.1-sol, so the comparison is not independent, and the results are preliminary.</li>
+                        <li>Scores reflect the LLM judge&apos;s grades, not a human review of each answer.</li>
+                        <li>The question bank stays private; the repository is available on request.</li>
+                      </ul>
+                    </div>
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <Link
                         href="/mortgage-ai-eval"
