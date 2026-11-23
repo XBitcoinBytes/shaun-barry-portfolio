@@ -5,6 +5,7 @@ import type { Certification, CertificationGroup } from "@/content/profile";
 
 /** Shown by default, in this order. Matched by name + issuer; data stays in profile.ts. */
 const FEATURED: { name: string; issuer: string }[] = [
+  { name: "Scope AI Solutions", issuer: "OpenAI Academy" },
   { name: "Foundations in Generative AI", issuer: "IBM SkillsBuild" },
   { name: "Building effective human-agent teams (beta)", issuer: "Claude Academy (Anthropic)" },
   { name: "Impact, Ethics, and Issues with Generative AI", issuer: "IBM · edX" },

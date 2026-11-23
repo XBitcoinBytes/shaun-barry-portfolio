@@ -132,6 +132,7 @@ export const certificationGroups: CertificationGroup[] = [
   {
     title: "AI certifications",
     items: [
+      { name: "Scope AI Solutions", issuer: "OpenAI Academy", date: "Nov 2026" },
       { name: "Foundations in Generative AI", issuer: "IBM SkillsBuild", date: "Nov 2026" },
       { name: "Building effective human-agent teams (beta)", issuer: "Claude Academy (Anthropic)", date: "Nov 2026", href: "https://academy.claude.com/verify/c0b18a120591ca2f9293ab033b9e3bb0" },
       { name: "Generative AI Fundamentals", issuer: "Pragmatic AI Labs", date: "Aug 2025" },
