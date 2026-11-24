@@ -40,8 +40,10 @@ export const experience: Role[] = [
     dates: "Now",
     current: true,
     summary:
-      "Designing borrower-first AI tools for mortgage: a loan-officer-reviewed borrower-advice eval, a Loan Estimate advisor for consumers, and an AI adoption roadmap for lenders. Publishing BitcoinBytes on the side.",
+      "Designing borrower-first AI tools for mortgage: MortgageEval, ClearEstimate, a loan-officer-reviewed borrower-advice eval, a Loan Estimate advisor for consumers, and an AI adoption roadmap for lenders. Publishing BitcoinBytes on the side.",
     highlights: [
+      "Built MortgageEval.com (launching soon): a public site where anyone can test a mortgage AI against an open 78-question public benchmark (November 2026), with a test-first homepage, a leaderboard of 12 models being tested, a category weight toggle, and no-gate PDF results checked against a licensed loan officer's answer key",
+      "Built ClearEstimate, a TRID compliance checker measured on 200 synthetic Loan Estimate and Closing Disclosure documents with answer keys. A 10-step improvement loop applies a never-worse rule (every change must be a strict improvement) and a stop-at-perfection rule (the loop stops at or near 100% on all metrics). After improvement #2: seeded violations caught 53/59 (89.8%), signature checks 8/8, fees and key fields 100%, and 0 false findings on 160 valid documents. Includes synthetic signature detection pages (signature present or missing)",
       "Designed and published the Mortgage Borrower Advice Eval (v1.1): 78 loan-officer-reviewed items testing whether AI assistants give borrowers safe, useful advice",
       "Built a 1,000-question private mortgage AI benchmark (gold answers grounded in public primary sources where available) and compared Codex and Grok 4.7: provisional pass rates of 80.3% vs 67.8% on the benchmark (preliminary, single judge)",
       "Built a 393-term, bilingual (English and Spanish) Mortgage Compliance Glossary with Loan Estimate and Closing Disclosure examples and regulation citations (live at https://mortgage-glossary.vercel.app)",

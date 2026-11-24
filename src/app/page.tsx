@@ -4,6 +4,7 @@ import { RevealObserver } from "@/components/RevealObserver";
 import { Arrow, DemoVideo, SectionHeader, ToConfirm } from "@/components/ui";
 import { DemoVideoLang } from "@/components/DemoVideoLang";
 import { CertList } from "@/components/CertList";
+import { MortgageEvalLaunchCta } from "@/components/MortgageEvalLaunchCta";
 import { certificationGroups, certificationsLinkedIn, credentials, experience, profile, skills } from "@/content/profile";
 
 const principles = [
@@ -61,9 +62,9 @@ export default function Home() {
                 style={{ ["--d" as string]: "160ms" }}
               >
                 I use AI tools to build tools for real mortgage problems, drawing on 25+ years in home lending
-                (1,400+ loans and $400M+ closed at AmeriSave alone). My builds include ClearEstimate, a 1,000-question
-                AI-safety benchmark and a bilingual compliance glossary. I&apos;m currently licensed in 36 states plus DC
-                (NMLS #30170).
+                (1,400+ loans and $400M+ closed at AmeriSave alone). My builds include MortgageEval, ClearEstimate,
+                a mortgage borrower-advice eval, and a bilingual compliance glossary. I&apos;m currently licensed in
+                36 states plus DC (NMLS #30170).
               </p>
               <p
                 className="reveal mt-4 max-w-xl font-mono text-[11px] uppercase leading-relaxed tracking-[0.14em] text-muted"
@@ -222,10 +223,60 @@ export default function Home() {
               index="03"
               kicker="Projects"
               title="Tools for a clearer mortgage."
-              intro="Three featured builds first: a TRID compliance checker, an AI-safety eval with its 1,000-question benchmark, and a bilingual compliance glossary. More builds follow below. Each starts from a real pain point I’ve seen up close."
+              intro="Four featured builds first: MortgageEval, a public site for testing mortgage AI (launching soon); ClearEstimate, a TRID compliance checker; the Mortgage Borrower Advice Eval; and a bilingual compliance glossary. More builds follow below. Each starts from a real pain point I’ve seen up close."
             />
 
             <div className="mt-16 grid gap-6">
+              {/* MortgageEval */}
+              <article id="mortgageeval" className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
+                      Launching soon
+                    </span>
+                    <span className="font-mono text-[11px] text-muted">Public benchmark site · Prussian Night and Coral</span>
+                  </div>
+                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">MortgageEval</h3>
+                  <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
+                    Anyone can test a mortgage AI against an open 78-question public benchmark.
+                  </p>
+                  <p className="mt-4 leading-relaxed text-ink-2">
+                    The site leads with the test itself: paste an assistant&apos;s answer to a real borrower question and
+                    see how it scores against a licensed loan officer&apos;s answer key. A leaderboard of 12 models being
+                    tested sits underneath, with a category weight toggle, and results come as a no-gate PDF — no
+                    account required. The design uses Prussian Night and Coral on a charcoal base, with electric blue
+                    for scores.
+                  </p>
+                  <p className="mt-4 text-sm text-muted">
+                    Built, not yet live. The public URL will appear here once the site is deployed.
+                  </p>
+                  <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the public test, the leaderboard and the scoring display, directed AI coding assistants to build the site, and reviewed the results against the licensed answer key.</p>
+                  <div className="mt-7 flex flex-wrap items-center gap-3">
+                    <MortgageEvalLaunchCta />
+                    <Link
+                      href="/mortgageeval"
+                      className="group/cta inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
+                    >
+                      Read about the site
+                      <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
+                    </Link>
+                  </div>
+                </div>
+                <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
+                  {[
+                    ["78", "questions on the public benchmark"],
+                    ["12", "models being tested"],
+                    ["No-gate PDF", "results without signing up"],
+                    ["Launching soon", "built, not yet deployed"],
+                  ].map(([n, d]) => (
+                    <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
+                      <p className="font-serif text-2xl leading-none sm:text-3xl">{n}</p>
+                      <p className="mt-2 text-sm text-ink-2">{d}</p>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+
               {/* ClearEstimate */}
               <article id="clearestimate" className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
                 <div>
@@ -244,10 +295,30 @@ export default function Home() {
                     compliance scan with the regulation cited on each finding, and tests fee tolerances against the
                     earlier Loan Estimate, so a cure shows up before closing instead of in an audit.
                   </p>
+                  <p className="mt-4 leading-relaxed text-ink-2">
+                    It is measured on 200 synthetic Loan Estimates and Closing Disclosures, each with an answer key,
+                    including signature-detection pages that show a signature present or missing. A 10-step
+                    improvement loop follows two rules: every change must be a strict improvement (the never-worse
+                    rule), and the loop stops once the tool is at or near 100% on all metrics (the stop-at-perfection
+                    rule).
+                  </p>
+                  <ul className="mt-6 grid grid-cols-2 gap-3">
+                    {[
+                      ["53 / 59", "seeded violations caught after improvement #2 (89.8%)"],
+                      ["8 / 8", "signature checks"],
+                      ["100%", "fees and key fields"],
+                      ["0", "false findings on 160 valid documents"],
+                    ].map(([n, d]) => (
+                      <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
+                        <p className="font-serif text-2xl leading-none sm:text-3xl">{n}</p>
+                        <p className="mt-2 text-sm text-ink-2">{d}</p>
+                      </li>
+                    ))}
+                  </ul>
                   <p className="mt-4 text-sm text-muted">
                     Not public yet. The demo uses synthetic sample documents only.
                   </p>
-                  <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the fee-extraction, TRID scan and tolerance rules, directed AI coding tools to build them, and tested the results against synthetic Loan Estimates and Closing Disclosures.</p>
+                  <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the fee-extraction, TRID scan, tolerance rules and the never-worse / stop-at-perfection improvement loop, directed AI coding assistants to build them, and tested the results against 200 synthetic Loan Estimates and Closing Disclosures, including signature-detection pages.</p>
                 </div>
                 <DemoVideo slug="clearestimate" seconds={31} title="ClearEstimate" className="mt-8 lg:mt-0" />
               </article>
