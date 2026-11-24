@@ -98,8 +98,8 @@ export default function MortgageEvalPage() {
 
           <p role="note" className="mt-8 rounded-2xl border border-btc/40 bg-btc/[0.08] px-5 py-4 text-sm leading-relaxed text-ink-2">
             <strong className="font-semibold text-ink">What&apos;s here, honestly:</strong> the eval&apos;s design, its coverage,
-            and a hand-graded gold set. The headline result comes from the larger 1,000-question private benchmark built
-            from this eval: provisional pass rates on the benchmark are Codex 80.3% and Grok 4.7 67.8% (preliminary, single LLM judge; see{" "}
+            and a hand-graded gold set. This is the open-source 78-question mortgage benchmark. A larger private question
+            bank is used for vendor testing; its counts and scores are not published (see{" "}
             <Link href="/mortgage-ai-eval" className="underline underline-offset-2">Mortgage AI Eval</Link>). This is an educational portfolio
             project, not a compliance certification, legal advice, or a regulator-endorsed benchmark.
           </p>
@@ -316,31 +316,23 @@ export default function MortgageEvalPage() {
             </p>
           </section>
 
-          {/* Headline result */}
+          {/* A larger private bank */}
           <section className="mt-16 border-t border-line pt-12">
-            <Kicker>06 · Headline result</Kicker>
+            <Kicker>06 · A larger private bank</Kicker>
             <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-ink-2">
-              This eval grew into a 1,000-question private benchmark, built, tested, and supervised by a licensed loan
-              officer. Provisional pass rates on the benchmark: Codex (<span className="font-mono text-[13px]">gpt-6.1-sol</span>)
-              passed <strong className="font-semibold text-ink">80.3%</strong> and Grok 4.7 passed 67.8%. These figures are{" "}
-              <strong className="font-semibold text-ink">preliminary</strong>: one LLM judge, one answer per question. They
-              are scores of those models on the benchmark, not on the 78 public items. Full results and caveats
-              are on{" "}
+              Alongside this open-source 78-question mortgage benchmark, a larger private question bank is used for
+              vendor testing. It was built, tested, and supervised by a licensed loan officer. Counts and scores from
+              the private bank are not published. The method and how to request access are on{" "}
               <Link href="/mortgage-ai-eval" className="underline underline-offset-2">Mortgage AI Eval</Link>.
             </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <Stat n="80.3%" label="Codex provisional pass rate on the benchmark (95% CI 77.5–82.9, preliminary)" />
-              <Stat n="67.8%" label="Grok 4.7 provisional pass rate on the benchmark (95% CI 64.5–70.9, preliminary)" />
-              <Stat n="1,000" label="private question-bank items (built, tested, and supervised by a licensed loan officer)" />
-            </div>
           </section>
 
           {/* Status & next */}
           <section className="mt-16 grid gap-6 border-t border-line pt-12 md:grid-cols-3">
             {[
               ["Built", "Dataset + JSON Schema, validator, HealthBench-style scorer, grader prompt, LO-reviewed references, hand-graded gold set, and a first model run (provisional, LLM-judged)."],
-              ["Next", "Shaun's review of the judge labels, runs of additional models, and a side-by-side comparison here. The 1,000-question bank already has a first Codex vs Grok comparison on its own page."],
-              ["Limits", "The published eval is still 78 items — a smoke test. The headline scores are preliminary (one LLM judge, one answer per question) and are provisional pass rates on the benchmark. The 1,000-question bank is private and unpublished. US-federal, English-only, mostly single-turn. One expert reviewer so far; state law varies."],
+              ["Next", "Shaun's review of the judge labels, runs of additional models, and a side-by-side comparison here."],
+              ["Limits", "The published eval is still 78 items — a smoke test. A larger private question bank is used for vendor testing; its counts and scores are not published. US-federal, English-only, mostly single-turn. One expert reviewer so far; state law varies."],
             ].map(([t, d]) => (
               <div key={t}>
                 <h2 className="font-mono text-xs uppercase tracking-[0.16em] text-accent">{t}</h2>

@@ -7,7 +7,7 @@ import { MortgageEvalLaunchCta } from "@/components/MortgageEvalLaunchCta";
 import { mortgageEvalSite } from "@/content/siteLinks";
 
 const description =
-  "MortgageEval is a public site where anyone can test a mortgage AI against an open 78-question public benchmark. The site is built and launching soon.";
+  "MortgageEval is a public site where anyone can test a mortgage AI against an open-source 78-question mortgage benchmark. The site is built and launching soon.";
 
 export const metadata: Metadata = {
   title: "MortgageEval · Shaun Barry",
@@ -73,7 +73,7 @@ export default function MortgageEvalSitePage() {
                 MortgageEval
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-2 text-pretty">
-                A public site where anyone can test a mortgage AI against an open 78-question public benchmark.
+                A public site where anyone can test a mortgage AI against an open-source 78-question mortgage benchmark.
                 Answers are checked against a licensed loan officer&apos;s answer key. The site is built, in a Prussian
                 Night and Coral design, and is not live yet.
               </p>
@@ -88,7 +88,7 @@ export default function MortgageEvalSitePage() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 lg:col-span-4">
-              <Stat n="78" label="questions on the public benchmark" />
+              <Stat n="78" label="questions on the open-source mortgage benchmark" />
               <Stat n="12" label="models being tested" />
               <Stat n="No-gate PDF" label="results you can download without signing up" />
               <Stat n={mortgageEvalSite.status} label="built, not yet deployed" />
@@ -125,7 +125,7 @@ export default function MortgageEvalSitePage() {
                 ["Category weight toggle", "Visitors can change how much each scoring category counts."],
                 ["No-gate PDF results", "Download a results PDF without signing up."],
                 ["Licensed answer key", "Answers are checked against a licensed loan officer's answer key."],
-                ["Open 78-question public benchmark", "The public November 2026 benchmark, not a private question bank."],
+                ["Open-source 78-question mortgage benchmark", "The public November 2026 benchmark. A larger private question bank is used for vendor testing."],
               ].map(([t, d]) => (
                 <li key={t} className="rounded-2xl border border-line bg-white p-5">
                   <p className="font-medium tracking-tight text-ink">{t}</p>

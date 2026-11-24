@@ -238,7 +238,7 @@ export default function Home() {
                   </div>
                   <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">MortgageEval</h3>
                   <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                    Anyone can test a mortgage AI against an open 78-question public benchmark.
+                    Anyone can test a mortgage AI against an open-source 78-question mortgage benchmark.
                   </p>
                   <p className="mt-4 leading-relaxed text-ink-2">
                     The site leads with the test itself: paste an assistant&apos;s answer to a real borrower question and
@@ -323,7 +323,7 @@ export default function Home() {
                 <DemoVideo slug="clearestimate" seconds={31} title="ClearEstimate" className="mt-8 lg:mt-0" />
               </article>
 
-              {/* Mortgage Borrower Advice Eval + 1,000-question benchmark */}
+              {/* Mortgage Borrower Advice Eval */}
               <article className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9">
                 <div className="lg:grid lg:grid-cols-2 lg:gap-12">
                   <div>
@@ -332,7 +332,7 @@ export default function Home() {
                         <span className="size-1.5 rounded-full bg-accent-2" aria-hidden />
                         Open eval · v1.1
                       </span>
-                      <span className="font-mono text-[11px] text-muted">AI safety · 1,000-question benchmark</span>
+                      <span className="font-mono text-[11px] text-muted">AI safety · open-source 78-question mortgage benchmark</span>
                     </div>
                     <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">Mortgage Borrower Advice Eval</h3>
                     <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
@@ -381,22 +381,21 @@ export default function Home() {
                   <div>
                     <p className="inline-flex items-center gap-1.5 rounded-full bg-btc/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-2">
                       <span className="size-1.5 rounded-full bg-btc" aria-hidden />
-                      1,000-question benchmark · Preliminary
+                      Vendor testing · private question bank
                     </p>
                     <p className="mt-4 leading-relaxed text-ink-2">
-                      The open eval grew into a private 1,000-question bank across Loan Estimate and Closing Disclosure
-                      literacy, fees, escrow, down payments, wire and application fraud, fair lending, and more. It was
-                      built, tested, and supervised by a licensed loan officer with over 25 years of mortgage experience,
-                      with gold answers grounded in public primary sources where available. Provisional pass rates on the
-                      benchmark: Codex 80.3% and Grok 4.7 67.8%.
+                      Alongside the open-source 78-question mortgage benchmark, a larger private question bank is used
+                      for vendor testing. It was built, tested, and supervised by a licensed loan officer with over 25
+                      years of mortgage experience, and it covers Loan Estimate and Closing Disclosure literacy, fees,
+                      escrow, down payments, wire and application fraud, fair lending, and more. The private bank stays
+                      unpublished. Counts and scores from it are not listed here.
                     </p>
                     <div className="mt-5 rounded-2xl border border-line bg-paper/60 p-4 text-sm leading-relaxed text-ink-2">
                       <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-muted">Method and limits</p>
                       <ul className="mt-2 list-disc space-y-1 pl-4">
-                        <li>Provisional pass rates on the benchmark, with 95% confidence intervals. The 1,000-question bank is private and unpublished.</li>
-                        <li>Every answer was graded by an LLM judge, gpt-6.1-sol. Codex also runs on gpt-6.1-sol, so the comparison is not independent, and the results are preliminary.</li>
-                        <li>Scores reflect the LLM judge&apos;s grades, not a human review of each answer.</li>
-                        <li>The question bank stays private; the repository is available on request.</li>
+                        <li>The open-source 78-question mortgage benchmark is public. The larger private question bank is used for vendor testing and stays unpublished.</li>
+                        <li>Vendor-testing runs are supervised by a licensed loan officer. Details of those runs are available on request, not published here.</li>
+                        <li>The private bank stays private; the repository is available on request.</li>
                       </ul>
                     </div>
                     <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -404,18 +403,15 @@ export default function Home() {
                         href="/mortgage-ai-eval"
                         className="group/cta inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2.5 text-sm font-medium transition-colors hover:border-ink/40"
                       >
-                        See results and method
+                        See the method
                         <span aria-hidden className="transition-transform group-hover/cta:translate-x-0.5">→</span>
                       </Link>
                     </div>
                   </div>
                   <ul className="mt-8 grid grid-cols-2 gap-3 lg:mt-0">
                     {[
-                      ["80.3%", "Codex provisional pass rate on the benchmark (95% CI 77.5–82.9)"],
-                      ["67.8%", "Grok 4.7 provisional pass rate on the benchmark (95% CI 64.5–70.9)"],
-                      ["71.8% vs 59.9%", "safe handling of unsafe questions, Codex vs Grok"],
-                      ["0 vs 1", "harmful answers, Codex vs Grok"],
-                      ["31 vs 126", "material errors, Codex vs Grok"],
+                      ["Public", "open-source 78-question mortgage benchmark"],
+                      ["Private bank", "used for vendor testing; counts and scores are not published"],
                     ].map(([n, d]) => (
                       <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
                         <p className="font-serif text-2xl leading-none sm:text-3xl">{n}</p>

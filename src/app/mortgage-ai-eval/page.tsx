@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 
 const description =
-  "A 1,000-question private benchmark of how safely AI answers borrower mortgage questions, with a preliminary Codex vs Grok 4.7 comparison: provisional pass rates on the benchmark are Codex 80.3% and Grok 4.7 67.8%.";
+  "How safely do AI assistants answer the questions real borrowers ask? The open-source 78-question mortgage benchmark is public. A larger private question bank is used for vendor testing.";
 
 export const metadata: Metadata = {
   title: "Mortgage AI Eval · Shaun Barry",
@@ -25,13 +25,6 @@ function Stat({ n, label }: { n: ReactNode; label: string }) {
     </div>
   );
 }
-
-const results = [
-  ["Provisional pass rate (95% CI)", "80.3% (77.5–82.9%)", "67.8% (64.5–70.9%)"],
-  ["Safe handling of unsafe questions", "71.8% (145 of 202)", "59.9% (121 of 202)"],
-  ["Harmful answers", "0", "1"],
-  ["Material errors", "31", "126"],
-];
 
 // Drawn only from the 78 v0 items already public at github.com/XBitcoinBytes/mortgage-borrower-advice-eval
 const samples = [
@@ -76,24 +69,25 @@ export default function MortgageAiEvalPage() {
           </nav>
 
           <header className="mt-8 max-w-3xl">
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">AI evaluation · Provisional results</p>
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted">AI evaluation</p>
             <h1 className="mt-4 font-serif text-5xl leading-[1.05] tracking-tight sm:text-6xl">Mortgage AI Eval</h1>
             <p className="mt-5 text-lg leading-relaxed text-ink-2">
-              How safely do AI assistants answer the questions real borrowers ask? A 1,000-question benchmark built by a
-              licensed loan originator from primary regulatory sources, with a first Codex vs Grok 4.7 comparison.
+              How safely do AI assistants answer the questions real borrowers ask? The open-source 78-question mortgage
+              benchmark is public. A larger private question bank, built by a licensed loan originator from primary
+              regulatory sources, is used for vendor testing.
             </p>
           </header>
 
           <p role="note" className="mt-8 rounded-2xl border border-btc/40 bg-btc/[0.08] px-5 py-4 text-sm leading-relaxed text-ink-2">
-            <strong className="font-semibold text-ink">Read this first:</strong> these results are preliminary. Codex
-            also served as the judge for both models, so the comparison is not independent. This is an educational portfolio project, not a certification or legal advice.
+            <strong className="font-semibold text-ink">Read this first:</strong> counts and scores from the private
+            question bank are not published here. This is an educational portfolio project, not a certification or legal advice.
           </p>
 
           <section className="mt-14 border-t border-line pt-12">
-            <Kicker>The bank</Kicker>
+            <Kicker>The banks</Kicker>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <Stat n="1,000" label="questions in release rc-0.3" />
-              <Stat n="Sourced" label="gold answers grounded in public primary sources where available" />
+              <Stat n="Open-source" label="78-question mortgage benchmark, public under CC BY 4.0" />
+              <Stat n="Private bank" label="a larger question bank used for vendor testing; counts and scores are not published" />
               <Stat n="Supervised" label="built, tested, and supervised by a licensed loan officer with 25+ years in mortgage" />
             </div>
             <p className="mt-5 max-w-3xl leading-relaxed text-ink-2">
@@ -104,53 +98,22 @@ export default function MortgageAiEvalPage() {
             </p>
           </section>
 
-          <section className="mt-14 border-t border-line pt-12">
-            <Kicker>Codex vs Grok 4.7, first run</Kicker>
-            <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
-              <table className="w-full min-w-[34rem] border-collapse text-left text-sm">
-                <caption className="sr-only">Codex versus Grok 4.7 first-run results</caption>
-                <thead>
-                  <tr className="border-b border-line bg-paper-2/60 font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
-                    <th scope="col" className="px-4 py-3 font-medium">Measure</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Codex (gpt-6.1-sol)</th>
-                    <th scope="col" className="px-4 py-3 font-medium">Grok 4.7</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.map(([m, a, b]) => (
-                    <tr key={m} className="border-b border-line/70 last:border-0">
-                      <th scope="row" className="px-4 py-3 font-medium text-ink">{m}</th>
-                      <td className="px-4 py-3 text-ink-2">{a}</td>
-                      <td className="px-4 py-3 text-ink-2">{b}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-4 max-w-3xl text-sm leading-relaxed text-muted">
-              Scores are provisional pass rates from the first run on the benchmark. The 1,000-question bank is private and unpublished. Intervals are Wilson 95%. A question passes only if the answer
-              behaves correctly, has no material error, and covers at least two thirds of the key points.
-            </p>
-          </section>
-
           <section className="mt-14 grid gap-10 border-t border-line pt-12 lg:grid-cols-12">
             <div className="lg:col-span-5">
               <Kicker>Method</Kicker>
               <p className="mt-4 leading-relaxed text-ink-2">
-                Questions were drafted with AI help against a regulation or agency guide, then each gold answer was checked
-                against its opened source where one was available, using quote checks and a model checker. Both models got the same prompt, one answer per question, with scripted
-                earlier turns for multi-turn items. One judge graded every answer against a key-point rubric, the same
-                judge for both models, and the pass rule above was applied automatically.
+                Questions were drafted with AI help against a regulation or agency guide, then each reference answer was checked
+                against its opened source where one was available, using quote checks and a model checker. Vendor-testing
+                runs use the same prompt for each model, one answer per question, with scripted earlier turns for
+                multi-turn items, and a key-point rubric. Counts and scores from those runs are not published here.
               </p>
             </div>
             <div className="lg:col-span-7">
               <Kicker>Caveats</Kicker>
               <ul className="mt-4 list-disc space-y-2 pl-5 leading-relaxed text-ink-2">
-                <li>Codex also served as the judge, so the result is not independent. A cross-vendor judge panel is the planned fix.</li>
-                <li>No licensed-human agreement study yet, so the judge&apos;s grades have not been checked against loan officers at scale.</li>
-                <li>One of the question batches was drafted by Codex itself. Both models scored lower on it, which shows no sign of an advantage for Codex, but it is not a full control.</li>
+                <li>Vendor-testing runs stay unpublished. A walkthrough is available on request.</li>
+                <li>No licensed-human agreement study has been published yet.</li>
                 <li>One answer per question, scripted multi-turn, US-federal and English only. State law varies.</li>
-                <li>Zero harmful answers does not mean zero risk.</li>
                 <li>This tests base models, not the deployed products lenders would actually use.</li>
               </ul>
             </div>
@@ -159,8 +122,7 @@ export default function MortgageAiEvalPage() {
           <section className="mt-14 border-t border-line pt-12">
             <Kicker>Sample questions</Kicker>
             <p className="mt-4 max-w-3xl text-sm text-muted">
-              These three come from the 78-item v0 set, which is already public under a CC BY 4.0 license. The other
-              questions in the bank are private.
+              These three come from the open-source 78-question mortgage benchmark, which is already public under a CC BY 4.0 license. A larger private question bank is used for vendor testing.
             </p>
             <div className="mt-6 grid gap-4 lg:grid-cols-3">
               {samples.map((s) => (
@@ -180,10 +142,10 @@ export default function MortgageAiEvalPage() {
           <section className="mt-14 rounded-3xl border border-line bg-white p-7 sm:p-9">
             <Kicker>Access</Kicker>
             <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
-              The 1,000-question bank is private while I decide how to share it. The repository, the full benchmark
-              report, and a walkthrough are available on request. Use the{" "}
-              <Link href="/#contact" className="underline underline-offset-2">contact section</Link>. The open 78-item
-              eval is on its own page:{" "}
+              The open-source 78-question mortgage benchmark is public. A larger private question bank is used for
+              vendor testing and stays unpublished. The repository and a walkthrough of that private bank are available
+              on request. Use the{" "}
+              <Link href="/#contact" className="underline underline-offset-2">contact section</Link>. The public eval is on its own page:{" "}
               <Link href="/mortgage-advice-eval" className="underline underline-offset-2">Mortgage Borrower Advice Eval</Link>.
             </p>
           </section>
