@@ -7,7 +7,7 @@ import { MortgageEvalLaunchCta } from "@/components/MortgageEvalLaunchCta";
 import { mortgageEvalSite } from "@/content/siteLinks";
 
 const description =
-  "MortgageEval is a public site where anyone can test a mortgage AI against an open-source 78-question mortgage benchmark. The site is built and launching soon.";
+  "MortgageEval is a public site where anyone can test a mortgage AI against an open-source 78-question mortgage benchmark. The site is live at https://mortgageeval.com.";
 
 export const metadata: Metadata = {
   title: "MortgageEval · Shaun Barry",
@@ -70,12 +70,22 @@ export default function MortgageEvalSitePage() {
                 <span className="font-mono text-[11px] text-muted">Public benchmark site · November 2026</span>
               </div>
               <h1 className="mt-5 font-serif text-[clamp(2.4rem,5.6vw,4.5rem)] leading-[0.98] tracking-[-0.02em] text-balance">
-                MortgageEval
+                {mortgageEvalSite.href ? (
+                  <a
+                    href={mortgageEvalSite.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    MortgageEval
+                  </a>
+                ) : (
+                  "MortgageEval"
+                )}
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-2 text-pretty">
                 A public site where anyone can test a mortgage AI against an open-source 78-question mortgage benchmark.
                 Answers are checked against a licensed loan officer&apos;s answer key. The site is built, in a Prussian
-                Night and Coral design, and is not live yet.
+                Night and Coral design, and is live at MortgageEval.com.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <MortgageEvalLaunchCta />
@@ -91,7 +101,7 @@ export default function MortgageEvalSitePage() {
               <Stat n="78" label="questions on the open-source mortgage benchmark" />
               <Stat n="12" label="models being tested" />
               <Stat n="No-gate PDF" label="results you can download without signing up" />
-              <Stat n={mortgageEvalSite.status} label="built, not yet deployed" />
+              <Stat n={mortgageEvalSite.status} label="at mortgageeval.com" />
             </div>
           </div>
 
@@ -166,7 +176,7 @@ export default function MortgageEvalSitePage() {
           <section className="mt-16 rounded-3xl border border-line bg-white p-7 sm:p-9">
             <Kicker>Status</Kicker>
             <p className="mt-4 max-w-3xl leading-relaxed text-ink-2">
-              The website is built and has not been deployed. {mortgageEvalSite.label} will go live after review.
+              {mortgageEvalSite.label} is live at{" "}{mortgageEvalSite.href ?? "https://mortgageeval.com"}.
               Related work already on this portfolio: the{" "}
               <Link href="/mortgage-advice-eval" className="underline underline-offset-2">
                 Mortgage Borrower Advice Eval

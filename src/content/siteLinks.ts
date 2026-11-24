@@ -1,16 +1,14 @@
 /**
  * Public URL for MortgageEval.com.
  *
- * Keep MORTGAGEEVAL_SITE_URL null until the site is deployed. The portfolio
- * then shows a "Launching soon" / "Coming soon" placeholder and never renders
- * a clickable dead link. After deploy, set this to the live URL (for example
- * "https://mortgageeval.com") and the same CTA becomes a live link everywhere
- * it is used.
+ * Live production URL. The CTA renders as a live "Open MortgageEval.com" link
+ * when this is set. If it is ever unset, the portfolio shows a "Launching soon"
+ * placeholder instead of a dead link.
  */
-export const MORTGAGEEVAL_SITE_URL: string | null = null;
+export const MORTGAGEEVAL_SITE_URL: string | null = "https://mortgageeval.com";
 
 export const mortgageEvalSite = {
   href: MORTGAGEEVAL_SITE_URL,
   label: "MortgageEval.com",
-  status: "Launching soon",
+  status: "Live",
 };

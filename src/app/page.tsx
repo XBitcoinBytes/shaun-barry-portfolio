@@ -5,6 +5,7 @@ import { Arrow, DemoVideo, SectionHeader, ToConfirm } from "@/components/ui";
 import { DemoVideoLang } from "@/components/DemoVideoLang";
 import { CertList } from "@/components/CertList";
 import { MortgageEvalLaunchCta } from "@/components/MortgageEvalLaunchCta";
+import { mortgageEvalSite } from "@/content/siteLinks";
 import { certificationGroups, certificationsLinkedIn, credentials, experience, profile, skills } from "@/content/profile";
 
 const principles = [
@@ -62,7 +63,20 @@ export default function Home() {
                 style={{ ["--d" as string]: "160ms" }}
               >
                 I use AI tools to build tools for real mortgage problems, drawing on 25+ years in home lending
-                (1,400+ loans and $400M+ closed at AmeriSave alone). My builds include MortgageEval, ClearEstimate,
+                (1,400+ loans and $400M+ closed at AmeriSave alone). My builds include{" "}
+                {mortgageEvalSite.href ? (
+                  <a
+                    href={mortgageEvalSite.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2"
+                  >
+                    MortgageEval
+                  </a>
+                ) : (
+                  "MortgageEval"
+                )}
+                , ClearEstimate,
                 a mortgage borrower-advice eval, and a bilingual compliance glossary. I&apos;m currently licensed in
                 36 states plus DC (NMLS #30170).
               </p>
@@ -223,7 +237,7 @@ export default function Home() {
               index="03"
               kicker="Projects"
               title="Tools for a clearer mortgage."
-              intro="Four featured builds first: MortgageEval, a public site for testing mortgage AI (launching soon); ClearEstimate, a TRID compliance checker; the Mortgage Borrower Advice Eval; and a bilingual compliance glossary. More builds follow below. Each starts from a real pain point I’ve seen up close."
+              intro="Four featured builds first: MortgageEval, a public site for testing mortgage AI, live at MortgageEval.com; ClearEstimate, a TRID compliance checker; the Mortgage Borrower Advice Eval; and a bilingual compliance glossary. More builds follow below. Each starts from a real pain point I’ve seen up close."
             />
 
             <div className="mt-16 grid gap-6">
@@ -232,11 +246,23 @@ export default function Home() {
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                      Launching soon
+                      Live
                     </span>
                     <span className="font-mono text-[11px] text-muted">Public benchmark site · Prussian Night and Coral</span>
                   </div>
-                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">MortgageEval</h3>
+                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">
+                    {mortgageEvalSite.href ? (
+                      <a
+                        href={mortgageEvalSite.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        MortgageEval
+                      </a>
+                    ) : (
+                      "MortgageEval"
+                    )}
+                  </h3>
                   <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
                     Anyone can test a mortgage AI against an open-source 78-question mortgage benchmark.
                   </p>
@@ -247,9 +273,24 @@ export default function Home() {
                     account required. The design uses Prussian Night and Coral on a charcoal base, with electric blue
                     for scores.
                   </p>
-                  <p className="mt-4 text-sm text-muted">
-                    Built, not yet live. The public URL will appear here once the site is deployed.
-                  </p>
+                  {mortgageEvalSite.href ? (
+                    <p className="mt-4 text-sm text-muted">
+                      Live at{" "}
+                      <a
+                        href={mortgageEvalSite.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline underline-offset-2"
+                      >
+                        MortgageEval.com
+                      </a>
+                      .
+                    </p>
+                  ) : (
+                    <p className="mt-4 text-sm text-muted">
+                      Built, not yet live. The public URL will appear here once the site is deployed.
+                    </p>
+                  )}
                   <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the public test, the leaderboard and the scoring display, directed AI coding assistants to build the site, and reviewed the results against the licensed answer key.</p>
                   <div className="mt-7 flex flex-wrap items-center gap-3">
                     <MortgageEvalLaunchCta />
@@ -267,7 +308,7 @@ export default function Home() {
                     ["78", "questions on the public benchmark"],
                     ["12", "models being tested"],
                     ["No-gate PDF", "results without signing up"],
-                    ["Launching soon", "built, not yet deployed"],
+                    ["Live", "at mortgageeval.com"],
                   ].map(([n, d]) => (
                     <li key={d} className="rounded-2xl border border-line/80 bg-paper/60 p-4">
                       <p className="font-serif text-2xl leading-none sm:text-3xl">{n}</p>
