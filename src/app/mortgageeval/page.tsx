@@ -187,7 +187,7 @@ export default function MortgageEvalSitePage() {
               </Link>
               , and the{" "}
               <a
-                href="https://mortgage-glossary.vercel.app"
+                href="https://mortgagecomplianceglossary.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline underline-offset-2"

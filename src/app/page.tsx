@@ -489,7 +489,7 @@ export default function Home() {
                   <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the plain-English-first entry format and the Borrower / Professional views, directed AI tools to draft and build the entries, and checked terms against public regulatory sources.</p>
                   <div className="mt-6 flex flex-wrap items-center gap-3">
                     <a
-                      href="https://mortgage-glossary.vercel.app"
+                      href="https://mortgagecomplianceglossary.com"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
