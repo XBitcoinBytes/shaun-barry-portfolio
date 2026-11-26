@@ -5,7 +5,7 @@ import { Arrow, DemoVideo, SectionHeader, ToConfirm } from "@/components/ui";
 import { DemoVideoLang } from "@/components/DemoVideoLang";
 import { CertList } from "@/components/CertList";
 import { MortgageEvalLaunchCta } from "@/components/MortgageEvalLaunchCta";
-import { mortgageEvalSite } from "@/content/siteLinks";
+import { loanEstimateCheckSite, mortgageEvalSite } from "@/content/siteLinks";
 import { certificationGroups, certificationsLinkedIn, credentials, experience, profile, skills } from "@/content/profile";
 
 const principles = [
@@ -76,8 +76,16 @@ export default function Home() {
                 ) : (
                   "MortgageEval"
                 )}
-                , ClearEstimate,
-                a mortgage borrower-advice eval, and a bilingual compliance glossary. I&apos;m currently licensed in
+                ,{" "}
+                <a
+                  href={loanEstimateCheckSite.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2"
+                >
+                  Loan Estimate Check
+                </a>
+                , a mortgage borrower-advice eval, and a bilingual compliance glossary. I&apos;m currently licensed in
                 36 states plus DC (NMLS #30170).
               </p>
               <p
@@ -237,7 +245,7 @@ export default function Home() {
               index="03"
               kicker="Projects"
               title="Tools for a clearer mortgage."
-              intro="Four featured builds first: MortgageEval, a public site for testing mortgage AI, live at MortgageEval.com; ClearEstimate, a TRID compliance checker; the Mortgage Borrower Advice Eval; and a bilingual compliance glossary. More builds follow below. Each starts from a real pain point I’ve seen up close."
+              intro="Four featured builds first: MortgageEval, a public site for testing mortgage AI, live at MortgageEval.com; Loan Estimate Check, a TRID checker live at loanestimatecheck.com; the Mortgage Borrower Advice Eval; and a bilingual compliance glossary. More builds follow below. Each starts from a real pain point I’ve seen up close."
             />
 
             <div className="mt-16 grid gap-6">
@@ -318,34 +326,41 @@ export default function Home() {
                 </ul>
               </article>
 
-              {/* ClearEstimate */}
+              {/* Loan Estimate Check — public product; id kept for existing #clearestimate links */}
               <article id="clearestimate" className="reveal group flex flex-col rounded-3xl border border-line bg-white p-7 sm:p-9 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12">
                 <div>
                   <div className="flex flex-wrap items-center gap-3">
                     <span className="rounded-full bg-accent-soft px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-accent">
-                      In development
+                      Live
                     </span>
-                    <span className="font-mono text-[11px] text-muted">Compliance tool · Synthetic data</span>
+                    <span className="font-mono text-[11px] text-muted">Compliance tool · loanestimatecheck.com</span>
                   </div>
-                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">ClearEstimate</h3>
+                  <h3 className="mt-6 font-serif text-4xl leading-tight tracking-tight">
+                    <a
+                      href={loanEstimateCheckSite.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Loan Estimate Check
+                    </a>
+                  </h3>
                   <p className="mt-2 text-[17px] font-medium leading-snug text-ink">
-                    Reads a Loan Estimate or Closing Disclosure the way a lender does.
+                    Check a Loan Estimate for errors, negotiable fees, and a plan for your loan officer.
                   </p>
                   <p className="mt-4 leading-relaxed text-ink-2">
-                    Upload the PDF and ClearEstimate extracts every fee, explains it in plain English, runs a TRID
-                    compliance scan with the regulation cited on each finding, and tests fee tolerances against the
-                    earlier Loan Estimate, so a cure shows up before closing instead of in an audit.
+                    Upload the PDF your lender sent. The check runs in your browser — the file is not uploaded to our
+                    servers — and flags TRID problems with the specific rule cited, fees you can negotiate, and a
+                    printable plan covering insurance, taxes, and title. Quietly powered by the ClearEstimate engine.
                   </p>
                   <p className="mt-4 leading-relaxed text-ink-2">
-                    It is measured on 200 synthetic Loan Estimates and Closing Disclosures, each with an answer key,
-                    including signature-detection pages that show a signature present or missing. A 10-step
-                    improvement loop follows two rules: every change must be a strict improvement (the never-worse
-                    rule), and the loop stops once the tool is at or near 100% on all metrics (the stop-at-perfection
-                    rule).
+                    The engine is measured on 200 synthetic Loan Estimates and Closing Disclosures, each with an
+                    answer key. On that set it caught 59 of 59 planted TRID problems, with zero false alarms on the
+                    160 valid documents, and matched fees and key fields at 100%. Scanned or photographed documents
+                    may need manual review.
                   </p>
                   <ul className="mt-6 grid grid-cols-2 gap-3">
                     {[
-                      ["53 / 59", "seeded violations caught after improvement #2 (89.8%)"],
+                      ["59 / 59", "seeded violations caught on the synthetic-200 set"],
                       ["8 / 8", "signature checks"],
                       ["100%", "fees and key fields"],
                       ["0", "false findings on 160 valid documents"],
@@ -356,12 +371,19 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <p className="mt-4 text-sm text-muted">
-                    Not public yet. The demo uses synthetic sample documents only.
-                  </p>
                   <p className="mt-4 max-w-3xl text-sm leading-relaxed text-ink-2"><span className="mr-2 font-mono text-[10px] uppercase tracking-[0.16em] text-accent">My role</span>I designed the fee-extraction, TRID scan, tolerance rules and the never-worse / stop-at-perfection improvement loop, directed AI coding assistants to build them, and tested the results against 200 synthetic Loan Estimates and Closing Disclosures, including signature-detection pages.</p>
+                  <div className="mt-7 flex flex-wrap items-center gap-3">
+                    <a
+                      href={loanEstimateCheckSite.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/cta inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-paper transition-colors hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    >
+                      Open Loan Estimate Check <Arrow />
+                    </a>
+                  </div>
                 </div>
-                <DemoVideo slug="clearestimate" seconds={31} title="ClearEstimate" className="mt-8 lg:mt-0" />
+                <DemoVideo slug="clearestimate" seconds={31} title="Loan Estimate Check" className="mt-8 lg:mt-0" />
               </article>
 
               {/* Mortgage Borrower Advice Eval */}

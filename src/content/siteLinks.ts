@@ -12,3 +12,12 @@ export const mortgageEvalSite = {
   label: "MortgageEval.com",
   status: "Live",
 };
+
+/** Public URL for Loan Estimate Check (powered by the ClearEstimate engine). */
+export const LOAN_ESTIMATE_CHECK_URL = "https://loanestimatecheck.com";
+
+export const loanEstimateCheckSite = {
+  href: LOAN_ESTIMATE_CHECK_URL,
+  label: "Loan Estimate Check",
+  status: "Live",
+};

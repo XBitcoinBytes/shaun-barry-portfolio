@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Arrow } from "@/components/ui";
 import { MortgageEvalLaunchCta } from "@/components/MortgageEvalLaunchCta";
-import { mortgageEvalSite } from "@/content/siteLinks";
+import { loanEstimateCheckSite, mortgageEvalSite } from "@/content/siteLinks";
 
 const description =
   "MortgageEval is a public site where anyone can test a mortgage AI against an open-source 78-question mortgage benchmark. The site is live at https://mortgageeval.com.";
@@ -182,9 +182,14 @@ export default function MortgageEvalSitePage() {
                 Mortgage Borrower Advice Eval
               </Link>
               ,{" "}
-              <Link href="/#clearestimate" className="underline underline-offset-2">
-                ClearEstimate
-              </Link>
+              <a
+                href={loanEstimateCheckSite.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2"
+              >
+                Loan Estimate Check
+              </a>
               , and the{" "}
               <a
                 href="https://mortgagecomplianceglossary.com"
